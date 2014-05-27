@@ -32,8 +32,33 @@ void NextStep(const char *function, const char *fileName, int line);
 #define nextStep()  NextStep(__FUNCTION__, __FILE__, __LINE__)
 
 
+typedef struct FuncTraceInfo_t
+{
+	struct timeb EndTime;
+	int deep;
+	std::string up_string;
+	int undisplay_deep;
+} FuncTraceInfo_t;
+
 class CTimeCalc
 {
+private:
+	void calcStartMem();
+	void calcEndMem();
+	void InitMutex();
+	void DealFuncEnter();
+	void DealFuncExit();
+	FuncTraceInfo_t *GreatTraceInf();
+	FuncTraceInfo_t *GetTraceInf();
+public:
+	static void InsertTag(int line, char *file_name, const char* fmt, ...);
+	static void InsertTrace(int line, char *file_name, const char* fmt, ...);
+	static void DispTraces(int signo);
+	static void DispAll();
+	static void BackTrace();
+	static void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
+	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_type=1);
+	~CTimeCalc();
 private:
 	int m_Line;
 	std::string m_FileName;
@@ -48,18 +73,6 @@ private:
 	//用于记录内存情况
 	int m_startMem[64];
 	int m_endMem[64];
-
-	void calcStartMem();
-	void calcEndMem();
-public:
-	static void InsertTag(int line, char *file_name, const char* fmt, ...);
-	static void InsertTrace(int line, char *file_name, const char* fmt, ...);
-	static void DispTraces(int signo);
-	static void DispAll();
-	static void BackTrace();
-	static void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
-	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_type=1);
-	~CTimeCalc();
 };
 
 

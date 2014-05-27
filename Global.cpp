@@ -37,14 +37,6 @@
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
 
 
-typedef struct FuncTraceInfo_t
-{
-	struct timeb EndTime;
-	int deep;
-	std::string up_string;
-	int undisplay_deep;
-} FuncTraceInfo_t;
-
 pthread_mutex_t  *CTimeCalc::thread_map_mutex = NULL;
 
 //初始化为打开
@@ -52,7 +44,7 @@ int CTimeCalc::printf_key = 1;
 
 
 static std::map<pthread_t, FuncTraceInfo_t *> m_thread_map; 
-
+static pthread_mutex_t g_insMutex;
 /*****************************************************************************/
 /* FUNC:   int OpenLogFile (char *sLogFilePath, char *sLogName,              */
 /*                          int nLogSwitchMode, int nLogSize,                */
@@ -165,6 +157,14 @@ int Debug_print(char *sLogName, int nLogMode, char *sFmt, ...)
 
 	return 0;
 }
+void NextStep(const char *function, const char *fileName, int line)
+{
+	char s[80];
+	printf("%s  %s  %d\n", function, fileName, line);
+	fgets(s, sizeof(s), stdin);
+	return ;
+}
+void InsertTraceNull(int line, char *file_name, const char* fmt, ...){}
 
 void CTimeCalc::calcStartMem()
 {
@@ -222,46 +222,48 @@ void CTimeCalc::calcEndMem()
 	return ;
 }
 
+void CTimeCalc::InitMutex()
+{
+	if (NULL == thread_map_mutex)
+	{
+		pthread_mutex_lock(&g_insMutex);
+		if (NULL == thread_map_mutex)
+		{
+			thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+			pthread_mutex_init(thread_map_mutex, NULL);
+		}
+		pthread_mutex_unlock(&g_insMutex);
+	}
+}
+
 CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_type)
 {
-	//初始化部分
-	if (!thread_map_mutex)
-	{
-		thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-		pthread_mutex_init(thread_map_mutex, NULL);
-	}
-
+	InitMutex();
 	calcStartMem();
-	
-	pthread_t thread_id;
+
 	m_Line = line;
 	m_FileName = file_name;
 	m_FuncName = func_name;
 	m_DisplayType = display_type;
-	thread_id = pthread_self();
-
 	ftime(&m_StartTime);
 
-	pthread_mutex_lock(thread_map_mutex);
+	DealFuncEnter();
+}
+
+FuncTraceInfo_t * CTimeCalc::GreatTraceInf()
+{
+	pthread_t thread_id = pthread_self();
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
-	pthread_mutex_unlock(thread_map_mutex);
-	
 	FuncTraceInfo_t *TraceInfo = NULL;
-	pthread_mutex_lock(thread_map_mutex);
+
 	if(it != m_thread_map.end())//如果查找到
-	{	pthread_mutex_unlock(thread_map_mutex);
+	{
 		TraceInfo = it->second;
 	}
 	else  
-	{	pthread_mutex_unlock(thread_map_mutex);
+	{
 		TraceInfo = new FuncTraceInfo_t;
-		if (TraceInfo == NULL)
-		{
-			pthread_mutex_lock(thread_map_mutex);
-			Debug_print((char *)"Debug", 3, (char *)"%s","//ERRERRERRERRERRERRERRERR");
-			pthread_mutex_unlock(thread_map_mutex);
-			return;
-		}
+		assert(TraceInfo != NULL);
 
 		ftime(&TraceInfo->EndTime);
 		
@@ -274,24 +276,28 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_typ
 		}
 		std::pair<pthread_t, FuncTraceInfo_t *> thread_map_pair(thread_id, TraceInfo);
 
-		pthread_mutex_lock(thread_map_mutex);
 		m_thread_map.insert(thread_map_pair);
-		pthread_mutex_unlock(thread_map_mutex);
 	}
+	return TraceInfo;
+}
+
+
+
+void CTimeCalc::DealFuncEnter()
+{
+	pthread_mutex_lock(thread_map_mutex);
+
+	FuncTraceInfo_t *TraceInfo = GreatTraceInf();
 
 	char tmp[64];
-	//time_t timep;
-	//time(&timep);
 
 	char time_tmp[128];
 	strcpy(time_tmp, "wshy");
 	time_tmp[strlen(time_tmp)-1] = '\0';
 	
-	snprintf(tmp, sizeof(tmp), ":    %d    %d    %s", line, (int)pthread_self(), time_tmp);
+	snprintf(tmp, sizeof(tmp), ":    %d    %d    %s", m_Line, (int)pthread_self(), time_tmp);
 
 	//-------------------
-	//为删除日志所做的处理
-
 
 	if (m_DisplayType == 0)
 	{
@@ -307,11 +313,11 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_typ
 			TraceInfo->up_string += "    ";
 		}
 		TraceInfo->up_string += "//unDisplayTraces func:    ";
-		TraceInfo->up_string += func_name;
+		TraceInfo->up_string += m_FuncName;
 		TraceInfo->up_string += "()  ";
 
 		TraceInfo->up_string += tmp;
-		TraceInfo->up_string += file_name;
+		TraceInfo->up_string += m_FileName;
 		TraceInfo->up_string += "\n";
 
 		for (int i=0; i<TraceInfo->deep; ++i)
@@ -334,11 +340,11 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_typ
 		{
 			TraceInfo->up_string += "    ";
 		}
-		TraceInfo->up_string += func_name;
+		TraceInfo->up_string += m_FuncName;
 		TraceInfo->up_string += "()";
 
 		TraceInfo->up_string += tmp;
-		TraceInfo->up_string += file_name;
+		TraceInfo->up_string += m_FileName;
 
 		
 		TraceInfo->up_string += "\n";
@@ -358,31 +364,32 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_typ
 		
 		TraceInfo->deep++;
 	}
-
 }
 
-
-CTimeCalc::~CTimeCalc()
+FuncTraceInfo_t * CTimeCalc::GetTraceInf()
 {
-	calcEndMem();
-	//char tmp[512];
-	//EndTime = time(NULL);
-
 	pthread_t thread_id;
 	thread_id = pthread_self(); 
 
-	pthread_mutex_lock(thread_map_mutex);
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
+	if(it != m_thread_map.end())//如果查找到
+	{
+		return it->second;
+	}
+	return NULL;
+
+}
+
+void CTimeCalc::DealFuncExit()
+{
+	pthread_mutex_lock(thread_map_mutex);
+	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	pthread_mutex_unlock(thread_map_mutex);
 
-	
-	FuncTraceInfo_t *TraceInfo = NULL;
-
-	pthread_mutex_lock(thread_map_mutex);
-	if(it != m_thread_map.end())//如果查找到
-	{	pthread_mutex_unlock(thread_map_mutex);
-		TraceInfo = it->second;
-
+	if(TraceInfo)//如果查找到
+	{
+		pthread_t thread_id;
+		thread_id = pthread_self(); 
 		ftime(&TraceInfo->EndTime);
 		//-------------------
 		if (TraceInfo->deep < 1)
@@ -393,10 +400,8 @@ CTimeCalc::~CTimeCalc()
 			return;
 		}
 
-		
 		//-------------------
 		//为删除日志所做的处理
-		
 		if (m_DisplayType == 0)
 		{
 			if (TraceInfo->deep == 1)
@@ -445,7 +450,6 @@ CTimeCalc::~CTimeCalc()
 
 			char time_tmp[128];
 			strcpy(time_tmp, "wshy");
-			time_tmp[strlen(time_tmp)-1] = '\0';
 
 			struct timeb cur_time; 
 			ftime(&cur_time);
@@ -498,8 +502,14 @@ CTimeCalc::~CTimeCalc()
 	}
 
 }
+CTimeCalc::~CTimeCalc()
+{
+	calcEndMem();
+	//char tmp[512];
+	//EndTime = time(NULL);
 
-void InsertTraceNull(int line, char *file_name, const char* fmt, ...){}
+}
+
 void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 {
 	if (!thread_map_mutex)
@@ -807,14 +817,6 @@ void CTimeCalc::BackTrace()
 
 	CTimeCalc::InsertTrace(__LINE__, (char *)__FILE__, "%s", traceInf.c_str());
 #endif
-	return ;
-}
-
-void NextStep(const char *function, const char *fileName, int line)
-{
-	char s[80];
-	printf("%s  %s  %d\n", function, fileName, line);
-	fgets(s, sizeof(s), stdin);
 	return ;
 }
 
