@@ -44,7 +44,7 @@ int CTimeCalc::printf_key = 1;
 
 
 static std::map<pthread_t, FuncTraceInfo_t *> m_thread_map; 
-static pthread_mutex_t g_insMutex;
+
 /*****************************************************************************/
 /* FUNC:   int OpenLogFile (char *sLogFilePath, char *sLogName,              */
 /*                          int nLogSwitchMode, int nLogSize,                */
@@ -224,15 +224,11 @@ void CTimeCalc::calcEndMem()
 
 void CTimeCalc::InitMutex()
 {
-	if (NULL == thread_map_mutex)
+	//初始化部分
+	if (!thread_map_mutex)
 	{
-		pthread_mutex_lock(&g_insMutex);
-		if (NULL == thread_map_mutex)
-		{
-			thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-			pthread_mutex_init(thread_map_mutex, NULL);
-		}
-		pthread_mutex_unlock(&g_insMutex);
+		thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+		pthread_mutex_init(thread_map_mutex, NULL);
 	}
 }
 
@@ -288,6 +284,7 @@ void CTimeCalc::DealFuncEnter()
 	pthread_mutex_lock(thread_map_mutex);
 
 	FuncTraceInfo_t *TraceInfo = GreatTraceInf();
+	pthread_mutex_unlock(thread_map_mutex);
 
 	char tmp[64];
 
@@ -496,6 +493,7 @@ void CTimeCalc::DealFuncExit()
 	}
 	else
 	{
+		pthread_mutex_lock(thread_map_mutex);
 		Debug_print((char *)"Debug", 3, (char *)"%s","//ERRERRERRERRERRERRERRERR");
 		pthread_mutex_unlock(thread_map_mutex);
 		return;
@@ -505,9 +503,7 @@ void CTimeCalc::DealFuncExit()
 CTimeCalc::~CTimeCalc()
 {
 	calcEndMem();
-	//char tmp[512];
-	//EndTime = time(NULL);
-
+	DealFuncExit();
 }
 
 void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
