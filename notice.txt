@@ -1,0 +1,22 @@
+使用示例：
+1.首先make，生成libwrapmalloc.a库
+2.使用如下命令生成a.out,在TI8147平台上可以直接运行.
+arm-linux-uclibc-g++ main.cpp libwrapmalloc.a -Wl,-wrap,malloc -Wl,-wrap,realloc -Wl,-wrap,calloc -Wl,-wrap,free -static
+
+若要在Challenge中替换则直接增加libwrapmalloc.a库以及链接器W1 -wrap,malloc等参数
+
+解释：
+1.重载malloc，calloc，realloc，free四个内存申请函数，因为libc库内malloc和new最终都是调用malloc等函数，在此重载可以增加打印，打印出申请内存的大小、进程号和线程号
+
+2.-Wl告诉编译器将后面的选项传给链接器
+
+3.-wrap代表编译连接时首先查找使用__wrap_开始的函数
+
+
+原理：ld中有一个选项-wrap，当查找某个符号时，它优先解析__wrap_symbol,解析不到才去解析symbol。
+
+运用：
+1.可以使用写文件后者打印，直接看出内存申请情况。
+2.通过GDB设置断点，可以查看程序申请内存时的堆栈调用。
+
+对查找内存泄露有一定的帮助。
