@@ -45,11 +45,11 @@ class CTimeCalc
 private:
 	void calcStartMem();
 	void calcEndMem();
-	void InitMutex();
+	static void InitMutex();
 	void DealFuncEnter();
 	void DealFuncExit();
 	FuncTraceInfo_t *GreatTraceInf();
-	FuncTraceInfo_t *GetTraceInf();
+	static FuncTraceInfo_t *GetTraceInf();
 public:
 	static void InsertTag(int line, char *file_name, const char* fmt, ...);
 	static void InsertTrace(int line, char *file_name, const char* fmt, ...);

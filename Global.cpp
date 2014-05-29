@@ -282,7 +282,6 @@ FuncTraceInfo_t * CTimeCalc::GreatTraceInf()
 void CTimeCalc::DealFuncEnter()
 {
 	pthread_mutex_lock(thread_map_mutex);
-
 	FuncTraceInfo_t *TraceInfo = GreatTraceInf();
 	pthread_mutex_unlock(thread_map_mutex);
 
@@ -290,7 +289,6 @@ void CTimeCalc::DealFuncEnter()
 
 	char time_tmp[128];
 	strcpy(time_tmp, "wshy");
-	time_tmp[strlen(time_tmp)-1] = '\0';
 	
 	snprintf(tmp, sizeof(tmp), ":    %d    %d    %s", m_Line, (int)pthread_self(), time_tmp);
 
@@ -483,7 +481,6 @@ void CTimeCalc::DealFuncExit()
 				
 				pthread_mutex_lock(thread_map_mutex);
 				Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
-				
 				m_thread_map.erase(thread_id);
 				pthread_mutex_unlock(thread_map_mutex);
 				delete TraceInfo;
@@ -508,20 +505,13 @@ CTimeCalc::~CTimeCalc()
 
 void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 {
-	if (!thread_map_mutex)
-	{
-		thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-		pthread_mutex_init(thread_map_mutex, NULL);
-	}
+	InitMutex();
 	
 	va_list ap;
 	va_start(ap,fmt);
-	//time_t timep;
-	//time(&timep);
 
 	char time_tmp[128];
 	strcpy(time_tmp, "wshy");
-
 
 	struct timeb cur_time;
 	ftime(&cur_time);
@@ -530,21 +520,13 @@ void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 	vsnprintf(str,sizeof(str), fmt, ap);
 
 	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
-	
-	pthread_t thread_id;
-	thread_id = pthread_self(); 
 
 	pthread_mutex_lock(thread_map_mutex);
-	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
+	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	pthread_mutex_unlock(thread_map_mutex);
-	
-	FuncTraceInfo_t *TraceInfo = NULL;
 
-	pthread_mutex_lock(thread_map_mutex);
-	if(it != m_thread_map.end())//如果查找到
-	{	pthread_mutex_unlock(thread_map_mutex);
-	
-		TraceInfo = it->second;
+	if(TraceInfo)//如果查找到
+	{
 		//为删除日志所做的处理
 		if (TraceInfo->undisplay_deep)
 		{
@@ -564,6 +546,7 @@ void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 	}  
 	else
 	{
+		pthread_mutex_lock(thread_map_mutex);
 		Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
 		pthread_mutex_unlock(thread_map_mutex);
 	}
