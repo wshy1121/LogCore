@@ -37,7 +37,7 @@
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
 
 
-pthread_mutex_t  *CTimeCalc::thread_map_mutex = NULL;
+pthread_mutex_t  *CTimeCalc::m_thread_map_mutex = NULL;
 
 
 
@@ -221,10 +221,10 @@ void CTimeCalc::calcEndMem()
 void CTimeCalc::InitMutex()
 {
 	//初始化部分
-	if (!thread_map_mutex)
+	if (!m_thread_map_mutex)
 	{
-		thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-		pthread_mutex_init(thread_map_mutex, NULL);
+		m_thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+		pthread_mutex_init(m_thread_map_mutex, NULL);
 	}
 }
 
@@ -276,9 +276,9 @@ FuncTraceInfo_t * CTimeCalc::GreatTraceInf()
 
 void CTimeCalc::DealFuncEnter()
 {
-	pthread_mutex_lock(thread_map_mutex);
+	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GreatTraceInf();
-	pthread_mutex_unlock(thread_map_mutex);
+	pthread_mutex_unlock(m_thread_map_mutex);
 
 	char tmp[64];
 
@@ -372,9 +372,9 @@ FuncTraceInfo_t * CTimeCalc::GetTraceInf()
 
 void CTimeCalc::DealFuncExit()
 {
-	pthread_mutex_lock(thread_map_mutex);
+	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
-	pthread_mutex_unlock(thread_map_mutex);
+	pthread_mutex_unlock(m_thread_map_mutex);
 
 	if(TraceInfo)//如果查找到
 	{
@@ -384,9 +384,9 @@ void CTimeCalc::DealFuncExit()
 		//-------------------
 		if (TraceInfo->deep < 1)
 		{
-			pthread_mutex_lock(thread_map_mutex);
+			pthread_mutex_lock(m_thread_map_mutex);
 			Debug_print((char *)"Debug", 3, (char *)"%s","//ERRERRERRERRERRERRERRERR");
-			pthread_mutex_unlock(thread_map_mutex);
+			pthread_mutex_unlock(m_thread_map_mutex);
 			return;
 		}
 
@@ -412,10 +412,10 @@ void CTimeCalc::DealFuncExit()
 			
 			if (TraceInfo->deep == 1)
 			{
-				pthread_mutex_lock(thread_map_mutex);
+				pthread_mutex_lock(m_thread_map_mutex);
 				Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
 				m_thread_map.erase(thread_id);
-				pthread_mutex_unlock(thread_map_mutex);
+				pthread_mutex_unlock(m_thread_map_mutex);
 				delete TraceInfo;
 			}
 
@@ -456,10 +456,10 @@ void CTimeCalc::DealFuncExit()
 			if (TraceInfo->deep == 0)
 			{
 				
-				pthread_mutex_lock(thread_map_mutex);
+				pthread_mutex_lock(m_thread_map_mutex);
 				Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
 				m_thread_map.erase(thread_id);
-				pthread_mutex_unlock(thread_map_mutex);
+				pthread_mutex_unlock(m_thread_map_mutex);
 				delete TraceInfo;
 			}
 		}
@@ -467,9 +467,9 @@ void CTimeCalc::DealFuncExit()
 	}
 	else
 	{
-		pthread_mutex_lock(thread_map_mutex);
+		pthread_mutex_lock(m_thread_map_mutex);
 		Debug_print((char *)"Debug", 3, (char *)"%s","//ERRERRERRERRERRERRERRERR");
-		pthread_mutex_unlock(thread_map_mutex);
+		pthread_mutex_unlock(m_thread_map_mutex);
 		return;
 	}
 
@@ -497,9 +497,9 @@ void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 
 	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
-	pthread_mutex_lock(thread_map_mutex);
+	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
-	pthread_mutex_unlock(thread_map_mutex);
+	pthread_mutex_unlock(m_thread_map_mutex);
 
 	if(TraceInfo)//如果查找到
 	{
@@ -522,9 +522,9 @@ void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 	}  
 	else
 	{
-		pthread_mutex_lock(thread_map_mutex);
+		pthread_mutex_lock(m_thread_map_mutex);
 		Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
-		pthread_mutex_unlock(thread_map_mutex);
+		pthread_mutex_unlock(m_thread_map_mutex);
 	}
 
 	va_end(ap);      
@@ -535,14 +535,7 @@ void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 
 void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 {
-	if (!thread_map_mutex)
-	{
-		thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-		pthread_mutex_init(thread_map_mutex, NULL);
-	}
-
-	//time_t timep;
-	//time(&timep);
+	InitMutex();
 
 	char time_tmp[128];
 	strcpy(time_tmp, "wshy");
@@ -608,21 +601,13 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 
 
 	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
-	
-	pthread_t thread_id;
-	thread_id = pthread_self(); 
 
-	pthread_mutex_lock(thread_map_mutex);
-	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
-	pthread_mutex_unlock(thread_map_mutex);
+	pthread_mutex_lock(m_thread_map_mutex);	
+	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	pthread_mutex_unlock(m_thread_map_mutex);
 	
-	FuncTraceInfo_t *TraceInfo = NULL;
-
-	pthread_mutex_lock(thread_map_mutex);
-	if(it != m_thread_map.end())//如果查找到
-	{	pthread_mutex_unlock(thread_map_mutex);
-	
-		TraceInfo = it->second;
+	if(TraceInfo)//如果查找到
+	{	
 		//为删除日志所做的处理
 		if (TraceInfo->undisplay_deep)
 		{
@@ -642,8 +627,9 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 	}  
 	else
 	{
+		pthread_mutex_lock(m_thread_map_mutex);	
 		Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
-		pthread_mutex_unlock(thread_map_mutex);
+		pthread_mutex_unlock(m_thread_map_mutex);
 	}
  
 	return ;
@@ -653,11 +639,7 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 
 void CTimeCalc::InsertTag(int line, char *file_name, const char* fmt, ...)
 {
-	if (!thread_map_mutex)
-	{
-		thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-		pthread_mutex_init(thread_map_mutex, NULL);
-	}
+	InitMutex();
 	
 	va_list ap;
 	va_start(ap,fmt);
@@ -675,9 +657,9 @@ void CTimeCalc::InsertTag(int line, char *file_name, const char* fmt, ...)
 	vsnprintf(str,sizeof(str), fmt, ap);
 	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
-	pthread_mutex_lock(thread_map_mutex);
+	pthread_mutex_lock(m_thread_map_mutex);
 	Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
-	pthread_mutex_unlock(thread_map_mutex);
+	pthread_mutex_unlock(m_thread_map_mutex);
 
 	va_end(ap);
 	
@@ -686,16 +668,12 @@ void CTimeCalc::InsertTag(int line, char *file_name, const char* fmt, ...)
 
 void CTimeCalc::DispAll()
 {
-	if (!thread_map_mutex)
-	{
-		thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-		pthread_mutex_init(thread_map_mutex, NULL);
-	}
+	InitMutex();
 
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it;
 	FuncTraceInfo_t *TraceInfo = NULL;
 
-	pthread_mutex_lock(thread_map_mutex);
+	pthread_mutex_lock(m_thread_map_mutex);
 	Debug_print((char *)"Debug", 3, (char *)"%s", "#if 0");
        for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)
 	{
@@ -706,18 +684,14 @@ void CTimeCalc::DispAll()
 		}
 	}
 	Debug_print((char *)"Debug", 3, (char *)"%s", "#endif");
-	pthread_mutex_unlock(thread_map_mutex);
+	pthread_mutex_unlock(m_thread_map_mutex);
 	return ;
 }
 void CTimeCalc::DispTraces(int signo)
 {
-	if (!thread_map_mutex)
-	{
-		thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-		pthread_mutex_init(thread_map_mutex, NULL);
-	}
+	InitMutex();
 	
-	pthread_mutex_lock(thread_map_mutex);
+	pthread_mutex_lock(m_thread_map_mutex);
 	Debug_print((char *)"Debug", 3, (char *)"//%s    %d","Except    DispTraces", signo);
 	
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it;
@@ -747,7 +721,7 @@ void CTimeCalc::DispTraces(int signo)
 		Debug_print((char *)"Debug", 3, (char *)"%s  signo:%d    %s","//ERRERRERRERRERRERRERRERR", signo, signo_inf);
 		exit(0);
 	}
-	pthread_mutex_unlock(thread_map_mutex);
+	pthread_mutex_unlock(m_thread_map_mutex);
 	return ;
 }
 
