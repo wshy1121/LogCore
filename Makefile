@@ -5,8 +5,8 @@
 # arm-uclinux-elf-gcc version 3.4.3
 #
 ############################################################################
-#CROSS  = sh4-linux-uclibc-
-CROSS  = arm-none-linux-gnueabi-
+CROSS  = sh4-linux-uclibc-
+#CROSS  = arm-none-linux-gnueabi-
 
 
 CPP	=	@echo " g++ $@"; $(CROSS)g++
@@ -30,6 +30,7 @@ all	:	$(LIB_TARGET)
 $(LIB_TARGET): $(LIB_OBJS)
 	$(AR) $(AFLAGS) $@ $^
 	$(RANLIB) $@
+	g++ -o test Global.cpp main.cpp -lpthread
 
 .c.o:
 	$(CC) -c $(CFLAGS) $^ -o $@
@@ -43,4 +44,5 @@ clean:
 install:
 	cp $(LIB_TARGET) ../Libs/libwrapmalloc.a 
 
-					
+
+	

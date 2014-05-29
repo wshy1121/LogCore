@@ -67,7 +67,6 @@ private:
 
 	struct timeb m_StartTime;
 	static pthread_mutex_t  *thread_map_mutex;
-	static int printf_key;
 
 	
 	//用于记录内存情况

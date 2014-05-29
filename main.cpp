@@ -1,45 +1,47 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "Global.h"
 
 
+//测试CTimeCalc使用
 
-void calcMem(FILE *pFp)
-{
-	char buf[256];
-	char name[32];
-	char kb[8];
-	int startMem[16];
-	rewind(pFp);
-	for (int i=0;; ++i)
+void fun0(int count)
+{	time_trace();
+	if (count == 0)
 	{
-		memset(buf, 0, sizeof(buf));
-		char *ptr1 = fgets(buf, 256, pFp);
-		if (!ptr1)//说明数据已经读取完毕
-		{
-			break;
-		}
-		
-		char *ptr2 = strpbrk(ptr1, " ");	
-		int num = 0;
-		num = atoi(ptr2);
-		printf("num  %d\n", num);
+		return ;
 	}
-	
-	return ;
+	time_printf("1234");
+	--count;
+	fun0(count);
+}
+
+
+void* test1(void *pArg)
+{	
+	while (1)
+	{
+		time_trace();
+		usleep(1000);
+		fun0(100);
+	}
+	return NULL;
 }
 
 int main()
 {
-	FILE *memFp = fopen("/proc/meminfo", "rb");
-	if (!memFp)
+	pthread_t thread_id[10];
+	
+	for (int i=0; i<10; ++i)
 	{
-		return -1;
+		pthread_create(&thread_id[i], NULL,test1,NULL);
 	}
 
-	calcMem(memFp);
-
-	fclose(memFp);
+	for (int i=0; i<10; ++i)
+	{
+		pthread_join(thread_id[i], NULL);
+	}
 	return 0;
 }
 

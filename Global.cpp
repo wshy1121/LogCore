@@ -39,8 +39,6 @@
 
 pthread_mutex_t  *CTimeCalc::thread_map_mutex = NULL;
 
-//初始化为打开
-int CTimeCalc::printf_key = 1;
 
 
 static std::map<pthread_t, FuncTraceInfo_t *> m_thread_map; 
@@ -164,8 +162,6 @@ void NextStep(const char *function, const char *fileName, int line)
 	fgets(s, sizeof(s), stdin);
 	return ;
 }
-void InsertTraceNull(int line, char *file_name, const char* fmt, ...){}
-
 void CTimeCalc::calcStartMem()
 {
 	FILE *fp = fopen("/proc/buddyinfo", "rb");
@@ -235,7 +231,6 @@ void CTimeCalc::InitMutex()
 CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_type)
 {
 	InitMutex();
-	calcStartMem();
 
 	m_Line = line;
 	m_FileName = file_name;
@@ -288,9 +283,9 @@ void CTimeCalc::DealFuncEnter()
 	char tmp[64];
 
 	char time_tmp[128];
-	strcpy(time_tmp, "wshy");
+	strcpy(time_tmp, "wshy ");
 	
-	snprintf(tmp, sizeof(tmp), ":    %d    %d    %s", m_Line, (int)pthread_self(), time_tmp);
+	snprintf(tmp, sizeof(tmp), ":  %d  thread id:  %d  %s", m_Line, (int)pthread_self(), time_tmp);
 
 	//-------------------
 
@@ -451,14 +446,7 @@ void CTimeCalc::DealFuncExit()
 
 			snprintf(tmp, sizeof(tmp), "        //func  cost second: %ld  %d  %ld  %d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName.c_str(), time_tmp);
 
-			char memInf[512];
-			memset(memInf, 0, sizeof(memInf));
-			for (int i=0; i<12; ++i)
-			{
-				snprintf(memInf+strlen(memInf), sizeof(memInf)-strlen(memInf), "%d  ", m_startMem[i]-m_endMem[i]);
-			}
 			TraceInfo->up_string += tmp;			
-			TraceInfo->up_string += memInf;
 
 			TraceInfo->up_string += "\n";
 			//-------------------
@@ -467,17 +455,6 @@ void CTimeCalc::DealFuncExit()
 
 			if (TraceInfo->deep == 0)
 			{
-				TraceInfo->up_string += "//memInf  ";
-				TraceInfo->up_string += m_FuncName;
-				
-				for (int i=0; i<12; ++i)
-				{
-					snprintf(memInf+strlen(memInf), sizeof(memInf)-strlen(memInf), "%d  ", m_startMem[i]-m_endMem[i]);
-				}
-
-				
-				TraceInfo->up_string += memInf;
-
 				
 				pthread_mutex_lock(thread_map_mutex);
 				Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
@@ -499,7 +476,6 @@ void CTimeCalc::DealFuncExit()
 }
 CTimeCalc::~CTimeCalc()
 {
-	calcEndMem();
 	DealFuncExit();
 }
 
