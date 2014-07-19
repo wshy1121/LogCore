@@ -76,8 +76,7 @@ private:
 
 
 
-#define CTIME_CALC
-#ifdef CTIME_CALC
+#if !defined(NO_CTIME_CALC)
 #define time_untrace()  CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, 0)
 #define time_trace()  CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__)
 #define time_printf(format, ...)    CTimeCalc::InsertTrace(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
