@@ -50,6 +50,7 @@ private:
 	FuncTraceInfo_t *GreatTraceInf();
 	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
 	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
+	static void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
 	static FuncTraceInfo_t *GetTraceInf();
 
 public:

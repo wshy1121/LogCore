@@ -124,7 +124,7 @@ int Debug_print(char *sLogName, int nLogMode, char *sFmt, ...)
 	}
 	/* open log file */ 
 
-	fp = OpenLogFile ((char *)".", sLogName, 1, 10, (char *)"log", nLogMode);
+	fp = OpenLogFile ((char *)".", sLogName, 1, 10, (char *)"cpp", nLogMode);
 	if (fp == NULL)
 		return (-1);
 
@@ -331,8 +331,6 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 	
 	TraceInfo->up_string += "}";
 	char tmp[128];
-	//time_t timep;
-	//time(&timep);
 
 
 	char time_tmp[128];
@@ -346,6 +344,28 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 	TraceInfo->up_string += tmp;			
 
 	TraceInfo->up_string += "\n";
+	return ;
+}
+
+void CTimeCalc::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr)
+{
+	struct timeb cur_time;
+	ftime(&cur_time);
+
+	char tmp[128];
+	snprintf(tmp, sizeof(tmp), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
+
+	//-------------------
+	for (int i=0; i<TraceInfo->deep; ++i)
+	{
+		TraceInfo->up_string += "    ";
+	}
+	TraceInfo->up_string += "/*tag:";
+
+	TraceInfo->up_string += pStr;
+	TraceInfo->up_string += tmp;
+	TraceInfo->up_string += "*/\n";
+
 	return ;
 }
 
@@ -383,9 +403,6 @@ void CTimeCalc::DealFuncExit()
 			return;
 		}
 
-		//-------------------
-		//为删除日志所做的处理
-
 		insertExitInfo(TraceInfo);;
 
 		TraceInfo->deep--;
@@ -419,37 +436,19 @@ void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 {
 	InitMutex();
 	
-	va_list ap;
-	va_start(ap,fmt);
-
-	char time_tmp[128];
-	strcpy(time_tmp, "wshy");
-
-	struct timeb cur_time;
-	ftime(&cur_time);
-	
-	char str[4096];
-	vsnprintf(str,sizeof(str), fmt, ap);
-
-	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	pthread_mutex_unlock(m_thread_map_mutex);
 
+	va_list ap;
+	va_start(ap,fmt);
+	char str[4096];
+	vsnprintf(str,sizeof(str), fmt, ap);
+
 	if(TraceInfo)//如果查找到
 	{
-		
-		//-------------------
-		for (int i=0; i<TraceInfo->deep; ++i)
-		{
-			TraceInfo->up_string += "    ";
-		}
-		TraceInfo->up_string += "/*tag:";
-		TraceInfo->up_string += str;
-		TraceInfo->up_string += "*/\n";
-		
-		
+		insertTraceInfo(TraceInfo, line, file_name, str);
 	}  
 	else
 	{
