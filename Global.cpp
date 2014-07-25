@@ -39,9 +39,9 @@
 
 pthread_mutex_t  *CTimeCalc::m_thread_map_mutex = NULL;
 
+std::map<pthread_t, FuncTraceInfo_t *> CTimeCalc::m_thread_map; 
 
 
-static std::map<pthread_t, FuncTraceInfo_t *> m_thread_map; 
 
 /*****************************************************************************/
 /* FUNC:   int OpenLogFile (char *sLogFilePath, char *sLogName,              */
@@ -228,14 +228,14 @@ void CTimeCalc::InitMutex()
 	}
 }
 
-CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_type)
+CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_level)
 {
 	InitMutex();
 
 	m_Line = line;
 	m_FileName = file_name;
 	m_FuncName = func_name;
-	m_DisplayType = display_type;
+	m_DisplayLevel = display_level;
 	ftime(&m_StartTime);
 
 	DealFuncEnter();
@@ -259,101 +259,15 @@ FuncTraceInfo_t * CTimeCalc::GreatTraceInf()
 		ftime(&TraceInfo->EndTime);
 		
 		TraceInfo->deep = 0;
-		TraceInfo->undisplay_deep = 0;
 
-		if (m_DisplayType != 0)
-		{
-			TraceInfo->up_string += "//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n";
-		}
+
+		TraceInfo->up_string += "//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n";
+
 		std::pair<pthread_t, FuncTraceInfo_t *> thread_map_pair(thread_id, TraceInfo);
 
 		m_thread_map.insert(thread_map_pair);
 	}
 	return TraceInfo;
-}
-
-
-
-void CTimeCalc::DealFuncEnter()
-{
-	pthread_mutex_lock(m_thread_map_mutex);
-	FuncTraceInfo_t *TraceInfo = GreatTraceInf();
-	pthread_mutex_unlock(m_thread_map_mutex);
-
-	char tmp[64];
-
-	char time_tmp[128];
-	strcpy(time_tmp, "wshy ");
-	
-	snprintf(tmp, sizeof(tmp), ":  %d  thread id:  %d  %s", m_Line, (int)pthread_self(), time_tmp);
-
-	//-------------------
-
-	if (m_DisplayType == 0)
-	{
-		if (TraceInfo->deep == 0)
-		{
-			TraceInfo->deep++;
-			TraceInfo->undisplay_deep++;
-			return ;
-		}
-		
-		for (int i=0; i<TraceInfo->deep; ++i)
-		{
-			TraceInfo->up_string += "    ";
-		}
-		TraceInfo->up_string += "//unDisplayTraces func:    ";
-		TraceInfo->up_string += m_FuncName;
-		TraceInfo->up_string += "()  ";
-
-		TraceInfo->up_string += tmp;
-		TraceInfo->up_string += m_FileName;
-		TraceInfo->up_string += "\n";
-
-		for (int i=0; i<TraceInfo->deep; ++i)
-		{
-			TraceInfo->up_string += "    ";
-		}
-		TraceInfo->up_string += "//{\n";
-
-		
-		TraceInfo->deep++;
-		TraceInfo->undisplay_deep++;
-		
-		return ;
-
-	}
-	else if (TraceInfo->undisplay_deep == 0)
-	{
-		//-------------------
-		for (int i=0; i<TraceInfo->deep; ++i)
-		{
-			TraceInfo->up_string += "    ";
-		}
-		TraceInfo->up_string += m_FuncName;
-		TraceInfo->up_string += "()";
-
-		TraceInfo->up_string += tmp;
-		TraceInfo->up_string += m_FileName;
-
-		
-		TraceInfo->up_string += "\n";
-		for (int i=0; i<TraceInfo->deep; ++i)
-		{
-			TraceInfo->up_string += "    ";
-		}
-		TraceInfo->up_string += "{";
-
-		struct timeb cur_time;
-		ftime(&cur_time);
-
-		
-		snprintf(time_tmp, sizeof(time_tmp), "       //    cost second: %ld  %d  %ld  %d  route", cur_time.time - TraceInfo->EndTime.time, cur_time.millitm - TraceInfo->EndTime.millitm, cur_time.time, cur_time.millitm);
-		TraceInfo->up_string += time_tmp;
-		TraceInfo->up_string += "\n";
-		
-		TraceInfo->deep++;
-	}
 }
 
 FuncTraceInfo_t * CTimeCalc::GetTraceInf()
@@ -369,6 +283,85 @@ FuncTraceInfo_t * CTimeCalc::GetTraceInf()
 	return NULL;
 
 }
+
+void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
+{
+	char tmp[64];
+
+	char time_tmp[128];
+	strcpy(time_tmp, "wshy ");
+	
+	snprintf(tmp, sizeof(tmp), ":  %d  thread id:  %d  %s", m_Line, (int)pthread_self(), time_tmp);
+
+	for (int i=0; i<TraceInfo->deep; ++i)
+	{
+		TraceInfo->up_string += "    ";
+	}
+	TraceInfo->up_string += m_FuncName;
+	TraceInfo->up_string += "()";
+
+	TraceInfo->up_string += tmp;
+	TraceInfo->up_string += m_FileName;
+
+	
+	TraceInfo->up_string += "\n";
+	for (int i=0; i<TraceInfo->deep; ++i)
+	{
+		TraceInfo->up_string += "    ";
+	}
+	TraceInfo->up_string += "{";
+
+	struct timeb cur_time;
+	ftime(&cur_time);
+
+	
+	snprintf(time_tmp, sizeof(time_tmp), "       //    cost second: %ld  %d  %ld  %d  route", cur_time.time - TraceInfo->EndTime.time, cur_time.millitm - TraceInfo->EndTime.millitm, cur_time.time, cur_time.millitm);
+	TraceInfo->up_string += time_tmp;
+	TraceInfo->up_string += "\n";
+
+	return ;
+}
+
+void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
+{
+	for (int i=1; i<TraceInfo->deep; ++i)
+	{
+		TraceInfo->up_string += "    ";
+	}
+	
+	TraceInfo->up_string += "}";
+	char tmp[128];
+	//time_t timep;
+	//time(&timep);
+
+
+	char time_tmp[128];
+	strcpy(time_tmp, "wshy");
+
+	struct timeb cur_time; 
+	ftime(&cur_time);
+
+	snprintf(tmp, sizeof(tmp), "        //func  cost second: %ld  %d  %ld  %d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName.c_str(), time_tmp);
+
+	TraceInfo->up_string += tmp;			
+
+	TraceInfo->up_string += "\n";
+	return ;
+}
+
+void CTimeCalc::DealFuncEnter()
+{
+	pthread_mutex_lock(m_thread_map_mutex);
+	FuncTraceInfo_t *TraceInfo = GreatTraceInf();
+	pthread_mutex_unlock(m_thread_map_mutex);
+
+	//-------------------
+	insertEnterInfo(TraceInfo);
+	TraceInfo->deep++;
+
+}
+
+
 
 void CTimeCalc::DealFuncExit()
 {
@@ -392,76 +385,19 @@ void CTimeCalc::DealFuncExit()
 
 		//-------------------
 		//为删除日志所做的处理
-		if (m_DisplayType == 0)
+
+		insertExitInfo(TraceInfo);;
+
+		TraceInfo->deep--;
+
+		if (TraceInfo->deep == 0)
 		{
-			if (TraceInfo->deep == 1)
-			{
-				TraceInfo->undisplay_deep--;
-				TraceInfo->deep--;
-				return ;
-			}
 			
-			for (int i=1; i<TraceInfo->deep; ++i)
-			{
-				TraceInfo->up_string += "    ";
-			}
-			
-			TraceInfo->up_string += "//}\n";
-
-			
-			
-			if (TraceInfo->deep == 1)
-			{
-				pthread_mutex_lock(m_thread_map_mutex);
-				Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
-				m_thread_map.erase(thread_id);
-				pthread_mutex_unlock(m_thread_map_mutex);
-				delete TraceInfo;
-			}
-
-			
-			TraceInfo->undisplay_deep--;
-			TraceInfo->deep--;
-			return ;
-		}
-		else if (TraceInfo->undisplay_deep == 0)
-		{
-			//-------------------
-			for (int i=1; i<TraceInfo->deep; ++i)
-			{
-				TraceInfo->up_string += "    ";
-			}
-			
-			TraceInfo->up_string += "}";
-			char tmp[128];
-			//time_t timep;
-			//time(&timep);
-
-
-			char time_tmp[128];
-			strcpy(time_tmp, "wshy");
-
-			struct timeb cur_time; 
-			ftime(&cur_time);
-
-			snprintf(tmp, sizeof(tmp), "        //func  cost second: %ld  %d  %ld  %d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName.c_str(), time_tmp);
-
-			TraceInfo->up_string += tmp;			
-
-			TraceInfo->up_string += "\n";
-			//-------------------
-
-			TraceInfo->deep--;
-
-			if (TraceInfo->deep == 0)
-			{
-				
-				pthread_mutex_lock(m_thread_map_mutex);
-				Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
-				m_thread_map.erase(thread_id);
-				pthread_mutex_unlock(m_thread_map_mutex);
-				delete TraceInfo;
-			}
+			pthread_mutex_lock(m_thread_map_mutex);
+			Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
+			m_thread_map.erase(thread_id);
+			pthread_mutex_unlock(m_thread_map_mutex);
+			delete TraceInfo;
 		}
 
 	}
@@ -503,11 +439,6 @@ void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 
 	if(TraceInfo)//如果查找到
 	{
-		//为删除日志所做的处理
-		if (TraceInfo->undisplay_deep)
-		{
-			return ;
-		}
 		
 		//-------------------
 		for (int i=0; i<TraceInfo->deep; ++i)
@@ -608,11 +539,6 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 	
 	if(TraceInfo)//如果查找到
 	{	
-		//为删除日志所做的处理
-		if (TraceInfo->undisplay_deep)
-		{
-			return ;
-		}
 		
 		//-------------------
 		for (int i=0; i<TraceInfo->deep; ++i)

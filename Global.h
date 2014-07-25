@@ -37,7 +37,6 @@ typedef struct FuncTraceInfo_t
 	struct timeb EndTime;
 	int deep;
 	std::string up_string;
-	int undisplay_deep;
 } FuncTraceInfo_t;
 
 class CTimeCalc
@@ -49,7 +48,10 @@ private:
 	void DealFuncEnter();
 	void DealFuncExit();
 	FuncTraceInfo_t *GreatTraceInf();
+	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
+	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 	static FuncTraceInfo_t *GetTraceInf();
+
 public:
 	static void InsertTag(int line, char *file_name, const char* fmt, ...);
 	static void InsertTrace(int line, char *file_name, const char* fmt, ...);
@@ -57,17 +59,17 @@ public:
 	static void DispAll();
 	static void BackTrace();
 	static void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
-	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_type=1);
+	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
 	~CTimeCalc();
 private:
 	int m_Line;
 	std::string m_FileName;
 	std::string m_FuncName;
-	int m_DisplayType;
+	int m_DisplayLevel;
 
 	struct timeb m_StartTime;
 	static pthread_mutex_t  *m_thread_map_mutex;
-
+	static std::map<pthread_t, FuncTraceInfo_t *> m_thread_map; 
 	
 	//用于记录内存情况
 	int m_startMem[64];

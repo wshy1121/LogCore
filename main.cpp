@@ -23,7 +23,7 @@ void* test1(void *pArg)
 	while (1)
 	{
 		time_trace();
-		usleep(1000);
+		usleep(1000*100);
 		fun0(100);
 	}
 	return NULL;
