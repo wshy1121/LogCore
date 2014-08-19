@@ -40,6 +40,7 @@
 pthread_mutex_t  *CTimeCalc::m_thread_map_mutex = NULL;
 
 std::map<pthread_t, FuncTraceInfo_t *> CTimeCalc::m_thread_map; 
+std::list<CTimeCalc *> CTimeCalc::m_calc_list; 
 
 
 
@@ -372,6 +373,7 @@ void CTimeCalc::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 void CTimeCalc::DealFuncEnter()
 {
 	pthread_mutex_lock(m_thread_map_mutex);
+	m_calc_list.push_back(this);
 	FuncTraceInfo_t *TraceInfo = GreatTraceInf();
 	pthread_mutex_unlock(m_thread_map_mutex);
 
@@ -386,6 +388,7 @@ void CTimeCalc::DealFuncEnter()
 void CTimeCalc::DealFuncExit()
 {
 	pthread_mutex_lock(m_thread_map_mutex);
+	m_calc_list.pop_back();
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	pthread_mutex_unlock(m_thread_map_mutex);
 

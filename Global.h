@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string>
 #include <map>
+#include <list>
 #include <pthread.h>
 #include <signal.h>
 #include <sys/timeb.h>
@@ -71,6 +72,7 @@ private:
 	struct timeb m_StartTime;
 	static pthread_mutex_t  *m_thread_map_mutex;
 	static std::map<pthread_t, FuncTraceInfo_t *> m_thread_map; 
+	static std::list<CTimeCalc *> m_calc_list; 
 	
 	//用于记录内存情况
 	int m_startMem[64];
