@@ -374,7 +374,7 @@ void CTimeCalc::DealFuncEnter()
 	initTimeCalc(TraceInfo->calc_list);
 	pthread_mutex_unlock(m_thread_map_mutex);
 
-	if (!this->m_displayFlag || this->m_DisplayLevel == 0)
+	if (!this->m_displayFlag)
 	{
 		return ;
 	}
@@ -425,7 +425,7 @@ void CTimeCalc::DealFuncExit()
 
 	if(TraceInfo)//如果查找到
 	{
-		if (!this->m_displayFlag || this->m_DisplayLevel == 0)
+		if (!this->m_displayFlag)
 		{
 			return ;
 		}	
@@ -480,7 +480,7 @@ bool CTimeCalc::needPrint(std::list<CTimeCalc *> &calc_list)
 	{	
 		timeCalc = (calc_list.back());
 	}
-	if (timeCalc && timeCalc->m_displayFlag && timeCalc->m_DisplayLevel != 0)
+	if (timeCalc && timeCalc->m_displayFlag)
 	{
 		return true;
 	}

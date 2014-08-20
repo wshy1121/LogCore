@@ -94,8 +94,8 @@ private:
 
 #if !defined(NO_CTIME_CALC)
 #define time_trace_level(level)  CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, level)
-#define time_untrace()  CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, 0)
-#define time_trace()  CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__)
+#define time_untrace()  time_trace_level(0)
+#define time_trace()   time_trace_level(100)
 
 #define time_printf(format, ...)    CTimeCalc::InsertTrace(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
 #define time_num(num)	 time_printf("num:%d    %d", num, __LINE__)
