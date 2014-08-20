@@ -140,7 +140,6 @@ int Debug_print(char *sLogName, int nLogMode, char *sFmt, ...)
 	
 	char time_tmp[128];
 	strcpy(time_tmp, "creat by huang_yuan@dahuatech.com1");
-	//strcpy(time_tmp, ctime(&timep));
 	time_tmp[strlen(time_tmp)-1] = '\0';
 	
 	fprintf(fp, "//thread id:%d   %s\n\n", (int)pthread_self(), time_tmp);
@@ -375,7 +374,10 @@ void CTimeCalc::DealFuncEnter()
 	initTimeCalc(TraceInfo->calc_list);
 	pthread_mutex_unlock(m_thread_map_mutex);
 
-	//-------------------
+	if (!this->m_displayFlag)
+	{
+		return ;
+	}
 	insertEnterInfo(TraceInfo);
 	TraceInfo->deep++;
 
@@ -423,6 +425,10 @@ void CTimeCalc::DealFuncExit()
 
 	if(TraceInfo)//如果查找到
 	{
+		if (!this->m_displayFlag)
+		{
+			return ;
+		}	
 		pthread_t thread_id;
 		thread_id = pthread_self(); 
 		ftime(&TraceInfo->EndTime);
@@ -434,7 +440,7 @@ void CTimeCalc::DealFuncExit()
 			pthread_mutex_unlock(m_thread_map_mutex);
 			return;
 		}
-
+	
 		insertExitInfo(TraceInfo);;
 
 		TraceInfo->deep--;
