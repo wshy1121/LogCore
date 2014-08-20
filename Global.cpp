@@ -371,9 +371,9 @@ void CTimeCalc::DealFuncEnter()
 {
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GreatTraceInf();
-	initTimeCalc(TraceInfo->calc_list);
 	pthread_mutex_unlock(m_thread_map_mutex);
-
+	
+	initTimeCalc(TraceInfo->calc_list);
 	if (!this->m_displayFlag)
 	{
 		return ;
@@ -384,18 +384,18 @@ void CTimeCalc::DealFuncEnter()
 }
 
 
-void CTimeCalc::initTimeCalc(std::list<CTimeCalc *> &calc_list)
+void CTimeCalc::initTimeCalc(CTimeCalcList &calc_list)
 {
 	CTimeCalc *timeCalc = getLastTimeCalc(calc_list);
 	setDisplayFlag(timeCalc);
 	calc_list.push_back(this);
 
 }
-void CTimeCalc::exitTimeCalc(std::list<CTimeCalc *> &calc_list)
+void CTimeCalc::exitTimeCalc(CTimeCalcList &calc_list)
 {
 	calc_list.pop_back();
 }
-CTimeCalc *CTimeCalc::getLastTimeCalc(std::list<CTimeCalc *> &calc_list)
+CTimeCalc *CTimeCalc::getLastTimeCalc(CTimeCalcList &calc_list)
 {
 	CTimeCalc *timeCalc = this;
 	if (calc_list.size())
@@ -420,9 +420,9 @@ void CTimeCalc::DealFuncExit()
 {
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
-	exitTimeCalc(TraceInfo->calc_list);
 	pthread_mutex_unlock(m_thread_map_mutex);
 
+	exitTimeCalc(TraceInfo->calc_list);
 	if(TraceInfo)//如果查找到
 	{
 		if (!this->m_displayFlag)
@@ -473,7 +473,7 @@ CTimeCalc::~CTimeCalc()
 
 
 
-bool CTimeCalc::needPrint(std::list<CTimeCalc *> &calc_list)
+bool CTimeCalc::needPrint(CTimeCalcList &calc_list)
 {
 	CTimeCalc *timeCalc = NULL;
 	if (calc_list.size())
@@ -487,17 +487,36 @@ bool CTimeCalc::needPrint(std::list<CTimeCalc *> &calc_list)
 	
 	return false;
 }
+
+void CTimeCalc::printStack()
+{
+	pthread_mutex_lock(m_thread_map_mutex);
+	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	pthread_mutex_unlock(m_thread_map_mutex);	
+	if (!TraceInfo)
+	{
+		return ;
+	}
+	
+	CTimeCalcList::iterator it;
+	for ( it=TraceInfo->calc_list.begin() ; it != TraceInfo->calc_list.end(); it++ )
+	{
+
+	}
+
+	return ;
+}
 void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 {
 	InitMutex();
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	pthread_mutex_unlock(m_thread_map_mutex);
 	if (!needPrint(TraceInfo->calc_list))
 	{
-		pthread_mutex_unlock(m_thread_map_mutex);
+		
 		return ;
 	}
-	pthread_mutex_unlock(m_thread_map_mutex);
 
 	va_list ap;
 	va_start(ap,fmt);

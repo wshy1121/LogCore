@@ -34,12 +34,13 @@ void NextStep(const char *function, const char *fileName, int line);
 
 class CTimeCalc;
 
+typedef std::list<CTimeCalc *> CTimeCalcList;
 typedef struct FuncTraceInfo_t
 {
 	struct timeb EndTime;
 	int deep;
 	std::string up_string;
-	std::list<CTimeCalc *> calc_list;
+	CTimeCalcList calc_list;
 } FuncTraceInfo_t;
 
 class CTimeCalc
@@ -63,13 +64,14 @@ public:
 	static void DispAll();
 	static void BackTrace();
 	static void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
+	static void printStack();
 	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
 	~CTimeCalc();
 private:
-	static bool needPrint(std::list<CTimeCalc *> &calc_list);
-	void initTimeCalc(std::list<CTimeCalc *> &calc_list);
-	void exitTimeCalc(std::list<CTimeCalc *> &calc_list);
-	CTimeCalc *getLastTimeCalc(std::list<CTimeCalc *> &calc_list);
+	static bool needPrint(CTimeCalcList &calc_list);
+	void initTimeCalc(CTimeCalcList &calc_list);
+	void exitTimeCalc(CTimeCalcList &calc_list);
+	CTimeCalc *getLastTimeCalc(CTimeCalcList &calc_list);
 	void setDisplayFlag(CTimeCalc *timeCalc);
 private:
 	bool m_displayFlag;
