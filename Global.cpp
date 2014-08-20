@@ -515,7 +515,6 @@ void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 	ftime(&cur_time);
 
 	char tmp[128];
-	snprintf(tmp, sizeof(tmp), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
 
 	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
@@ -532,12 +531,14 @@ void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 	for ( it=TraceInfo->calc_list.begin() ; it != TraceInfo->calc_list.end(); it++ )
 	{
 		timeCalc = *it;
-		TraceInfo->up_string += timeCalc->m_FuncName;
+
+		snprintf(tmp, sizeof(tmp), "%s_%d", timeCalc->m_FuncName.c_str(), timeCalc->m_Line);
+		TraceInfo->up_string += tmp;
 		TraceInfo->up_string += "/";
 	}
 
 
-	
+	snprintf(tmp, sizeof(tmp), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
 	TraceInfo->up_string += tmp;
 	TraceInfo->up_string += "*/\n";
 
