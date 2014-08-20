@@ -40,6 +40,7 @@
 pthread_mutex_t  *CTimeCalc::m_thread_map_mutex = NULL;
 
 std::map<pthread_t, FuncTraceInfo_t *> CTimeCalc::m_thread_map; 
+std::map<std::string, int > CTimeCalc::m_stack_inf_map;
 
 
 
@@ -526,17 +527,31 @@ void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 	TraceInfo->up_string += pStr;
 	TraceInfo->up_string += " ";
 
+	std::string stackInf;
 	CTimeCalc *timeCalc = NULL;
 	CTimeCalcList::iterator it;
 	for ( it=TraceInfo->calc_list.begin() ; it != TraceInfo->calc_list.end(); it++ )
 	{
 		timeCalc = *it;
-
-		snprintf(tmp, sizeof(tmp), "%s_%d", timeCalc->m_FuncName.c_str(), timeCalc->m_Line);
-		TraceInfo->up_string += tmp;
-		TraceInfo->up_string += "/";
+		snprintf(tmp, sizeof(tmp), "%s%d_", timeCalc->m_FuncName.c_str(), timeCalc->m_Line);
+		stackInf += tmp;
 	}
 
+	int count = 0;
+	if (m_stack_inf_map.find(stackInf) == m_stack_inf_map.end())
+	{
+		m_stack_inf_map[stackInf] = 0;
+	}
+	else
+	{
+		count = m_stack_inf_map[stackInf];
+		++count;
+		m_stack_inf_map[stackInf] = count;
+	}
+
+	snprintf(tmp, sizeof(tmp), "count %d ", count);
+	TraceInfo->up_string += tmp;
+	TraceInfo->up_string += stackInf;
 
 	snprintf(tmp, sizeof(tmp), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
 	TraceInfo->up_string += tmp;

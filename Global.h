@@ -87,7 +87,7 @@ private:
 	struct timeb m_StartTime;
 	static pthread_mutex_t  *m_thread_map_mutex;
 	static std::map<pthread_t, FuncTraceInfo_t *> m_thread_map; 
-	
+	static std::map<std::string, int > m_stack_inf_map;
 	//用于记录内存情况
 	int m_startMem[64];
 	int m_endMem[64];
