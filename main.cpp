@@ -8,7 +8,7 @@
 
 void fun1()
 {
-	time_trace_level(5);
+	time_trace_level(1);
 	{
 		time_printf("NULL");
 		time_trace_level(4);

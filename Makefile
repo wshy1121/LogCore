@@ -39,7 +39,7 @@ $(LIB_TARGET): $(LIB_OBJS)
 	$(CPP) -c -Wall $(CFLAGS) $^ -o $@
 
 clean:
-	$(RM) $(LIB_OBJS)
+	$(RM) $(LIB_OBJS) test
 
 install:
 	cp $(LIB_TARGET) ../Libs/libwrapmalloc.a 

@@ -40,7 +40,6 @@
 pthread_mutex_t  *CTimeCalc::m_thread_map_mutex = NULL;
 
 std::map<pthread_t, FuncTraceInfo_t *> CTimeCalc::m_thread_map; 
-std::list<CTimeCalc *> CTimeCalc::m_calc_list; 
 
 
 
@@ -372,8 +371,8 @@ void CTimeCalc::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 void CTimeCalc::DealFuncEnter()
 {
 	pthread_mutex_lock(m_thread_map_mutex);
-	initTimeCalc();
 	FuncTraceInfo_t *TraceInfo = GreatTraceInf();
+	initTimeCalc(TraceInfo->calc_list);
 	pthread_mutex_unlock(m_thread_map_mutex);
 
 	//-------------------
@@ -383,25 +382,23 @@ void CTimeCalc::DealFuncEnter()
 }
 
 
-void CTimeCalc::initTimeCalc()
+void CTimeCalc::initTimeCalc(std::list<CTimeCalc *> &calc_list)
 {
-	CTimeCalc *timeCalc = getLastTimeCalc();
-
+	CTimeCalc *timeCalc = getLastTimeCalc(calc_list);
 	setDisplayFlag(timeCalc);
+	calc_list.push_back(this);
 
-	m_calc_list.push_back(this);
 }
-void CTimeCalc::exitTimeCalc()
+void CTimeCalc::exitTimeCalc(std::list<CTimeCalc *> &calc_list)
 {
-	m_calc_list.pop_back();
-
+	calc_list.pop_back();
 }
-CTimeCalc *CTimeCalc::getLastTimeCalc()
+CTimeCalc *CTimeCalc::getLastTimeCalc(std::list<CTimeCalc *> &calc_list)
 {
 	CTimeCalc *timeCalc = this;
-	if (m_calc_list.size())
+	if (calc_list.size())
 	{
-		timeCalc = (m_calc_list.back());
+		timeCalc = (calc_list.back());
 	}
 	return timeCalc;
 }
@@ -420,8 +417,8 @@ void CTimeCalc::setDisplayFlag(CTimeCalc *timeCalc)
 void CTimeCalc::DealFuncExit()
 {
 	pthread_mutex_lock(m_thread_map_mutex);
-	exitTimeCalc();
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	exitTimeCalc(TraceInfo->calc_list);
 	pthread_mutex_unlock(m_thread_map_mutex);
 
 	if(TraceInfo)//如果查找到
@@ -470,27 +467,30 @@ CTimeCalc::~CTimeCalc()
 
 
 
-bool CTimeCalc::needPrint()
+bool CTimeCalc::needPrint(std::list<CTimeCalc *> &calc_list)
 {
-	pthread_mutex_lock(m_thread_map_mutex);
-	CTimeCalc *timeCalc = getCurTimeCalc();
-	if (timeCalc && !timeCalc->m_displayFlag)
-	{
-		return ;
+	CTimeCalc *timeCalc = NULL;
+	if (calc_list.size())
+	{	
+		timeCalc = (calc_list.back());
 	}
-	pthread_mutex_unlock(m_thread_map_mutex);
-
+	if (timeCalc && timeCalc->m_displayFlag)
+	{
+		return true;
+	}
+	
+	return false;
 }
 void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 {
 	InitMutex();
-	if (!needPrint())
-	{
-		return ;
-	}
-
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	if (!needPrint(TraceInfo->calc_list))
+	{
+		pthread_mutex_unlock(m_thread_map_mutex);
+		return ;
+	}
 	pthread_mutex_unlock(m_thread_map_mutex);
 
 	va_list ap;

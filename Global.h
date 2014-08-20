@@ -32,12 +32,14 @@ int Debug_print(char *sLogName, int nLogMode, char *sFmt, ...);
 void NextStep(const char *function, const char *fileName, int line);
 #define nextStep()  NextStep(__FUNCTION__, __FILE__, __LINE__)
 
+class CTimeCalc;
 
 typedef struct FuncTraceInfo_t
 {
 	struct timeb EndTime;
 	int deep;
 	std::string up_string;
+	std::list<CTimeCalc *> calc_list;
 } FuncTraceInfo_t;
 
 class CTimeCalc
@@ -64,10 +66,10 @@ public:
 	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
 	~CTimeCalc();
 private:
-	static bool needPrint();
-	void initTimeCalc();
-	void exitTimeCalc();
-	CTimeCalc *getLastTimeCalc();
+	static bool needPrint(std::list<CTimeCalc *> &calc_list);
+	void initTimeCalc(std::list<CTimeCalc *> &calc_list);
+	void exitTimeCalc(std::list<CTimeCalc *> &calc_list);
+	CTimeCalc *getLastTimeCalc(std::list<CTimeCalc *> &calc_list);
 	void setDisplayFlag(CTimeCalc *timeCalc);
 private:
 	bool m_displayFlag;
@@ -82,7 +84,6 @@ private:
 	struct timeb m_StartTime;
 	static pthread_mutex_t  *m_thread_map_mutex;
 	static std::map<pthread_t, FuncTraceInfo_t *> m_thread_map; 
-	static std::list<CTimeCalc *> m_calc_list; 
 	
 	//用于记录内存情况
 	int m_startMem[64];
