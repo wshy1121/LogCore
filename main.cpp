@@ -9,6 +9,7 @@
 void fun1()
 {
 	time_trace_level(3);
+	time_stack("time_stack");
 	{
 		time_printf("NULL");
 		time_trace_level(4);

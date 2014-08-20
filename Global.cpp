@@ -488,8 +488,9 @@ bool CTimeCalc::needPrint(CTimeCalcList &calc_list)
 	return false;
 }
 
-void CTimeCalc::printStack()
+void CTimeCalc::printStack(int line, char *file_name, const char* fmt, ...)
 {
+	InitMutex();
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	pthread_mutex_unlock(m_thread_map_mutex);	
@@ -497,12 +498,48 @@ void CTimeCalc::printStack()
 	{
 		return ;
 	}
-	
+
+	va_list ap;
+	va_start(ap,fmt);
+	char str[4096];
+	vsnprintf(str,sizeof(str), fmt, ap);
+
+	insertStackInfo(TraceInfo, line, file_name, str);
+
+	return ;
+}
+
+void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr)
+{
+	struct timeb cur_time;
+	ftime(&cur_time);
+
+	char tmp[128];
+	snprintf(tmp, sizeof(tmp), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
+
+	//-------------------
+	for (int i=0; i<TraceInfo->deep; ++i)
+	{
+		TraceInfo->up_string += "\t";
+	}
+	TraceInfo->up_string += "/*tag:";
+
+	TraceInfo->up_string += pStr;
+	TraceInfo->up_string += " ";
+
+	CTimeCalc *timeCalc = NULL;
 	CTimeCalcList::iterator it;
 	for ( it=TraceInfo->calc_list.begin() ; it != TraceInfo->calc_list.end(); it++ )
 	{
-
+		timeCalc = *it;
+		TraceInfo->up_string += timeCalc->m_FuncName;
+		TraceInfo->up_string += "/";
 	}
+
+
+	
+	TraceInfo->up_string += tmp;
+	TraceInfo->up_string += "*/\n";
 
 	return ;
 }

@@ -55,6 +55,7 @@ private:
 	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
 	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 	static void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
+	static void insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
 	static FuncTraceInfo_t *GetTraceInf();
 
 public:
@@ -64,7 +65,7 @@ public:
 	static void DispAll();
 	static void BackTrace();
 	static void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
-	static void printStack();
+	static void printStack(int line, char *file_name, const char* fmt, ...);
 	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
 	~CTimeCalc();
 private:
@@ -105,7 +106,7 @@ private:
 #define time_all()     CTimeCalc::DispAll()
 #define time_str(str, len)  CTimeCalc::InsertHex(__LINE__, __FILE__, str, len)
 #define time_tag(format, ...) CTimeCalc::InsertTag(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
-#define time_stack()   CTimeCalc::BackTrace()
+#define time_stack(format, ...)   CTimeCalc::printStack(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
 #else
 #define time_untrace()    
 #define time_trace()    
