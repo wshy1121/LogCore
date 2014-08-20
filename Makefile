@@ -5,7 +5,7 @@
 # arm-uclinux-elf-gcc version 3.4.3
 #
 ############################################################################
-CROSS  = sh4-linux-uclibc-
+#CROSS  = sh4-linux-uclibc-
 #CROSS  = arm-none-linux-gnueabi-
 #CROSS  = arm-linux-gnueabihf-
 

@@ -64,10 +64,20 @@ public:
 	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
 	~CTimeCalc();
 private:
+	static bool needPrint();
+	void initTimeCalc();
+	void exitTimeCalc();
+	CTimeCalc *getLastTimeCalc();
+	void setDisplayFlag(CTimeCalc *timeCalc);
+private:
+	bool m_displayFlag;
+	int m_DisplayLevel;
+	 //使当前TimeCale不能显示的等级
+	int m_noDisplayLevel;  
+
 	int m_Line;
 	std::string m_FileName;
 	std::string m_FuncName;
-	int m_DisplayLevel;
 
 	struct timeb m_StartTime;
 	static pthread_mutex_t  *m_thread_map_mutex;
@@ -82,8 +92,10 @@ private:
 
 
 #if !defined(NO_CTIME_CALC)
+#define time_trace_level(level)  CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, level)
 #define time_untrace()  CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, 0)
 #define time_trace()  CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__)
+
 #define time_printf(format, ...)    CTimeCalc::InsertTrace(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
 #define time_num(num)	 time_printf("num:%d    %d", num, __LINE__)
 #define time_err(num)       time_printf("ERRERRERRERRERRERRERR:%d    %d    %s", (num), __LINE__, __FILE__)

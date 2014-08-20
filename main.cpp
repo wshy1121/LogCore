@@ -6,6 +6,29 @@
 
 //≤‚ ‘CTimeCalc π”√
 
+void fun1()
+{
+	time_trace_level(5);
+	{
+		time_printf("NULL");
+		time_trace_level(4);
+		{
+			time_printf("NULL");
+			time_trace_level(3);
+			{
+				time_printf("NULL");
+				time_trace_level(2);
+				{
+					time_printf("NULL");
+					time_trace_level(1);
+				}
+
+			}
+
+		}
+
+	}
+}
 void fun0(int count)
 {	time_trace();
 	if (count == 0)
@@ -15,6 +38,7 @@ void fun0(int count)
 	time_printf("1234");
 	--count;
 	fun0(count);
+	fun1();
 }
 
 
@@ -25,6 +49,7 @@ void* test1(void *pArg)
 		time_trace();
 		usleep(1000*100);
 		fun0(100);
+		
 	}
 	return NULL;
 }
