@@ -480,7 +480,7 @@ bool CTimeCalc::needPrint(std::list<CTimeCalc *> &calc_list)
 	{	
 		timeCalc = (calc_list.back());
 	}
-	if (timeCalc && timeCalc->m_displayFlag && this->m_DisplayLevel != 0)
+	if (timeCalc && timeCalc->m_displayFlag && timeCalc->m_DisplayLevel != 0)
 	{
 		return true;
 	}
