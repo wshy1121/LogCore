@@ -293,7 +293,7 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 
 	for (int i=0; i<TraceInfo->deep; ++i)
 	{
-		TraceInfo->up_string += "    ";
+		TraceInfo->up_string += "\t";
 	}
 	TraceInfo->up_string += m_FuncName;
 	TraceInfo->up_string += "()";
@@ -305,7 +305,7 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 	TraceInfo->up_string += "\n";
 	for (int i=0; i<TraceInfo->deep; ++i)
 	{
-		TraceInfo->up_string += "    ";
+		TraceInfo->up_string += "\t";
 	}
 	TraceInfo->up_string += "{";
 
@@ -324,7 +324,7 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 {
 	for (int i=1; i<TraceInfo->deep; ++i)
 	{
-		TraceInfo->up_string += "    ";
+		TraceInfo->up_string += "\t";
 	}
 	
 	TraceInfo->up_string += "}";
@@ -356,7 +356,7 @@ void CTimeCalc::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
 	{
-		TraceInfo->up_string += "    ";
+		TraceInfo->up_string += "\t";
 	}
 	TraceInfo->up_string += "/*tag:";
 
@@ -600,7 +600,7 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 		//-------------------
 		for (int i=0; i<TraceInfo->deep; ++i)
 		{
-			TraceInfo->up_string += "    ";
+			TraceInfo->up_string += "\t";
 		}
 		TraceInfo->up_string += "/*tag:";
 		TraceInfo->up_string += str;
