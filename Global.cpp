@@ -143,7 +143,7 @@ int Debug_print(char *sLogName, int nLogMode, char *sFmt, ...)
 	strcpy(time_tmp, "creat by huang_yuan@dahuatech.com1");
 	time_tmp[strlen(time_tmp)-1] = '\0';
 	
-	fprintf(fp, "//thread id:%d   %s\n\n", (int)pthread_self(), time_tmp);
+	fprintf(fp, "//thread id:%16d   %s\n\n", (int)pthread_self(), time_tmp);
 
 
 	fprintf(fp, "\n");
@@ -158,7 +158,7 @@ int Debug_print(char *sLogName, int nLogMode, char *sFmt, ...)
 void NextStep(const char *function, const char *fileName, int line)
 {
 	char s[80];
-	printf("%s  %s  %d\n", function, fileName, line);
+	printf("%s  %s  %4d\n", function, fileName, line);
 	fgets(s, sizeof(s), stdin);
 	return ;
 }
@@ -288,9 +288,9 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 	char tmp[64];
 
 	char time_tmp[128];
-	snprintf(time_tmp, sizeof(time_tmp), "level  %d ", m_DisplayLevel);
+	snprintf(time_tmp, sizeof(time_tmp), "level  %4d ", m_DisplayLevel);
 	
-	snprintf(tmp, sizeof(tmp), ":  %d  thread id:  %d  %s", m_Line, (int)pthread_self(), time_tmp);
+	snprintf(tmp, sizeof(tmp), ":  %4d  thread id:  %16d  %s", m_Line, (int)pthread_self(), time_tmp);
 
 	for (int i=0; i<TraceInfo->deep; ++i)
 	{
@@ -314,7 +314,7 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 	ftime(&cur_time);
 
 	
-	snprintf(time_tmp, sizeof(time_tmp), "       //    cost second: %ld  %d  %ld  %d  route", cur_time.time - TraceInfo->EndTime.time, cur_time.millitm - TraceInfo->EndTime.millitm, cur_time.time, cur_time.millitm);
+	snprintf(time_tmp, sizeof(time_tmp), "       //    cost second: %4ld  %4d  %16ld  %4d  route", cur_time.time - TraceInfo->EndTime.time, cur_time.millitm - TraceInfo->EndTime.millitm, cur_time.time, cur_time.millitm);
 	TraceInfo->up_string += time_tmp;
 	TraceInfo->up_string += "\n";
 
@@ -338,7 +338,7 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 	struct timeb cur_time; 
 	ftime(&cur_time);
 
-	snprintf(tmp, sizeof(tmp), "        //func  cost second: %ld  %d  %ld  %d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName.c_str(), time_tmp);
+	snprintf(tmp, sizeof(tmp), "        //func  cost second: %4ld  %4d  %16ld  %4d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName.c_str(), time_tmp);
 
 	TraceInfo->up_string += tmp;			
 
@@ -352,7 +352,7 @@ void CTimeCalc::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 	ftime(&cur_time);
 
 	char tmp[128];
-	snprintf(tmp, sizeof(tmp), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
+	snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
 
 	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
@@ -549,11 +549,11 @@ void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 		m_stack_inf_map[stackInf] = count;
 	}
 
-	snprintf(tmp, sizeof(tmp), "count %d ", count);
+	snprintf(tmp, sizeof(tmp), "count %8d ", count);
 	TraceInfo->up_string += tmp;
 	TraceInfo->up_string += stackInf;
 
-	snprintf(tmp, sizeof(tmp), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
+	snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
 	TraceInfo->up_string += tmp;
 	TraceInfo->up_string += "*/\n";
 
@@ -606,7 +606,7 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 	
 	char str[4096];
 	/* save log msg in file */
-	snprintf(str, sizeof(str), "hex%s:[%s][%d]len=%d\n", __FUNCTION__, file_name, line,nBufLen);
+	snprintf(str, sizeof(str), "hex%s:[%s][%4d]len=%4d\n", __FUNCTION__, file_name, line,nBufLen);
 
 	/* save log msg in file */
 	int j = 0;
@@ -660,7 +660,7 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 
 
 
-	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
+	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
 	pthread_mutex_lock(m_thread_map_mutex);	
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
@@ -710,7 +710,7 @@ void CTimeCalc::InsertTag(int line, char *file_name, const char* fmt, ...)
 	
 	char str[1024];
 	vsnprintf(str,sizeof(str), fmt, ap);
-	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %d    %s  %d  %s    %ld  ms %d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
+	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
 	pthread_mutex_lock(m_thread_map_mutex);
 	Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
@@ -747,7 +747,7 @@ void CTimeCalc::DispTraces(int signo)
 	InitMutex();
 	
 	pthread_mutex_lock(m_thread_map_mutex);
-	Debug_print((char *)"Debug", 3, (char *)"//%s    %d","Except    DispTraces", signo);
+	Debug_print((char *)"Debug", 3, (char *)"//%s    %2d","Except    DispTraces", signo);
 	
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it;
 
@@ -773,7 +773,7 @@ void CTimeCalc::DispTraces(int signo)
 				break;
 		}
 		
-		Debug_print((char *)"Debug", 3, (char *)"%s  signo:%d    %s","//ERRERRERRERRERRERRERRERR", signo, signo_inf);
+		Debug_print((char *)"Debug", 3, (char *)"%s  signo:%2d    %s","//ERRERRERRERRERRERRERRERR", signo, signo_inf);
 		exit(0);
 	}
 	pthread_mutex_unlock(m_thread_map_mutex);
