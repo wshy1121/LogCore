@@ -552,18 +552,18 @@ void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 
 	return ;
 }
-void CTimeCalc::getStackInfo(std::string &stackInf)
+bool CTimeCalc::getStackInfo(std::string &stackInf)
 {
 	InitMutex();
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	pthread_mutex_unlock(m_thread_map_mutex);	
-	if (!TraceInfo)
+	if (!TraceInfo || !TraceInfo->calc_list.size())
 	{
-		return ;
+		return false;
 	}
 	getStackInfo(TraceInfo, stackInf);
-	return ;
+	return true;
 }
 void CTimeCalc::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf)
 {

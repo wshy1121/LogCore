@@ -8,26 +8,7 @@
 #include <signal.h>
 #include <sys/timeb.h>
 #include <stdlib.h>
-int Debug_print(char *sLogName, int nLogMode, char *sFmt, ...);
 
-#define DEBUG_MOD 1
-#if DEBUG_MOD == 1
-#define debug_print(str)   trace("DEBUG		%d %d:%s		%d		%s %s\n", (int)pthread_self(), (int)time(NULL), (char *)str, __LINE__, __FILE__, __FUNCTION__)
-#define num_print(num)    trace("DENUM		%d %d:%d		%d		%s %s\n",  (int)pthread_self(), (int)time(NULL), (int)num, __LINE__, __FILE__, __FUNCTION__)
-#define err_print(num)      trace("ERRERRERRERRERRERRERRERRERRERRERRERR		%d %d:%d		%d		%s %s\n",  (int)pthread_self(), (int)time(NULL), (int)num, __LINE__, __FILE__, __FUNCTION__) 
-#elif DEBUG_MOD == 2
-#define debug_print(str)   printf("%s:%d\n", __FUNCTION__, __LINE__);
-#define num_print(num) 
-#define err_print(num)  
-#elif DEBUG_MOD == 3
-#define debug_print(str)   Debug_print((char *)"Debug.txt", 3, (char *)"DENUM		%d %d:%s		%d		%s %s\n",  (int)pthread_self(), (int)time(NULL), str, __LINE__, __FILE__, __FUNCTION__);
-#define num_print(num)    Debug_print((char *)"Debug.txt", 3, (char *)"DENUM		%d %d:%d		%d		%s %s\n",  (int)pthread_self(), (int)time(NULL), (int)num, __LINE__, __FILE__, __FUNCTION__)
-#define err_print(num)      Debug_print((char *)"Debug.txt", 3, (char *)"ERRERRERRERRERRERRERRERRERRERRERRERR		%d %d:%d		%d		%s %s\n",  (int)pthread_self(), (int)time(NULL), (int)num, __LINE__, __FILE__, __FUNCTION__) 
-#else
-#define debug_print(str)    
-#define num_print(num)  
-#define err_print(num)  
-#endif
 
 void NextStep(const char *function, const char *fileName, int line);
 #define nextStep()  NextStep(__FUNCTION__, __FILE__, __LINE__)
@@ -67,7 +48,7 @@ public:
 	static void BackTrace();
 	static void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
 	static void printStack(int line, char *file_name, const char* fmt, ...);
-	static void getStackInfo(std::string &stackInf);
+	static bool getStackInfo(std::string &stackInf);
 	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
 	~CTimeCalc();
 private:
