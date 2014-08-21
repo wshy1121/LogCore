@@ -292,6 +292,11 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 	
 	snprintf(tmp, sizeof(tmp), ":  %4d  thread id:  %16d  %s", m_Line, (int)pthread_self(), time_tmp);
 
+	if (this->m_DisplayLevel == 0)
+	{
+		TraceInfo->up_string += "#if 0 \n";
+	}
+	
 	for (int i=0; i<TraceInfo->deep; ++i)
 	{
 		TraceInfo->up_string += "\t";
@@ -343,6 +348,11 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 	TraceInfo->up_string += tmp;			
 
 	TraceInfo->up_string += "\n";
+	if (this->m_DisplayLevel == 0)
+	{
+		TraceInfo->up_string += "#endif\n";
+	}
+
 	return ;
 }
 

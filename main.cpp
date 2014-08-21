@@ -24,12 +24,16 @@ void fun1()
 				{
 					time_printf("NULL");
 					time_trace_level(1);
+					{
+						time_printf("NULL");
+						time_trace_level(0);
+					}
+
 				}
 
 			}
 
 		}
-
 	}
 }
 void fun0(int count)
