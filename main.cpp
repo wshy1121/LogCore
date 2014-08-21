@@ -9,7 +9,9 @@
 void fun1()
 {
 	time_trace_level(3);
-	time_stack("time_stack");
+	std::string stack;
+	get_stack(stack);
+	time_printf("%s", stack.c_str());
 	{
 		time_printf("NULL");
 		time_trace_level(4);

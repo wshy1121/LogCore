@@ -528,15 +528,8 @@ void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 	TraceInfo->up_string += " ";
 
 	std::string stackInf;
-	CTimeCalc *timeCalc = NULL;
-	CTimeCalcList::iterator it;
-	for ( it=TraceInfo->calc_list.begin() ; it != TraceInfo->calc_list.end(); it++ )
-	{
-		timeCalc = *it;
-		snprintf(tmp, sizeof(tmp), "%s%d_", timeCalc->m_FuncName.c_str(), timeCalc->m_Line);
-		stackInf += tmp;
-	}
-
+	getStackInfo(TraceInfo, stackInf);
+	
 	int count = 0;
 	if (m_stack_inf_map.find(stackInf) == m_stack_inf_map.end())
 	{
@@ -557,6 +550,32 @@ void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 	TraceInfo->up_string += tmp;
 	TraceInfo->up_string += "*/\n";
 
+	return ;
+}
+void CTimeCalc::getStackInfo(std::string &stackInf)
+{
+	InitMutex();
+	pthread_mutex_lock(m_thread_map_mutex);
+	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	pthread_mutex_unlock(m_thread_map_mutex);	
+	if (!TraceInfo)
+	{
+		return ;
+	}
+	getStackInfo(TraceInfo, stackInf);
+	return ;
+}
+void CTimeCalc::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf)
+{
+	char tmp[64];
+	CTimeCalc *timeCalc = NULL;
+	CTimeCalcList::iterator it;
+	for ( it=TraceInfo->calc_list.begin() ; it != TraceInfo->calc_list.end(); it++ )
+	{
+		timeCalc = *it;
+		snprintf(tmp, sizeof(tmp), "%s%d_", timeCalc->m_FuncName.c_str(), timeCalc->m_Line);
+		stackInf += tmp;
+	}
 	return ;
 }
 void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
