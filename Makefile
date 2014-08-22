@@ -30,7 +30,7 @@ all	:	$(LIB_TARGET)
 $(LIB_TARGET): $(LIB_OBJS)
 	$(AR) $(AFLAGS) $@ $^
 	$(RANLIB) $@
-	g++ -o test Global.cpp main.cpp -lpthread
+	g++ -o test Global.cpp main.cpp -lpthread -Wl,-wrap,malloc -Wl,-wrap,realloc -Wl,-wrap,calloc -Wl,-wrap,free 
 
 .c.o:
 	$(CC) -c $(CFLAGS) $^ -o $@

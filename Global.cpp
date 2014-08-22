@@ -42,6 +42,8 @@ pthread_mutex_t  *CTimeCalc::m_thread_map_mutex = NULL;
 std::map<pthread_t, FuncTraceInfo_t *> CTimeCalc::m_thread_map; 
 std::map<std::string, int > CTimeCalc::m_stack_inf_map;
 
+extern "C" void* __real_malloc(size_t);
+extern "C" void __real_free(void* p);
 
 
 /*****************************************************************************/
@@ -223,7 +225,7 @@ void CTimeCalc::InitMutex()
 	//初始化部分
 	if (!m_thread_map_mutex)
 	{
-		m_thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+		m_thread_map_mutex = (pthread_mutex_t *)__real_malloc(sizeof(pthread_mutex_t));
 		pthread_mutex_init(m_thread_map_mutex, NULL);
 	}
 }
@@ -252,7 +254,7 @@ FuncTraceInfo_t * CTimeCalc::GreatTraceInf()
 	}
 	else  
 	{
-		TraceInfo = new FuncTraceInfo_t;
+		TraceInfo = (FuncTraceInfo_t *)__real_malloc(sizeof(FuncTraceInfo_t));
 		assert(TraceInfo != NULL);
 
 		ftime(&TraceInfo->EndTime);
@@ -463,7 +465,7 @@ void CTimeCalc::DealFuncExit()
 			Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
 			m_thread_map.erase(thread_id);
 			pthread_mutex_unlock(m_thread_map_mutex);
-			delete TraceInfo;
+			__real_free(TraceInfo);
 		}
 
 	}
