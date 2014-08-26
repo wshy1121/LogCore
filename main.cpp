@@ -8,6 +8,11 @@
 
 void fun1()
 {
+	char *tmp = new char[32];
+
+	strcpy(tmp, "1234567789");
+	delete tmp;
+	
 	time_trace_level(3);
 	std::string stack;
 	get_stack(stack);
@@ -54,9 +59,8 @@ void* test1(void *pArg)
 	while (1)
 	{
 		time_trace();
-		usleep(1000*10000);
 		fun0(100);
-		
+		usleep(1000*10000);		
 	}
 	return NULL;
 }

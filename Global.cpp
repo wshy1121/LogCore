@@ -9,6 +9,10 @@
 #include <map>
 #include <stdarg.h>
 #include <sys/stat.h>
+#ifdef WRAP
+#include <execinfo.h>
+extern "C" void* __real_malloc(size_t);
+#endif
 
 
 /* 日志文件路径的长度的最大值 */
@@ -42,7 +46,6 @@ pthread_mutex_t  *CTimeCalc::m_thread_map_mutex = NULL;
 std::map<pthread_t, FuncTraceInfo_t *> CTimeCalc::m_thread_map; 
 std::map<std::string, int > CTimeCalc::m_stack_inf_map;
 
-extern "C" void* __real_malloc(size_t);
 
 
 /*****************************************************************************/
@@ -224,7 +227,11 @@ void CTimeCalc::InitMutex()
 	//初始化部分
 	if (!m_thread_map_mutex)
 	{
+#ifdef WRAP
 		m_thread_map_mutex = (pthread_mutex_t *)__real_malloc(sizeof(pthread_mutex_t));
+#else
+		m_thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+#endif
 		pthread_mutex_init(m_thread_map_mutex, NULL);
 	}
 }
@@ -813,7 +820,7 @@ void CTimeCalc::DispTraces(int signo)
 
 void CTimeCalc::BackTrace()
 {
-#if 0
+#ifdef WRAP
 	CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__);
        void *stack_addr[10];
        int layer;
