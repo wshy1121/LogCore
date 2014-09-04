@@ -11,7 +11,6 @@
 #include <sys/stat.h>
 #ifdef WRAP
 #include <execinfo.h>
-extern "C" void* __real_malloc(size_t);
 #endif
 
 
@@ -227,15 +226,19 @@ void CTimeCalc::InitMutex()
 	//初始化部分
 	if (!m_thread_map_mutex)
 	{
-#ifdef WRAP
-		m_thread_map_mutex = (pthread_mutex_t *)__real_malloc(sizeof(pthread_mutex_t));
-#else
 		m_thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-#endif
 		pthread_mutex_init(m_thread_map_mutex, NULL);
 	}
 }
 
+bool CTimeCalc::isInitFinished()
+{
+	if (m_thread_map_mutex)
+	{
+		return true;
+	}
+	return false;
+}
 CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_level) : 	m_displayFlag(true), 
 																				m_DisplayLevel(display_level), 
 																				m_noDisplayLevel(display_level), 

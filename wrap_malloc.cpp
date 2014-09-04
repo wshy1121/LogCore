@@ -1,3 +1,5 @@
+#ifdef WRAP
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -25,6 +27,10 @@ extern "C" void *__wrap_malloc(size_t c)
 		}
 			
 	}
+	if (CTimeCalc::isInitFinished())
+	{
+	}
+
 	return p; 
 }
 extern "C" void* __wrap_realloc(size_t c)
@@ -59,4 +65,6 @@ extern "C" void __wrap_free(void*p)
 	//printf("free : %p\n", p);
 	return __real_free(p);
 }
+
+#endif
 

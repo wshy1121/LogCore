@@ -41,6 +41,7 @@ private:
 	static FuncTraceInfo_t *GetTraceInf();
 
 public:
+	static bool isInitFinished();
 	static void InsertTag(int line, char *file_name, const char* fmt, ...);
 	static void InsertTrace(int line, char *file_name, const char* fmt, ...);
 	static void DispTraces(int signo);
