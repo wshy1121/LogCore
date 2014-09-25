@@ -1,11 +1,6 @@
 #include "Global.h"
 #include "link_tool.h"
 
-#undef debug_print
-#define debug_print(str)		
-
-#undef num_print
-#define num_print(num)
 
 /******************************************************/
 void init_node(struct node *node)
@@ -106,7 +101,6 @@ void dispStack(struct stack *stack, void dip_func(struct node *node))
 	struct node *head = NULL;
 	struct node *node = NULL;
 	dip_func(stack->top);
-	num_print(stack->stacksize);
 	head = &stack->head;
 	each_link_node(head, node)
 	{
@@ -135,9 +129,7 @@ int putQueue(struct queue *queue, struct queue_node *queue_node)
 	{
 		return -1;
 	}
-	debug_print("wshy");
 	insert_node(queue->head_node.node.pre, &queue_node->node); 
-	num_print(queue_node->type);
 	queue->tail = queue_node;
 	++(queue->node_num);
 	return 0;
@@ -168,7 +160,6 @@ int getQueue(struct queue *queue, int type, struct queue_node **ret_queue_node)
 	{
 		
 		*ret_queue_node = queueContain(queue->head_node.node.next); 
-		num_print((*ret_queue_node)->type);
 		remov_node(&(*ret_queue_node)->node);
 		--(queue->node_num);
 		queue->tail = container_of(queue->head_node.node.pre, struct queue_node, node);
@@ -183,7 +174,6 @@ int getQueue(struct queue *queue, int type, struct queue_node **ret_queue_node)
 			remov_node(&queue_node->node);
 			queue->tail = container_of(queue->head_node.node.pre, struct queue_node, node);
 			--(queue->node_num);
-			num_print(queue_node->type);
 			return 0;	
 		}
 	}
@@ -199,7 +189,6 @@ int eachQueue(struct queue *queue, int (*queue_node_deal)(struct queue_node *, v
 	struct node *head = &queue->head_node.node;
 	struct node *node = NULL;
 	struct queue_node *queue_node_ptr = NULL;
-	debug_print("wshy");
 	
 	for ((node)=(head)->next; (head) != (node); node = next_node)
 	{
@@ -208,7 +197,6 @@ int eachQueue(struct queue *queue, int (*queue_node_deal)(struct queue_node *, v
 
 		if (queue_node_deal != NULL)
 		{
-			num_print(queue_node_ptr->type);
 			ret = queue_node_deal(queue_node_ptr, arg);
 		}
 	}
@@ -224,7 +212,6 @@ int rmQueueNode(struct queue *queue, struct queue_node *queue_node)
 
 	remov_node(&queue_node->node); 
 	queue->tail = container_of(queue->head_node.node.pre, struct queue_node, node);
-	num_print(queue_node->type);
 	--(queue->node_num);
 	return 0;
 }
@@ -243,13 +230,9 @@ void dispQueue(struct queue *queue)
 	struct node *head = &queue->head_node.node;
 	struct node *node = NULL;
 	struct queue_node *queue_node_ptr = NULL;
-	debug_print("wshy");
 	each_link_node(head, node)
 	{
 		queue_node_ptr = queueContain(node);
-		num_print(queue_node_ptr->type);
 	}
-	num_print(queue->tail->type);
-	debug_print("wshy");
 	return ;
 }
