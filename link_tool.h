@@ -1,5 +1,6 @@
 #ifndef __LINK_TOOL_H
 #define __LINK_TOOL_H
+#include "Global.h"
 
 #define container_of(ptr, type, member) ({  \
 const typeof( ((type *)0)->member ) *__mptr = (ptr);   \
@@ -29,14 +30,17 @@ class  ThreadQueue
 public:
 	ThreadQueue();
 public:
+	void initThreadNode(ThreadNode *queue_node, bool enable, pthread_t thread_id);
 	void initQueue();
 	int putQueue(ThreadNode *queue_node);
 	int getQueue(pthread_t thread_id, ThreadNode **ret_queue_node);
-
+	void clearQueue();
+	void dispQueue();
 private:
 	ThreadNode head_node;
 	ThreadNode *tail;
 	int node_num;
+	pthread_mutex_t  m_mutex;
 };
 
 

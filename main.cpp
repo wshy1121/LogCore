@@ -2,9 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include "Global.h"
-
+#include "link_tool.h"
 
 //²âÊÔCTimeCalcÊ¹ÓÃ
+extern "C" void* __real_malloc(size_t);
 
 void fun1()
 {
@@ -54,19 +55,53 @@ void fun0(int count)
 }
 
 
+void testThreadQueue()
+{
+	ThreadQueue threadQueue;
+
+	pthread_t threadId = 1;
+
+	ThreadNode *queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
+	threadQueue.initThreadNode(queue_node, true, ++threadId);
+	threadQueue.putQueue(queue_node);
+
+	queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
+	threadQueue.initThreadNode(queue_node, true, ++threadId);
+	threadQueue.putQueue(queue_node);
+
+	queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
+	threadQueue.initThreadNode(queue_node, true, ++threadId);
+	threadQueue.putQueue(queue_node);
+
+	queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
+	threadQueue.initThreadNode(queue_node, true, ++threadId);
+	threadQueue.putQueue(queue_node);
+
+	threadQueue.getQueue(3, &queue_node);
+	if (queue_node)
+	{
+		printf("queue_node->thread_id  %ld\n", queue_node->thread_id);
+	}
+	threadQueue.clearQueue();
+
+	return ;
+}
 void* test1(void *pArg)
 {	
 	while (1)
 	{
-		time_trace();
-		fun0(100);
-		usleep(1000*10000);		
+		//time_trace();
+		testThreadQueue();
+		//fun0(100);
+		usleep(100*1000);		
 	}
 	return NULL;
 }
 
+
 int main()
 {
+
 	pthread_t thread_id[10];
 	
 	for (int i=0; i<10; ++i)
