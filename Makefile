@@ -24,7 +24,7 @@ RM	= rm
 
 AFLAGS	+= -r   
 
-LIB_OBJS = wrap_malloc.o Global.o
+LIB_OBJS = wrap_malloc.o Global.o link_tool.o
 
 LIB_TARGET=libwrapmalloc.a
 
@@ -33,7 +33,7 @@ all	:	$(LIB_TARGET)
 $(LIB_TARGET): $(LIB_OBJS)
 	$(AR) $(AFLAGS) $@ $^
 	$(RANLIB) $@
-	$(CPP) -o test Global.cpp main.cpp wrap_malloc.cpp -lpthread $(OPT_CFLAGS)
+	$(CPP) -o test Global.cpp main.cpp wrap_malloc.cpp link_tool.cpp -lpthread $(OPT_CFLAGS)
 
 .c.o:
 	$(CC) -c $(CFLAGS) $^ -o $@

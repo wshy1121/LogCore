@@ -574,7 +574,7 @@ void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 	return ;
 }
 bool CTimeCalc::getStackInfo(std::string &stackInf)
-{
+{	printf("CTimeCalc::getStackInfo\n");
 	InitMutex();
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
@@ -838,8 +838,8 @@ void CTimeCalc::BackTrace()
 		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
 		traceInf += tmp;
 	}
-
-	CTimeCalc::InsertTrace(__LINE__, (char *)__FILE__, "%s", traceInf.c_str());
+	
+	//CTimeCalc::InsertTrace(__LINE__, (char *)__FILE__, "%s", traceInf.c_str());
 #endif
 	return ;
 }
