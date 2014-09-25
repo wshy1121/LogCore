@@ -37,6 +37,11 @@ public:
 	int getQueue(pthread_t thread_id, ThreadNode **ret_queue_node);
 	void clearQueue();
 	void dispQueue();
+	void setEnable(bool enable);
+	bool getEnable();
+
+private:
+	static bool m_enable;
 private:
 	ThreadNode head_node;
 	ThreadNode *tail;

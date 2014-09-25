@@ -95,17 +95,19 @@ void* test1(void *pArg)
 {	
 	while (1)
 	{
-		//time_trace();
-		testThreadQueue();
-		//fun0(100);
+		time_trace();
+		fun0(100);
+		//testThreadQueue();
 		usleep(100*1000);		
 	}
 	return NULL;
 }
 
+extern ThreadQueue threadQueue;
 
 int main()
 {
+	threadQueue.setEnable(true);
 
 	pthread_t thread_id[10];
 	

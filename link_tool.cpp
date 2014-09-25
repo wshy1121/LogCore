@@ -38,12 +38,25 @@ void remov_node(struct node *node)
 	return ;
 }
 
+bool ThreadQueue::m_enable = false;
+
 ThreadQueue::ThreadQueue()
 {
 	pthread_mutex_init(&m_mutex, NULL);
 	initQueue();
 	return ;
 }
+
+void ThreadQueue::setEnable(bool enable)
+{
+	m_enable = enable;
+}
+
+bool ThreadQueue::getEnable()
+{
+	return m_enable;
+}
+
 
 void ThreadQueue::initQueue()
 {

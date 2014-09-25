@@ -31,10 +31,24 @@ extern "C" void *__wrap_malloc(size_t c)
 			
 	}
 
-	
-	ThreadNode *queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
-	threadQueue.initThreadNode(queue_node, true, pthread_self());
+	if (threadQueue.getEnable())
+	{
+		ThreadNode *queue_node = NULL;
+		threadQueue.getQueue(pthread_self(), &queue_node);
+		if (!queue_node)
+		{
+			printf("%d  %s\n", __LINE__, __FILE__);
+			queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
+			threadQueue.initThreadNode(queue_node, true, pthread_self());
+			threadQueue.insertQueue(queue_node);
+			threadQueue.dispQueue();
+		}
+		else
+		{
+		}
 
+		
+	}
 	//threadQueue.putQueue(ThreadNode * queue_node);
 
 	return p; 
