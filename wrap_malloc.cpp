@@ -31,23 +31,24 @@ extern "C" void *__wrap_malloc(size_t c)
 			
 	}
 
-	if (threadQueue.getEnable())
+	if (ThreadQueue::instance()->getEnable())
 	{
 		ThreadNode *queue_node = NULL;
-		threadQueue.getQueue(pthread_self(), &queue_node);
+		ThreadQueue::instance()->getQueue(pthread_self(), &queue_node);
 		if (!queue_node)
 		{
-			printf("%d  %s\n", __LINE__, __FILE__);
 			queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
-			threadQueue.initThreadNode(queue_node, true, pthread_self());
-			threadQueue.insertQueue(queue_node);
-			threadQueue.dispQueue();
-		}
-		else
-		{
+			ThreadQueue::instance()->initThreadNode(queue_node, true, pthread_self());
+			ThreadQueue::instance()->insertQueue(queue_node);
 		}
 
-		
+		if (queue_node->enable)
+		{
+			queue_node->enable = false;
+			//CTimeCalc::BackTrace();
+			queue_node->enable = true;
+
+		}
 	}
 	//threadQueue.putQueue(ThreadNode * queue_node);
 

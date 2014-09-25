@@ -39,7 +39,8 @@ public:
 	void dispQueue();
 	void setEnable(bool enable);
 	bool getEnable();
-
+	void start();
+	static ThreadQueue *instance();
 private:
 	static bool m_enable;
 private:

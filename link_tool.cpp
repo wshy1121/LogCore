@@ -47,6 +47,17 @@ ThreadQueue::ThreadQueue()
 	return ;
 }
 
+ThreadQueue *ThreadQueue::instance()
+{
+	static ThreadQueue _instance;	
+	return &_instance; 
+}
+
+void ThreadQueue::start()
+{
+	m_enable = true;
+}
+
 void ThreadQueue::setEnable(bool enable)
 {
 	m_enable = enable;
@@ -223,4 +234,6 @@ void ThreadQueue::dispQueue()
 	return ;
 
 }
+
+
 

@@ -33,7 +33,7 @@ all	:	$(LIB_TARGET)
 $(LIB_TARGET): $(LIB_OBJS)
 	$(AR) $(AFLAGS) $@ $^
 	$(RANLIB) $@
-	$(CPP) -o test Global.cpp main.cpp wrap_malloc.cpp link_tool.cpp -lpthread $(OPT_CFLAGS)
+	$(CPP) -g -o test Global.cpp main.cpp wrap_malloc.cpp link_tool.cpp -lpthread $(OPT_CFLAGS)
 
 .c.o:
 	$(CC) -c $(CFLAGS) $^ -o $@

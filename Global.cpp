@@ -824,7 +824,7 @@ void CTimeCalc::DispTraces(int signo)
 void CTimeCalc::BackTrace()
 {
 #ifdef WRAP
-	CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__);
+	//CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__);
        void *stack_addr[10];
        int layer;
        int i;
@@ -838,7 +838,7 @@ void CTimeCalc::BackTrace()
 		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
 		traceInf += tmp;
 	}
-	
+	printf("%s\n", traceInf.c_str());
 	//CTimeCalc::InsertTrace(__LINE__, (char *)__FILE__, "%s", traceInf.c_str());
 #endif
 	return ;

@@ -98,7 +98,7 @@ void* test1(void *pArg)
 		time_trace();
 		fun0(100);
 		//testThreadQueue();
-		usleep(100*1000);		
+		usleep(5000*1000);		
 	}
 	return NULL;
 }
@@ -107,7 +107,7 @@ extern ThreadQueue threadQueue;
 
 int main()
 {
-	threadQueue.setEnable(true);
+	ThreadQueue::instance()->start();
 
 	pthread_t thread_id[10];
 	
