@@ -53,6 +53,22 @@ int getQueueHead(struct queue *queue, struct queue_node **ret_queue_node);
 int getQueueNodeNum(struct queue *queue);
 void dispQueue(struct queue *queue);
 int eachQueue(struct queue *queue, int (*queue_node_deal)(struct queue_node *, void *arg), void *arg);
+
+typedef struct 
+{
+	pthread_t thread_id;
+	bool enable;
+	struct node node;
+}ThreadNode;
+
+typedef struct
+{
+	ThreadNode head_node;
+	ThreadNode *tail;
+	int node_num;
+}ThreadQueue;
+#define TQueueContain(x) container_of((x), struct ThreadNode, node)
+
 #endif
 
 

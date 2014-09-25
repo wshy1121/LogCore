@@ -236,3 +236,59 @@ void dispQueue(struct queue *queue)
 	}
 	return ;
 }
+
+
+void initTQueue(ThreadQueue *queue)
+{
+	init_node(&queue->head_node.node);
+	queue->tail = &queue->head_node;
+	queue->node_num = 0;
+	return ;
+}
+
+
+int putTQueue(ThreadQueue *queue, ThreadNode *queue_node)
+{
+	insert_node(queue->head_node.node.pre, &queue_node->node); 
+	queue->tail = queue_node;
+	++(queue->node_num);
+	return 0;
+}
+
+
+int getTQueue(ThreadQueue *queue, pthread_t thread_id, ThreadNode **ret_queue_node)
+{
+	struct node *node = NULL;
+	struct node *head = &queue->head_node.node;
+	ThreadNode *queue_node = NULL;
+
+	if (queue->node_num < 1) //无结点
+	{
+		*ret_queue_node = NULL;
+		return -1;
+	}
+	if (&queue->head_node == queue->tail) //无结点
+	{
+		*ret_queue_node = NULL;
+		return -1;
+	}
+
+	each_link_node(head, node)
+	{
+		queue_node = container_of(node, ThreadNode, node);
+		if (queue_node->thread_id == thread_id)
+		{
+			*ret_queue_node = queue_node;
+			remov_node(&queue_node->node);
+			queue->tail = container_of(queue->head_node.node.pre, ThreadNode, node);
+			--(queue->node_num);
+			return 0;	
+		}
+	}
+
+	*ret_queue_node = NULL;
+	return -1;
+}
+
+
+
