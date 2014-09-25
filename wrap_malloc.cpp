@@ -11,6 +11,7 @@ extern "C" void* __real_realloc(size_t);
 extern "C" void* __real_calloc(size_t);
 extern "C" void __real_free(void* p);
 
+static ThreadQueue threadQueue;
 
 pid_t gettid()
 {
@@ -29,9 +30,12 @@ extern "C" void *__wrap_malloc(size_t c)
 		}
 			
 	}
-	if (CTimeCalc::isInitFinished())
-	{
-	}
+
+	
+	ThreadNode *queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
+	threadQueue.initThreadNode(queue_node, true, pthread_self());
+
+	//threadQueue.putQueue(ThreadNode * queue_node);
 
 	return p; 
 }

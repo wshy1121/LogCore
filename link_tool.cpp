@@ -62,7 +62,7 @@ void ThreadQueue::initThreadNode(ThreadNode *queue_node, bool enable, pthread_t 
 	return ;
 }
 
-int ThreadQueue::putQueue(ThreadNode *queue_node)
+int ThreadQueue::insertQueue(ThreadNode *queue_node)
 {
 	pthread_mutex_lock(&m_mutex);
 	insert_node(head_node.node.pre, &queue_node->node); 
@@ -73,6 +73,40 @@ int ThreadQueue::putQueue(ThreadNode *queue_node)
 }
 
 
+int ThreadQueue::removeQueue(pthread_t thread_id)
+{
+	pthread_mutex_lock(&m_mutex);
+	struct node *node = NULL;
+	struct node *head = &head_node.node;
+	ThreadNode *queue_node = NULL;
+
+	if (node_num < 1) //无结点
+	{
+		pthread_mutex_unlock(&m_mutex);
+		return -1;
+	}
+	if (&head_node == tail) //无结点
+	{
+		pthread_mutex_unlock(&m_mutex);
+		return -1;
+	}
+
+	each_link_node(head, node)
+	{
+		queue_node = TQueueContain(node);
+		if (queue_node->thread_id == thread_id)
+		{
+			remov_node(&queue_node->node);
+			tail = TQueueContain(head_node.node.pre);
+			--(node_num);
+			pthread_mutex_unlock(&m_mutex);
+			return 0;	
+		}
+	}
+
+	pthread_mutex_unlock(&m_mutex);
+	return -1;
+}
 int ThreadQueue::getQueue(pthread_t thread_id, ThreadNode **ret_queue_node)
 {
 	pthread_mutex_lock(&m_mutex);
@@ -99,9 +133,7 @@ int ThreadQueue::getQueue(pthread_t thread_id, ThreadNode **ret_queue_node)
 		if (queue_node->thread_id == thread_id)
 		{
 			*ret_queue_node = queue_node;
-			remov_node(&queue_node->node);
 			tail = TQueueContain(head_node.node.pre);
-			--(node_num);
 			pthread_mutex_unlock(&m_mutex);
 			return 0;	
 		}
@@ -111,6 +143,7 @@ int ThreadQueue::getQueue(pthread_t thread_id, ThreadNode **ret_queue_node)
 	pthread_mutex_unlock(&m_mutex);
 	return -1;
 }
+
 
 void ThreadQueue::clearQueue()
 {
@@ -134,7 +167,7 @@ void ThreadQueue::clearQueue()
 	{
 		queue_node = TQueueContain(node);
 		(node)=(node)->next;
-		printf("queue_node->thread_id  %ld\n", queue_node->thread_id);
+		//printf("queue_node->thread_id  %ld\n", queue_node->thread_id);
 
 		__real_free(queue_node);
 

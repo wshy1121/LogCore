@@ -54,7 +54,7 @@ void fun0(int count)
 	fun1();
 }
 
-ThreadQueue threadQueue;
+static ThreadQueue threadQueue;
 
 void testThreadQueue()
 {
@@ -66,7 +66,7 @@ void testThreadQueue()
 	{
 		queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
 		threadQueue.initThreadNode(queue_node, true, ++threadId);
-		threadQueue.putQueue(queue_node);
+		threadQueue.insertQueue(queue_node);
 	}
 
 	//threadQueue.dispQueue();
@@ -76,9 +76,17 @@ void testThreadQueue()
 	{
 		queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
 		threadQueue.initThreadNode(queue_node, true, ++threadId);
-		threadQueue.putQueue(queue_node);
+		threadQueue.insertQueue(queue_node);
 	}
-	
+
+	for (int i=0; i<5; ++i)
+	{
+		threadQueue.getQueue(--threadId, &queue_node);
+		if (queue_node)
+		{
+			printf("qthreadId  %d\n", threadId);
+		}
+	}
 	threadQueue.clearQueue();
 
 	return ;
