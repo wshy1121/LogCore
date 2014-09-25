@@ -140,6 +140,11 @@ void ThreadQueue::clearQueue()
 
 	}
 
+
+	init_node(&head_node.node);
+	tail = &head_node;
+	node_num = 0;
+
 	pthread_mutex_unlock(&m_mutex);
 	return ;
 }

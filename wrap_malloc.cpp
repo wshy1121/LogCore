@@ -11,7 +11,6 @@ extern "C" void* __real_realloc(size_t);
 extern "C" void* __real_calloc(size_t);
 extern "C" void __real_free(void* p);
 
-ThreadQueue threadQueue;
 
 pid_t gettid()
 {
