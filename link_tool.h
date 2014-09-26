@@ -40,6 +40,7 @@ public:
 	void setEnable(bool enable);
 	bool getEnable();
 	void start();
+	void getStackInf();
 	static ThreadQueue *instance();
 private:
 	static bool m_enable;

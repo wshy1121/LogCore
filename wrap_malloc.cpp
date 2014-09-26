@@ -33,22 +33,7 @@ extern "C" void *__wrap_malloc(size_t c)
 
 	if (ThreadQueue::instance()->getEnable())
 	{
-		ThreadNode *queue_node = NULL;
-		ThreadQueue::instance()->getQueue(pthread_self(), &queue_node);
-		if (!queue_node)
-		{
-			queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
-			ThreadQueue::instance()->initThreadNode(queue_node, true, pthread_self());
-			ThreadQueue::instance()->insertQueue(queue_node);
-		}
-
-		if (queue_node->enable)
-		{
-			queue_node->enable = false;
-			//CTimeCalc::BackTrace();
-			queue_node->enable = true;
-
-		}
+		ThreadQueue::instance()->getStackInf();
 	}
 	//threadQueue.putQueue(ThreadNode * queue_node);
 

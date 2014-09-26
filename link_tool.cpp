@@ -1,6 +1,8 @@
 #include "Global.h"
 #include "link_tool.h"
 #include <stdio.h>
+#include <execinfo.h>
+
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
 
@@ -49,7 +51,7 @@ ThreadQueue::ThreadQueue()
 
 ThreadQueue *ThreadQueue::instance()
 {
-	static ThreadQueue _instance;	
+	static ThreadQueue _instance;
 	return &_instance; 
 }
 
@@ -235,5 +237,43 @@ void ThreadQueue::dispQueue()
 
 }
 
+void ThreadQueue::getStackInf()
+{
 
+	ThreadNode *queue_node = NULL;
+	getQueue(pthread_self(), &queue_node);
+	if (!queue_node)
+	{
+		queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
+		initThreadNode(queue_node, true, pthread_self());
+		insertQueue(queue_node);
+	}
+
+	if (queue_node->enable)
+	{
+		queue_node->enable = false;
+		void *stack_addr[10];
+		int layer = 0;
+		int i;
+		std::string traceInf = "addr2line -e ./Challenge_Debug -f -C  ";
+		char tmp[256];
+
+		/* 通过调用libc函数实现 */
+		layer = backtrace(stack_addr, 10);
+		
+		for(i = 0; i < layer; i++)
+		{
+			snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
+			traceInf += tmp;
+		}
+		
+		
+		printf("%s\n", traceInf.c_str());
+		queue_node->enable = true;	
+
+	}
+
+	
+	return ;
+}
 
