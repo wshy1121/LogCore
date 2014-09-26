@@ -33,7 +33,7 @@ extern "C" void *__wrap_malloc(size_t c)
 
 	if (ThreadQueue::instance()->getEnable())
 	{
-		ThreadQueue::instance()->getStackInf();
+		ThreadQueue::instance()->wrapMalloc(c, p);
 	}
 	//threadQueue.putQueue(ThreadNode * queue_node);
 

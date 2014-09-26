@@ -5,7 +5,7 @@
 
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
-
+const size_t MAX_MEM_SIZE = 256;
 
 /******************************************************/
 void init_node(struct node *node)
@@ -237,8 +237,12 @@ void ThreadQueue::dispQueue()
 
 }
 
-void ThreadQueue::getStackInf()
+void ThreadQueue::wrapMalloc(size_t c, void* addr)
 {
+	if (c < MAX_MEM_SIZE)
+	{
+		return ;
+	}
 
 	ThreadNode *queue_node = NULL;
 	getQueue(pthread_self(), &queue_node);
@@ -252,28 +256,51 @@ void ThreadQueue::getStackInf()
 	if (queue_node->enable)
 	{
 		queue_node->enable = false;
-		void *stack_addr[10];
-		int layer = 0;
-		int i;
-		std::string traceInf = "addr2line -e ./Challenge_Debug -f -C  ";
-		char tmp[256];
-
-		/* 通过调用libc函数实现 */
-		layer = backtrace(stack_addr, 10);
-		
-		for(i = 0; i < layer; i++)
-		{
-			snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
-			traceInf += tmp;
-		}
-		
-		
-		printf("%s\n", traceInf.c_str());
+		CalcMem::instance()->wrapMalloc(c, addr);
 		queue_node->enable = true;	
 
 	}
 
-	
 	return ;
 }
+
+CalcMem::CalcMem()
+{
+	pthread_mutex_init(&m_mutex, NULL);
+}
+CalcMem *CalcMem::instance()
+{
+	static CalcMem _instance;
+	return &_instance; 
+}
+
+
+void CalcMem::wrapMalloc(size_t c, void* addr)
+{
+	const int stackSize = 15;
+	void *stack_addr[stackSize];
+	int layer = 0;
+	int i;
+	std::string traceInf = "addr2line -e ./Challenge_Debug -f -C  ";
+	char tmp[256];
+
+
+	pthread_mutex_lock(&m_mutex);
+	
+	/* 通过调用libc函数实现 */
+	layer = backtrace(stack_addr, stackSize);
+	
+	for(i = 2; i < layer; i++)
+	{
+		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
+		traceInf += tmp;
+	}
+
+	m_mallocSizeMap[traceInf][addr] = c;
+	pthread_mutex_unlock(&m_mutex);
+
+	printf("mallocSize  %ld  %s\n", c, traceInf.c_str());
+	
+}
+
 

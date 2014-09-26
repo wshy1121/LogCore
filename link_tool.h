@@ -1,11 +1,12 @@
 #ifndef __LINK_TOOL_H
 #define __LINK_TOOL_H
 #include "Global.h"
-
+#include <map>
 #define container_of(ptr, type, member) ({  \
 const typeof( ((type *)0)->member ) *__mptr = (ptr);   \
 (type *)( (char *)__mptr - offsetof(type,member) );})
 
+#define TQueueContain(x) container_of((x), ThreadNode, node)
 #define each_link_node(head, node) for ((node)=(head)->next; (head) != (node); (node)=(node)->next)
 
 struct node
@@ -40,7 +41,7 @@ public:
 	void setEnable(bool enable);
 	bool getEnable();
 	void start();
-	void getStackInf();
+	void wrapMalloc(size_t c, void* addr);
 	static ThreadQueue *instance();
 private:
 	static bool m_enable;
@@ -51,8 +52,24 @@ private:
 	pthread_mutex_t  m_mutex;
 };
 
+class  CalcMem
+{
+public:
+	static CalcMem *instance();
+	void wrapMalloc(size_t c, void* addr);
+private:
+	CalcMem();
+private:
+	pthread_mutex_t  m_mutex;
+	///mallocSizeMap["local"][addr] = memSize;
+	typedef std::map<void *, size_t>  MemNode;
+	std::map<std::string, MemNode> m_mallocSizeMap;
 
-#define TQueueContain(x) container_of((x), ThreadNode, node)
+	typedef std::map<std::string, MemNode>::iterator MemNodeIter;
+	std::map<void *, MemNodeIter> m_memNodeMap;
+};
+
+
 
 #endif
 
