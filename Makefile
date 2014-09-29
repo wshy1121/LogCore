@@ -10,6 +10,7 @@
 #CROSS  = arm-linux-gnueabihf-
 ifeq ($(OPT),WRAP)
 OPT_CFLAGS += -DWRAP -Wl,-wrap,malloc -Wl,-wrap,realloc -Wl,-wrap,calloc -Wl,-wrap,free -static
+CFLAGS += -DWRAP
 endif
 
 CPP	=	@echo " g++ $@"; $(CROSS)g++

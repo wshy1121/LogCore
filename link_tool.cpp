@@ -1,6 +1,7 @@
 #include "Global.h"
 #include "link_tool.h"
 #include <stdio.h>
+#include <string.h>
 #include <execinfo.h>
 
 extern "C" void __real_free(void* p);
@@ -281,25 +282,23 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 	void *stack_addr[stackSize];
 	int layer = 0;
 	int i;
-	std::string traceInf = "addr2line -e ./Challenge_Debug -f -C  ";
-	char tmp[256];
-
-
-	pthread_mutex_lock(&m_mutex);
+	char traceInf[512] = "addr2line -e ./Challenge_Debug -f -C  ";
+	int infPos = strlen(traceInf);;
 	
+	pthread_mutex_lock(&m_mutex);	
 	/* 通过调用libc函数实现 */
 	layer = backtrace(stack_addr, stackSize);
-	
+
 	for(i = 2; i < layer; i++)
 	{
-		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
-		traceInf += tmp;
+		snprintf(traceInf+infPos, sizeof(traceInf)-infPos, "%p  ", stack_addr[i]);
+		infPos = strlen(traceInf);
 	}
 
 	m_mallocSizeMap[traceInf][addr] = c;
 	pthread_mutex_unlock(&m_mutex);
 
-	printf("mallocSize  %ld  %s\n", c, traceInf.c_str());
+	printf("mallocSize  %ld  %s\n", c, traceInf);
 	
 }
 
