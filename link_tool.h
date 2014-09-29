@@ -42,6 +42,7 @@ public:
 	bool getEnable();
 	void start();
 	void wrapMalloc(size_t c, void* addr);
+	void wrapFree(void* addr);
 	static ThreadQueue *instance();
 private:
 	static bool m_enable;
@@ -57,6 +58,8 @@ class  CalcMem
 public:
 	static CalcMem *instance();
 	void wrapMalloc(size_t c, void* addr);
+	void wrapFree(void* addr);
+	void printfMallocMap();
 private:
 	CalcMem();
 private:

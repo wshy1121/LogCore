@@ -69,6 +69,10 @@ extern "C" void* __wrap_calloc(size_t c)
 extern "C" void __wrap_free(void*p)
 {
 	//printf("free : %p\n", p);
+	if (ThreadQueue::instance()->getEnable())
+	{
+		//ThreadQueue::instance()->wrapFree(p);
+	}	
 	return __real_free(p);
 }
 

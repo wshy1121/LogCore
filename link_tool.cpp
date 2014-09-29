@@ -265,6 +265,29 @@ void ThreadQueue::wrapMalloc(size_t c, void* addr)
 	return ;
 }
 
+void ThreadQueue::wrapFree(void* addr)
+{
+	ThreadNode *queue_node = NULL;
+	getQueue(pthread_self(), &queue_node);
+	if (!queue_node)
+	{
+		queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
+		initThreadNode(queue_node, true, pthread_self());
+		insertQueue(queue_node);
+	}
+
+	if (queue_node->enable)
+	{
+		queue_node->enable = false;
+		CalcMem::instance()->wrapFree(addr);
+		queue_node->enable = true;	
+
+	}
+
+	return ;
+}
+
+
 CalcMem::CalcMem()
 {
 	pthread_mutex_init(&m_mutex, NULL);
@@ -298,8 +321,46 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 	m_mallocSizeMap[traceInf][addr] = c;
 	pthread_mutex_unlock(&m_mutex);
 
-	printf("mallocSize  %ld  %s\n", c, traceInf);
+	//printf("mallocSize  %ld  %s\n", c, traceInf);
 	
+}
+
+void CalcMem::wrapFree(void* addr)
+{
+	const int stackSize = 15;
+	void *stack_addr[stackSize];
+	int layer = 0;
+	int i;
+	char traceInf[512] = "addr2line -e ./Challenge_Debug -f -C  ";
+	int infPos = strlen(traceInf);;
+	
+	pthread_mutex_lock(&m_mutex);	
+	/* 通过调用libc函数实现 */
+	layer = backtrace(stack_addr, stackSize);
+
+	for(i = 2; i < layer; i++)
+	{
+		snprintf(traceInf+infPos, sizeof(traceInf)-infPos, "%p  ", stack_addr[i]);
+		infPos = strlen(traceInf);
+	}
+
+	m_mallocSizeMap[traceInf][addr] = 0;
+	pthread_mutex_unlock(&m_mutex);
+
+}
+void CalcMem::printfMallocMap()
+{
+	printf("printfMallocMap()---------------------------->\n");
+	
+	std::map<std::string, MemNode>::iterator iter;
+
+	pthread_mutex_lock(&m_mutex);
+	for (iter = m_mallocSizeMap.begin(); iter != m_mallocSizeMap.end(); ++iter)
+	{
+		std::string local = iter->first;
+		printf("loca  %s\n", local.c_str());
+	}
+	pthread_mutex_unlock(&m_mutex);
 }
 
 

@@ -11,6 +11,7 @@
 ifeq ($(OPT),WRAP)
 OPT_CFLAGS += -DWRAP -Wl,-wrap,malloc -Wl,-wrap,realloc -Wl,-wrap,calloc -Wl,-wrap,free -static
 OPT_CFLAGS +=  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc
+OPT_CFLAGS	+= -fstack-protector-all
 CFLAGS += -DWRAP
 endif
 

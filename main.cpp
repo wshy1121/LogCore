@@ -9,6 +9,7 @@ extern "C" void* __real_malloc(size_t);
 
 void fun1()
 {
+	CalcMem::instance()->wrapMalloc(0, NULL);
 	char *tmp = new char[32];
 
 	strcpy(tmp, "1234567789");
