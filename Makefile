@@ -10,6 +10,7 @@
 #CROSS  = arm-linux-gnueabihf-
 ifeq ($(OPT),WRAP)
 OPT_CFLAGS += -DWRAP -Wl,-wrap,malloc -Wl,-wrap,realloc -Wl,-wrap,calloc -Wl,-wrap,free -static
+OPT_CFLAGS +=  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc
 CFLAGS += -DWRAP
 endif
 
@@ -34,7 +35,7 @@ all	:	$(LIB_TARGET)
 $(LIB_TARGET): $(LIB_OBJS)
 	$(AR) $(AFLAGS) $@ $^
 	$(RANLIB) $@
-	$(CPP) -g -o test Global.cpp main.cpp wrap_malloc.cpp link_tool.cpp -lpthread $(OPT_CFLAGS)
+	$(CPP) -g -o test Global.cpp main.cpp wrap_malloc.cpp link_tool.cpp  $(OPT_CFLAGS)
 
 .c.o:
 	$(CC) -c $(CFLAGS) $^ -o $@
