@@ -328,6 +328,10 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 		m_memNodeMap.insert( std::make_pair(addr, pNodeInf) );
 		dealMemInf(pNodeInf->path.c_str(), "Malloc", pNodeInf->memSize);
 	}
+	else
+	{
+		tracepoint();
+	}
 	
 	pthread_mutex_unlock(&m_mutex);
 	
@@ -360,6 +364,10 @@ void CalcMem::wrapFree(void* addr)
 		dealMemInf(pNodeInf->path.c_str(), traceInf, pNodeInf->memSize);
 		delete pNodeInf;
 		m_memNodeMap.erase(iter);
+	}
+	else
+	{
+		tracepoint();
 	}
 	
 	pthread_mutex_unlock(&m_mutex);
