@@ -330,6 +330,7 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 	}
 	else
 	{
+		printf("traceInf  %s\n", traceInf);
 		tracepoint();
 	}
 	
@@ -367,6 +368,7 @@ void CalcMem::wrapFree(void* addr)
 	}
 	else
 	{
+		printf("traceInf  %s\n", traceInf);
 		tracepoint();
 	}
 	
@@ -376,18 +378,48 @@ void CalcMem::wrapFree(void* addr)
 void CalcMem::printfMallocMap()
 {
 	printf("printfMallocMap()---------------------------->\n");
-	
-#if 0	
-	std::map<std::string, MemNode>::iterator iter;
-
 	pthread_mutex_lock(&m_mutex);
-	for (iter = m_mallocSizeMap.begin(); iter != m_mallocSizeMap.end(); ++iter)
+
+	MemInfType *memInfType = NULL;
+	MemInf *memInf = NULL;
+
+	MemInfMap::iterator memInfMapIter;
+	MemInfType::iterator memInfTypeIter;
+
+	size_t totolMallocSize = 0;
+	size_t totolFreeSize = 0;
+	for (memInfMapIter = m_MemInfMap.begin(); memInfMapIter != m_MemInfMap.end(); ++memInfMapIter)
 	{
-		std::string local = iter->first;
-		printf("loca  %s\n", local.c_str());
+		std::string mallocPath = memInfMapIter->first;
+		memInfType = memInfMapIter->second;
+
+		//printf("mallocPath %s\n", mallocPath.c_str());
+		for (memInfTypeIter = memInfType->begin(); memInfTypeIter != memInfType->end(); ++memInfTypeIter)
+		{
+			std::string freePath = memInfTypeIter->first;
+			memInf = memInfTypeIter->second;
+
+			if (freePath.size() < 16)
+			{
+				totolMallocSize += memInf->memSize;
+			}
+			else
+			{
+				totolFreeSize += memInf->memSize;
+			}
+		}
+		if (totolMallocSize  > totolFreeSize+1024)
+		{
+			size_t diffSize =  totolMallocSize-totolFreeSize;
+			printf("diffSize  %d  ---------------totolMallocSize, totolFreeSize  %d  %d\n", diffSize, totolMallocSize, totolFreeSize);
+			printf("%s\n", mallocPath.c_str());
+		}
+
+		printf("\n\n\n");
 	}
+	
 	pthread_mutex_unlock(&m_mutex);
-#endif	
+	
 }
 
 void CalcMem::dealMemInf(const char *mallocPath, const char *freePath, size_t size)

@@ -102,24 +102,34 @@ void* test1(void *pArg)
 	}
 	return NULL;
 }
-
-extern ThreadQueue threadQueue;
-
+void* printfMallocMap(void *pArg)
+{
+	while (1)
+	{
+		CalcMem::instance()->printfMallocMap();
+		usleep(5000*1000);		
+	}
+	return NULL;
+}
 int main()
 {
 	ThreadQueue::instance()->start();
 
-	pthread_t thread_id[10];
-	
-	for (int i=0; i<10; ++i)
-	{
-		pthread_create(&thread_id[i], NULL,test1,NULL);
-	}
+	pthread_t thread_id[32];
 
-	for (int i=0; i<10; ++i)
+	int i = 0;
+	for (i=0; i<10;)
 	{
-		pthread_join(thread_id[i], NULL);
+		pthread_create(&thread_id[i++], NULL,test1,NULL);
 	}
+	pthread_create(&thread_id[i++], NULL,printfMallocMap,NULL);
+	//-------------------------------------------------------------
+	for (i=0; i<10;)
+	{
+		pthread_join(thread_id[i++], NULL);
+	}
+	pthread_join(thread_id[i++], NULL);
+	
 	return 0;
 }
 

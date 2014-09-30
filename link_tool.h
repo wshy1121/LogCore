@@ -58,6 +58,7 @@ typedef struct MemNodeInf
 	void *addr;
 	std::string path;
 	size_t memSize;
+	//char memTest[16*1024];
 }MemNodeInf;
 
 typedef struct MemInf
