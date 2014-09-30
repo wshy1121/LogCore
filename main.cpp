@@ -17,6 +17,10 @@ void fun1()
 	tmp = (char *)realloc(tmp, 33);
 	strcpy(tmp, "1234567789");
 	delete tmp;
+
+	tmp = (char *)calloc(1, 1024*4);
+	strcpy(tmp, "1234567789");
+	delete tmp;
 	
 	time_trace_level(3);
 	std::string stack;

@@ -313,25 +313,24 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 		infPos = strlen(traceInf);
 	}
 
-	MemNodeInf *pNodeInf = new MemNodeInf;
-	if (pNodeInf == NULL)
-	{
-		printf("pNodeInf new failed\n");
-	}
-	pNodeInf->addr = addr;
-	pNodeInf->path = traceInf;
-	pNodeInf->memSize = c;
-
 	MemNodeMap::iterator iter = m_memNodeMap.find(addr);
 	if (iter == m_memNodeMap.end())
 	{
+		MemNodeInf *pNodeInf = new MemNodeInf;
+		if (pNodeInf == NULL)
+		{
+			printf("pNodeInf new failed\n");
+		}
+		pNodeInf->addr = addr;
+		pNodeInf->path = traceInf;
+		pNodeInf->memSize = c;
+
 		m_memNodeMap.insert( std::make_pair(addr, pNodeInf) );
 		dealMemInf(pNodeInf->path.c_str(), "Malloc", pNodeInf->memSize);
 	}
 	else
 	{
 		//printf("traceInf  %s\n", traceInf);
-		//tracepoint();
 	}
 	
 	pthread_mutex_unlock(&m_mutex);
@@ -368,8 +367,7 @@ void CalcMem::wrapFree(void* addr)
 	}
 	else
 	{
-		printf("traceInf  %s\n", traceInf);
-		tracepoint();
+		//printf("traceInf  %s\n", traceInf);
 	}
 	
 	pthread_mutex_unlock(&m_mutex);
@@ -408,15 +406,17 @@ void CalcMem::printfMallocMap()
 				totolFreeSize += memInf->memSize;
 			}
 		}
-		if (totolMallocSize  > totolFreeSize+1024)
-		{
-			size_t diffSize =  totolMallocSize-totolFreeSize;
-			printf("diffSize  %d  ---------------totolMallocSize, totolFreeSize  %d  %d\n", diffSize, totolMallocSize, totolFreeSize);
-			printf("%s\n", mallocPath.c_str());
-		}
 
-		printf("\n\n\n");
 	}
+	
+	if (totolMallocSize  > totolFreeSize)
+	{
+		size_t diffSize =  totolMallocSize-totolFreeSize;
+		printf("diffSize  %d  ---------------totolMallocSize, totolFreeSize  %d  %d\n", diffSize, totolMallocSize, totolFreeSize);
+		//printf("%s\n", mallocPath.c_str());
+	}
+
+	printf("\n\n\n");	
 	
 	pthread_mutex_unlock(&m_mutex);
 	
