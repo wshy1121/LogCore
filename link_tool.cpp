@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <execinfo.h>
+#include <assert.h>
 
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
@@ -315,7 +316,7 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 	MemNodeInf *pNodeInf = new MemNodeInf;
 	if (pNodeInf == NULL)
 	{
-		printf("pNodeInf __real_malloc failed\n");
+		printf("pNodeInf new failed\n");
 	}
 	pNodeInf->addr = addr;
 	pNodeInf->path = traceInf;
@@ -325,6 +326,7 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 	if (iter == m_memNodeMap.end())
 	{
 		m_memNodeMap.insert( std::make_pair(addr, pNodeInf) );
+		dealMemInf(pNodeInf->path.c_str(), "Malloc", pNodeInf->memSize);
 	}
 	
 	pthread_mutex_unlock(&m_mutex);
@@ -353,7 +355,10 @@ void CalcMem::wrapFree(void* addr)
 	MemNodeMap::iterator iter = m_memNodeMap.find(addr);
 	if (iter != m_memNodeMap.end())
 	{
-		delete iter->second;
+		MemNodeInf *pNodeInf = iter->second;
+
+		dealMemInf(pNodeInf->path.c_str(), traceInf, pNodeInf->memSize);
+		delete pNodeInf;
 		m_memNodeMap.erase(iter);
 	}
 	
@@ -377,4 +382,38 @@ void CalcMem::printfMallocMap()
 #endif	
 }
 
+void CalcMem::dealMemInf(const char *mallocPath, const char *freePath, size_t size)
+{
+	MemInfType *memInfType = NULL;
+	MemInfMap::iterator memInfMapIter = m_MemInfMap.find(mallocPath);
+	if (memInfMapIter != m_MemInfMap.end())
+	{
+		memInfType = memInfMapIter->second;
+	}
+	else
+	{
+		memInfType = new MemInfType;
+		assert(memInfType != NULL);
+		m_MemInfMap.insert(std::make_pair(mallocPath, memInfType));
+	}
+	
+	MemInf *memInf = NULL;
+	MemInfType::iterator memInfTypeIter = memInfType->find(freePath);
+	if (memInfTypeIter != memInfType->end())
+	{
+		memInf = memInfTypeIter->second;
+	}
+	else
+	{
+		memInf = new MemInf;
+		assert(memInf != NULL);
+
+		memInf->memSize = 0;
+		memInfType->insert(std::make_pair(freePath, memInf));
+	}
+
+	memInf->memSize += size;
+
+	return ;
+}
 

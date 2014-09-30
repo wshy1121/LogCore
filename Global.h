@@ -12,7 +12,7 @@
 
 void NextStep(const char *function, const char *fileName, int line);
 #define nextStep()  NextStep(__FUNCTION__, __FILE__, __LINE__)
-
+#define tracepoint()  printf("%d  %s  \t\t%ld\n", __LINE__, __FILE__, pthread_self());
 class CTimeCalc;
 
 typedef std::list<CTimeCalc *> CTimeCalcList;
