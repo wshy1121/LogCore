@@ -6,7 +6,6 @@
 
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
-const size_t MAX_MEM_SIZE = 256;
 
 /******************************************************/
 void init_node(struct node *node)
@@ -240,11 +239,6 @@ void ThreadQueue::dispQueue()
 
 void ThreadQueue::wrapMalloc(size_t c, void* addr)
 {
-	if (c < MAX_MEM_SIZE)
-	{
-		return ;
-	}
-
 	ThreadNode *queue_node = NULL;
 	getQueue(pthread_self(), &queue_node);
 	if (!queue_node)
@@ -305,7 +299,7 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 	void *stack_addr[stackSize];
 	int layer = 0;
 	int i;
-	char traceInf[512] = "addr2line -e ./Challenge_Debug -f -C  ";
+	char traceInf[TRACE_INF_LEN] = "addr2line -e ./Challenge_Debug -f -C  ";
 	int infPos = strlen(traceInf);;
 	
 	pthread_mutex_lock(&m_mutex);	
@@ -318,10 +312,22 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 		infPos = strlen(traceInf);
 	}
 
-	m_mallocSizeMap[traceInf][addr] = c;
-	pthread_mutex_unlock(&m_mutex);
+	MemNodeInf *pNodeInf = new MemNodeInf;
+	if (pNodeInf == NULL)
+	{
+		printf("pNodeInf __real_malloc failed\n");
+	}
+	pNodeInf->addr = addr;
+	pNodeInf->path = traceInf;
+	pNodeInf->memSize = c;
 
-	//printf("mallocSize  %ld  %s\n", c, traceInf);
+	MemNodeMap::iterator iter = m_memNodeMap.find(addr);
+	if (iter == m_memNodeMap.end())
+	{
+		m_memNodeMap.insert( std::make_pair(addr, pNodeInf) );
+	}
+	
+	pthread_mutex_unlock(&m_mutex);
 	
 }
 
@@ -331,7 +337,7 @@ void CalcMem::wrapFree(void* addr)
 	void *stack_addr[stackSize];
 	int layer = 0;
 	int i;
-	char traceInf[512] = "addr2line -e ./Challenge_Debug -f -C  ";
+	char traceInf[TRACE_INF_LEN] = "addr2line -e ./Challenge_Debug -f -C  ";
 	int infPos = strlen(traceInf);;
 	
 	pthread_mutex_lock(&m_mutex);	
@@ -343,8 +349,14 @@ void CalcMem::wrapFree(void* addr)
 		snprintf(traceInf+infPos, sizeof(traceInf)-infPos, "%p  ", stack_addr[i]);
 		infPos = strlen(traceInf);
 	}
-
-	m_mallocSizeMap[traceInf][addr] = 0;
+	
+	MemNodeMap::iterator iter = m_memNodeMap.find(addr);
+	if (iter != m_memNodeMap.end())
+	{
+		delete iter->second;
+		m_memNodeMap.erase(iter);
+	}
+	
 	pthread_mutex_unlock(&m_mutex);
 
 }
@@ -352,6 +364,7 @@ void CalcMem::printfMallocMap()
 {
 	printf("printfMallocMap()---------------------------->\n");
 	
+#if 0	
 	std::map<std::string, MemNode>::iterator iter;
 
 	pthread_mutex_lock(&m_mutex);
@@ -361,6 +374,7 @@ void CalcMem::printfMallocMap()
 		printf("loca  %s\n", local.c_str());
 	}
 	pthread_mutex_unlock(&m_mutex);
+#endif	
 }
 
 

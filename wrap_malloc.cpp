@@ -31,11 +31,10 @@ extern "C" void *__wrap_malloc(size_t c)
 			
 	}
 
-	if (ThreadQueue::instance()->getEnable())
+	if (p && ThreadQueue::instance()->getEnable())
 	{
 		ThreadQueue::instance()->wrapMalloc(c, p);
 	}
-	//threadQueue.putQueue(ThreadNode * queue_node);
 
 	return p; 
 }
@@ -68,12 +67,13 @@ extern "C" void* __wrap_calloc(size_t c)
 }
 extern "C" void __wrap_free(void*p)
 {
-	//printf("free : %p\n", p);
-	if (ThreadQueue::instance()->getEnable())
+
+	__real_free(p);
+
+	if (p && ThreadQueue::instance()->getEnable())
 	{
-		//ThreadQueue::instance()->wrapFree(p);
-	}	
-	return __real_free(p);
+		ThreadQueue::instance()->wrapFree(p);
+	}
 }
 
 #endif

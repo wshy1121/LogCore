@@ -8,6 +8,7 @@ const typeof( ((type *)0)->member ) *__mptr = (ptr);   \
 
 #define TQueueContain(x) container_of((x), ThreadNode, node)
 #define each_link_node(head, node) for ((node)=(head)->next; (head) != (node); (node)=(node)->next)
+#define TRACE_INF_LEN  512
 
 struct node
 {
@@ -52,6 +53,12 @@ private:
 	int node_num;
 	pthread_mutex_t  m_mutex;
 };
+typedef struct MemNodeInf
+{
+	void *addr;
+	std::string path;
+	size_t memSize;
+}MemNodeInf;
 
 class  CalcMem
 {
@@ -64,12 +71,9 @@ private:
 	CalcMem();
 private:
 	pthread_mutex_t  m_mutex;
-	///mallocSizeMap["local"][addr] = memSize;
-	typedef std::map<void *, size_t>  MemNode;
-	std::map<std::string, MemNode> m_mallocSizeMap;
 
-	typedef std::map<std::string, MemNode>::iterator MemNodeIter;
-	std::map<void *, MemNodeIter> m_memNodeMap;
+	typedef std::map<void *, MemNodeInf *> MemNodeMap;
+	MemNodeMap m_memNodeMap;
 };
 
 

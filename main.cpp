@@ -9,7 +9,6 @@ extern "C" void* __real_malloc(size_t);
 
 void fun1()
 {
-	CalcMem::instance()->wrapMalloc(0, NULL);
 	char *tmp = new char[32];
 
 	strcpy(tmp, "1234567789");
@@ -99,7 +98,7 @@ void* test1(void *pArg)
 		time_trace();
 		fun0(100);
 		//testThreadQueue();
-		usleep(5000*1000);		
+		usleep(1000*1000);		
 	}
 	return NULL;
 }
