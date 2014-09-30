@@ -12,6 +12,10 @@ void fun1()
 	char *tmp = new char[32];
 
 	strcpy(tmp, "1234567789");
+	//delete tmp;
+
+	tmp = (char *)realloc(tmp, 33);
+	strcpy(tmp, "1234567789");
 	delete tmp;
 	
 	time_trace_level(3);

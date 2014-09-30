@@ -20,16 +20,7 @@ pid_t gettid()
 
 extern "C" void *__wrap_malloc(size_t c)
 {
-//	void *p = malloc(c);
 	void* p = __real_malloc(c);
-	//if (c >= 10 * 1024)
-	{
-		if (c > 64)
-		{
-			//printf("MALLOC called: %d, pid: %d, tid: %d, addresss: %p\n", c, getpid(), gettid(), p);
-		}
-			
-	}
 
 	if (p && ThreadQueue::instance()->getEnable())
 	{
@@ -41,13 +32,9 @@ extern "C" void *__wrap_malloc(size_t c)
 extern "C" void* __wrap_realloc(size_t c)
 {
 	void *p = __real_realloc(c);
-	//if (c >= 10 * 1024)
+	if (p && ThreadQueue::instance()->getEnable())
 	{
-		if (c > 64)
-		{
-			//printf("REALLOC called: %d, pid: %d, tid: %d, addresss: %p\n", c, getpid(), gettid(), p);
-		}
-			
+		ThreadQueue::instance()->wrapMalloc(c, p);
 	}
 	
 	return p;
@@ -55,14 +42,10 @@ extern "C" void* __wrap_realloc(size_t c)
 extern "C" void* __wrap_calloc(size_t c)
 {
 	void *p = __real_calloc(c); 
-	//if (c >= 10 * 1024)
+	if (p && ThreadQueue::instance()->getEnable())
 	{
-		if (c > 64)
-		{
-			//printf("CALLOC called: %d, pid: %d, tid: %d, addresss: %p\n", c, getpid(), gettid(), p);
-		}
-			
-	}
+		ThreadQueue::instance()->wrapMalloc(c, p);
+	}	
 	return p;
 }
 extern "C" void __wrap_free(void*p)

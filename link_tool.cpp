@@ -330,8 +330,8 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 	}
 	else
 	{
-		printf("traceInf  %s\n", traceInf);
-		tracepoint();
+		//printf("traceInf  %s\n", traceInf);
+		//tracepoint();
 	}
 	
 	pthread_mutex_unlock(&m_mutex);
