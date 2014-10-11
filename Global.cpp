@@ -39,11 +39,31 @@
 
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
 
+class CRefGuard
+{
+public:
+	///\brief 构造函数
+	inline CRefGuard(int& ref)
+		:m_ref(ref)
+	{
+		++m_ref;
+	};
+
+	///\brief 析构函数
+	inline ~CRefGuard()
+	{
+		--m_ref;
+	};
+private:
+	int &m_ref;
+};
+
 
 pthread_mutex_t  *CTimeCalc::m_thread_map_mutex = NULL;
 
 std::map<pthread_t, FuncTraceInfo_t *> CTimeCalc::m_thread_map; 
 std::map<std::string, int > CTimeCalc::m_stack_inf_map;
+int CTimeCalc::m_ref = 0;
 
 
 
@@ -246,6 +266,7 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_lev
 																				m_FileName(file_name), 
 																				m_FuncName(func_name)
 {
+	CRefGuard guard(m_ref);
 	InitMutex();
 	ftime(&m_StartTime);
 	DealFuncEnter();
@@ -512,6 +533,7 @@ bool CTimeCalc::needPrint(CTimeCalcList &calc_list)
 
 void CTimeCalc::printStack(int line, char *file_name, const char* fmt, ...)
 {
+	CRefGuard guard(m_ref);
 	InitMutex();
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
@@ -575,6 +597,12 @@ void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 }
 bool CTimeCalc::getStackInfo(std::string &stackInf)
 {
+	if (m_ref > 0)
+	{
+		return true;
+	}
+	
+	CRefGuard guard(m_ref);
 	InitMutex();
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
@@ -601,6 +629,7 @@ void CTimeCalc::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf)
 }
 void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 {
+	CRefGuard guard(m_ref);
 	InitMutex();
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
@@ -635,6 +664,7 @@ void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 
 void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 {
+	CRefGuard guard(m_ref);
 	InitMutex();
 
 	char time_tmp[128];
@@ -734,6 +764,7 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 
 void CTimeCalc::InsertTag(int line, char *file_name, const char* fmt, ...)
 {
+	CRefGuard guard(m_ref);
 	InitMutex();
 	
 	va_list ap;
@@ -763,6 +794,7 @@ void CTimeCalc::InsertTag(int line, char *file_name, const char* fmt, ...)
 
 void CTimeCalc::DispAll()
 {
+	CRefGuard guard(m_ref);
 	InitMutex();
 
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it;
@@ -784,6 +816,7 @@ void CTimeCalc::DispAll()
 }
 void CTimeCalc::DispTraces(int signo)
 {
+	CRefGuard guard(m_ref);
 	InitMutex();
 	
 	pthread_mutex_lock(m_thread_map_mutex);

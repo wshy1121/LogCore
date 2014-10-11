@@ -75,6 +75,7 @@ private:
 	//用于记录内存情况
 	int m_startMem[64];
 	int m_endMem[64];
+	static int m_ref;
 };
 
 
