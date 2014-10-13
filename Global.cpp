@@ -262,8 +262,9 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_lev
 
 }
 
-FuncTraceInfo_t * CTimeCalc::GreatTraceInf()
+FuncTraceInfo_t * CTimeCalc::CreatTraceInf()
 {
+	pthread_mutex_lock(m_thread_map_mutex);
 	pthread_t thread_id = pthread_self();
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
 	FuncTraceInfo_t *TraceInfo = NULL;
@@ -288,21 +289,36 @@ FuncTraceInfo_t * CTimeCalc::GreatTraceInf()
 
 		m_thread_map.insert(thread_map_pair);
 	}
+	pthread_mutex_unlock(m_thread_map_mutex);
 	return TraceInfo;
+}
+
+void CTimeCalc::DestroyTraceInf(FuncTraceInfo_t *TraceInfo)
+{
+	pthread_t thread_id;
+	thread_id = pthread_self(); 
+
+	pthread_mutex_lock(m_thread_map_mutex);
+	m_thread_map.erase(thread_id);
+	pthread_mutex_unlock(m_thread_map_mutex);
+	delete TraceInfo;
 }
 
 FuncTraceInfo_t * CTimeCalc::GetTraceInf()
 {
+	pthread_mutex_lock(m_thread_map_mutex);	
 	pthread_t thread_id;
 	thread_id = pthread_self(); 
 
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
 	if(it != m_thread_map.end())//如果查找到
 	{
+		pthread_mutex_unlock(m_thread_map_mutex);
 		return it->second;
 	}
+	
+	pthread_mutex_unlock(m_thread_map_mutex);
 	return NULL;
-
 }
 
 void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
@@ -402,9 +418,7 @@ void CTimeCalc::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 
 void CTimeCalc::DealFuncEnter()
 {
-	pthread_mutex_lock(m_thread_map_mutex);
-	FuncTraceInfo_t *TraceInfo = GreatTraceInf();
-	pthread_mutex_unlock(m_thread_map_mutex);
+	FuncTraceInfo_t *TraceInfo = CreatTraceInf();
 	
 	initTimeCalc(TraceInfo->calc_list);
 	if (!this->m_displayFlag)
@@ -451,9 +465,7 @@ void CTimeCalc::setDisplayFlag(CTimeCalc *timeCalc)
 }
 void CTimeCalc::DealFuncExit()
 {
-	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
-	pthread_mutex_unlock(m_thread_map_mutex);
 
 	exitTimeCalc(TraceInfo->calc_list);
 	if(TraceInfo)//如果查找到
@@ -462,15 +474,11 @@ void CTimeCalc::DealFuncExit()
 		{
 			return ;
 		}	
-		pthread_t thread_id;
-		thread_id = pthread_self(); 
 		ftime(&TraceInfo->EndTime);
 		//-------------------
 		if (TraceInfo->deep < 1)
 		{
-			pthread_mutex_lock(m_thread_map_mutex);
 			Debug_print((char *)"Debug", 3, (char *)"%s","//ERRERRERRERRERRERRERRERR");
-			pthread_mutex_unlock(m_thread_map_mutex);
 			return;
 		}
 	
@@ -480,20 +488,14 @@ void CTimeCalc::DealFuncExit()
 
 		if (TraceInfo->deep == 0)
 		{
-			
-			pthread_mutex_lock(m_thread_map_mutex);
 			Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
-			m_thread_map.erase(thread_id);
-			pthread_mutex_unlock(m_thread_map_mutex);
-			delete TraceInfo;
+			DestroyTraceInf(TraceInfo);
 		}
 
 	}
 	else
 	{
-		pthread_mutex_lock(m_thread_map_mutex);
 		Debug_print((char *)"Debug", 3, (char *)"%s","//ERRERRERRERRERRERRERRERR");
-		pthread_mutex_unlock(m_thread_map_mutex);
 		return;
 	}
 
@@ -541,9 +543,7 @@ void CTimeCalc::printStack(int line, char *file_name, const char* fmt, ...)
 	queue_node->enable[e_TimeCalc] = false;
 
 	InitMutex();
-	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
-	pthread_mutex_unlock(m_thread_map_mutex);	
 	if (!TraceInfo)
 	{
 		queue_node->enable[e_TimeCalc] = true;
@@ -613,9 +613,7 @@ bool CTimeCalc::getStackInfo(std::string &stackInf)
 	queue_node->enable[e_TimeCalc] = false;
 	
 	InitMutex();
-	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
-	pthread_mutex_unlock(m_thread_map_mutex);	
 	if (!TraceInfo || !TraceInfo->calc_list.size())
 	{
 		queue_node->enable[e_TimeCalc] = true;
@@ -650,9 +648,7 @@ void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 	queue_node->enable[e_TimeCalc] = false;
 
 	InitMutex();
-	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
-	pthread_mutex_unlock(m_thread_map_mutex);
 	if (!needPrint(TraceInfo->calc_list))
 	{
 		queue_node->enable[e_TimeCalc] = true;
@@ -670,9 +666,7 @@ void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 	}  
 	else
 	{
-		pthread_mutex_lock(m_thread_map_mutex);
 		Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
-		pthread_mutex_unlock(m_thread_map_mutex);
 	}
 
 	va_end(ap);      
@@ -758,9 +752,7 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 
 	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
-	pthread_mutex_lock(m_thread_map_mutex);	
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
-	pthread_mutex_unlock(m_thread_map_mutex);
 	
 	if(TraceInfo)//如果查找到
 	{	
@@ -778,9 +770,7 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 	}  
 	else
 	{
-		pthread_mutex_lock(m_thread_map_mutex);	
 		Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
-		pthread_mutex_unlock(m_thread_map_mutex);
 	}
  	queue_node->enable[e_TimeCalc] = true;
 	return ;
@@ -815,9 +805,7 @@ void CTimeCalc::InsertTag(int line, char *file_name, const char* fmt, ...)
 	vsnprintf(str,sizeof(str), fmt, ap);
 	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
-	pthread_mutex_lock(m_thread_map_mutex);
 	Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
-	pthread_mutex_unlock(m_thread_map_mutex);
 
 	va_end(ap);
 

@@ -32,7 +32,8 @@ private:
 	static void InitMutex();
 	void DealFuncEnter();
 	void DealFuncExit();
-	FuncTraceInfo_t *GreatTraceInf();
+	FuncTraceInfo_t *CreatTraceInf();
+	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo);
 	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
 	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 	static void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
@@ -77,7 +78,45 @@ private:
 	int m_endMem[64];
 };
 
+#if 0
+class CTimeCalcManager
+{
+public:
+	static CTimeCalcManager *instance();
+private:
+	CTimeCalcManager():m_thread_map_mutex(NULL){};
+	void InitMutex();
+	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
+	void insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
+	void getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf);
+	FuncTraceInfo_t *GetTraceInf();
+	FuncTraceInfo_t * GreatTraceInf();
+	void initTimeCalc(CTimeCalcList &calc_list);
+	void exitTimeCalc(CTimeCalcList &calc_list);
+	
+	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
+	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 
+public:
+	void DealFuncEnter();
+	void DealFuncExit();
+	bool isInitFinished();
+	void InsertTag(int line, char *file_name, const char* fmt, ...);
+	void InsertTrace(int line, char *file_name, const char* fmt, ...);
+	void DispTraces(int signo);
+	void DispAll();
+	void BackTrace();
+	void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
+	void printStack(int line, char *file_name, const char* fmt, ...);
+	bool getStackInfo(std::string &stackInf);
+private:
+	bool needPrint(CTimeCalcList &calc_list);
+private:
+	pthread_mutex_t  *m_thread_map_mutex;
+	std::map<pthread_t, FuncTraceInfo_t *> m_thread_map; 
+	std::map<std::string, int > m_stack_inf_map;
+};
+#endif
 
 #if !defined(NO_CTIME_CALC)
 #define time_trace_level(level)  CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, level)
