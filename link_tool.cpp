@@ -296,7 +296,7 @@ CalcMem *CalcMem::instance()
 void CalcMem::wrapMalloc(size_t c, void* addr)
 {
 	std::string tmp;
-	CTimeCalc::getStackInfo(tmp);
+	CTimeCalcManager::instance()->getStackInfo(tmp);
 	if (tmp.size())
 	{
 		printf("tmp.c_str() %s\n", tmp.c_str());

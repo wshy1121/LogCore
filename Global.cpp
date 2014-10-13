@@ -40,11 +40,6 @@
 
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
 
-pthread_mutex_t  *CTimeCalc::m_thread_map_mutex = NULL;
-
-std::map<pthread_t, FuncTraceInfo_t *> CTimeCalc::m_thread_map; 
-std::map<std::string, int > CTimeCalc::m_stack_inf_map;
-
 
 
 /*****************************************************************************/
@@ -221,24 +216,8 @@ void CTimeCalc::calcEndMem()
 	return ;
 }
 
-void CTimeCalc::InitMutex()
-{
-	//初始化部分
-	if (!m_thread_map_mutex)
-	{
-		m_thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-		pthread_mutex_init(m_thread_map_mutex, NULL);
-	}
-}
 
-bool CTimeCalc::isInitFinished()
-{
-	if (m_thread_map_mutex)
-	{
-		return true;
-	}
-	return false;
-}
+
 CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_level) : 	m_displayFlag(true), 
 																				m_DisplayLevel(display_level), 
 																				m_noDisplayLevel(display_level), 
@@ -254,7 +233,7 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_lev
 
 	queue_node->enable[e_TimeCalc] = false;
 	
-	InitMutex();
+	
 	ftime(&m_StartTime);
 	DealFuncEnter();
 
@@ -262,64 +241,6 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_lev
 
 }
 
-FuncTraceInfo_t * CTimeCalc::CreatTraceInf()
-{
-	pthread_mutex_lock(m_thread_map_mutex);
-	pthread_t thread_id = pthread_self();
-	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
-	FuncTraceInfo_t *TraceInfo = NULL;
-
-	if(it != m_thread_map.end())//如果查找到
-	{
-		TraceInfo = it->second;
-	}
-	else  
-	{
-		TraceInfo = new FuncTraceInfo_t;
-		assert(TraceInfo != NULL);
-
-		ftime(&TraceInfo->EndTime);
-		
-		TraceInfo->deep = 0;
-
-
-		TraceInfo->up_string += "//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n";
-
-		std::pair<pthread_t, FuncTraceInfo_t *> thread_map_pair(thread_id, TraceInfo);
-
-		m_thread_map.insert(thread_map_pair);
-	}
-	pthread_mutex_unlock(m_thread_map_mutex);
-	return TraceInfo;
-}
-
-void CTimeCalc::DestroyTraceInf(FuncTraceInfo_t *TraceInfo)
-{
-	pthread_t thread_id;
-	thread_id = pthread_self(); 
-
-	pthread_mutex_lock(m_thread_map_mutex);
-	m_thread_map.erase(thread_id);
-	pthread_mutex_unlock(m_thread_map_mutex);
-	delete TraceInfo;
-}
-
-FuncTraceInfo_t * CTimeCalc::GetTraceInf()
-{
-	pthread_mutex_lock(m_thread_map_mutex);	
-	pthread_t thread_id;
-	thread_id = pthread_self(); 
-
-	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
-	if(it != m_thread_map.end())//如果查找到
-	{
-		pthread_mutex_unlock(m_thread_map_mutex);
-		return it->second;
-	}
-	
-	pthread_mutex_unlock(m_thread_map_mutex);
-	return NULL;
-}
 
 void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 {
@@ -394,31 +315,11 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 	return ;
 }
 
-void CTimeCalc::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr)
-{
-	struct timeb cur_time;
-	ftime(&cur_time);
-
-	char tmp[128];
-	snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
-
-	//-------------------
-	for (int i=0; i<TraceInfo->deep; ++i)
-	{
-		TraceInfo->up_string += "\t";
-	}
-	TraceInfo->up_string += "/*tag:";
-
-	TraceInfo->up_string += pStr;
-	TraceInfo->up_string += tmp;
-	TraceInfo->up_string += "*/\n";
-
-	return ;
-}
 
 void CTimeCalc::DealFuncEnter()
 {
-	FuncTraceInfo_t *TraceInfo = CreatTraceInf();
+	
+	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->CreatTraceInf();
 	
 	initTimeCalc(TraceInfo->calc_list);
 	if (!this->m_displayFlag)
@@ -465,7 +366,7 @@ void CTimeCalc::setDisplayFlag(CTimeCalc *timeCalc)
 }
 void CTimeCalc::DealFuncExit()
 {
-	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf();
 
 	exitTimeCalc(TraceInfo->calc_list);
 	if(TraceInfo)//如果查找到
@@ -489,7 +390,7 @@ void CTimeCalc::DealFuncExit()
 		if (TraceInfo->deep == 0)
 		{
 			Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
-			DestroyTraceInf(TraceInfo);
+			CTimeCalcManager::instance()->DestroyTraceInf(TraceInfo);
 		}
 
 	}
@@ -518,22 +419,90 @@ CTimeCalc::~CTimeCalc()
 
 
 
-bool CTimeCalc::needPrint(CTimeCalcList &calc_list)
+
+
+CTimeCalcManager *CTimeCalcManager::instance()
 {
-	CTimeCalc *timeCalc = NULL;
-	if (calc_list.size())
-	{	
-		timeCalc = (calc_list.back());
-	}
-	if (timeCalc && timeCalc->m_displayFlag)
-	{
-		return true;
-	}
-	
-	return false;
+	static CTimeCalcManager _instance;
+	return &_instance; 
 }
 
-void CTimeCalc::printStack(int line, char *file_name, const char* fmt, ...)
+void CTimeCalcManager::InitMutex()
+{
+	//初始化部分
+	if (!m_thread_map_mutex)
+	{
+		m_thread_map_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+		pthread_mutex_init(m_thread_map_mutex, NULL);
+	}
+}
+
+
+FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf()
+{
+	InitMutex();
+	
+	pthread_mutex_lock(m_thread_map_mutex);
+	pthread_t thread_id = pthread_self();
+	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
+	FuncTraceInfo_t *TraceInfo = NULL;
+
+	if(it != m_thread_map.end())//如果查找到
+	{
+		TraceInfo = it->second;
+	}
+	else  
+	{
+		TraceInfo = new FuncTraceInfo_t;
+		assert(TraceInfo != NULL);
+
+		ftime(&TraceInfo->EndTime);
+		
+		TraceInfo->deep = 0;
+
+
+		TraceInfo->up_string += "//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n";
+
+		std::pair<pthread_t, FuncTraceInfo_t *> thread_map_pair(thread_id, TraceInfo);
+
+		m_thread_map.insert(thread_map_pair);
+	}
+	pthread_mutex_unlock(m_thread_map_mutex);
+	return TraceInfo;
+}
+
+
+
+void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo)
+{
+	pthread_t thread_id;
+	thread_id = pthread_self(); 
+
+	pthread_mutex_lock(m_thread_map_mutex);
+	m_thread_map.erase(thread_id);
+	pthread_mutex_unlock(m_thread_map_mutex);
+	delete TraceInfo;
+}
+
+FuncTraceInfo_t * CTimeCalcManager::GetTraceInf()
+{
+	pthread_mutex_lock(m_thread_map_mutex);	
+	pthread_t thread_id;
+	thread_id = pthread_self(); 
+
+	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
+	if(it != m_thread_map.end())//如果查找到
+	{
+		pthread_mutex_unlock(m_thread_map_mutex);
+		return it->second;
+	}
+	
+	pthread_mutex_unlock(m_thread_map_mutex);
+	return NULL;
+}
+
+
+void CTimeCalcManager::printStack(int line, char *file_name, const char* fmt, ...)
 {
 	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
 	if (!queue_node->enable[e_TimeCalc])
@@ -561,7 +530,8 @@ void CTimeCalc::printStack(int line, char *file_name, const char* fmt, ...)
 	return ;
 }
 
-void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr)
+
+void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr)
 {
 	struct timeb cur_time;
 	ftime(&cur_time);
@@ -603,7 +573,9 @@ void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 
 	return ;
 }
-bool CTimeCalc::getStackInfo(std::string &stackInf)
+
+
+bool CTimeCalcManager::getStackInfo(std::string &stackInf)
 {
 	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
 	if (!queue_node->enable[e_TimeCalc])
@@ -624,7 +596,7 @@ bool CTimeCalc::getStackInfo(std::string &stackInf)
 	queue_node->enable[e_TimeCalc] = true;
 	return true;
 }
-void CTimeCalc::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf)
+void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf)
 {
 	char tmp[64];
 	CTimeCalc *timeCalc = NULL;
@@ -637,7 +609,10 @@ void CTimeCalc::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf)
 	}
 	return ;
 }
-void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
+
+
+
+void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, ...)
 {
 	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
 	if (!queue_node->enable[e_TimeCalc])
@@ -676,7 +651,30 @@ void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 
 }
 
-void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
+
+void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr)
+{
+	struct timeb cur_time;
+	ftime(&cur_time);
+
+	char tmp[128];
+	snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
+
+	//-------------------
+	for (int i=0; i<TraceInfo->deep; ++i)
+	{
+		TraceInfo->up_string += "\t";
+	}
+	TraceInfo->up_string += "/*tag:";
+
+	TraceInfo->up_string += pStr;
+	TraceInfo->up_string += tmp;
+	TraceInfo->up_string += "*/\n";
+
+	return ;
+}
+
+void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 {
 	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
 	if (!queue_node->enable[e_TimeCalc])
@@ -778,7 +776,7 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 }
 
 
-void CTimeCalc::InsertTag(int line, char *file_name, const char* fmt, ...)
+void CTimeCalcManager::InsertTag(int line, char *file_name, const char* fmt, ...)
 {
 	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
 	if (!queue_node->enable[e_TimeCalc])
@@ -813,7 +811,7 @@ void CTimeCalc::InsertTag(int line, char *file_name, const char* fmt, ...)
 	return ;
 }
 
-void CTimeCalc::DispAll()
+void CTimeCalcManager::DispAll()
 {
 	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
 	if (!queue_node->enable[e_TimeCalc])
@@ -843,7 +841,7 @@ void CTimeCalc::DispAll()
 	queue_node->enable[e_TimeCalc] = true;
 	return ;
 }
-void CTimeCalc::DispTraces(int signo)
+void CTimeCalcManager::DispTraces(int signo)
 {
 	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
 	if (!queue_node->enable[e_TimeCalc])
@@ -891,7 +889,7 @@ void CTimeCalc::DispTraces(int signo)
 }
 
 
-void CTimeCalc::BackTrace()
+void CTimeCalcManager::BackTrace()
 {
 #ifdef WRAP
 	//CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__);
@@ -914,3 +912,18 @@ void CTimeCalc::BackTrace()
 	return ;
 }
 
+
+bool CTimeCalcManager::needPrint(CTimeCalcList &calc_list)
+{
+	CTimeCalc *timeCalc = NULL;
+	if (calc_list.size())
+	{	
+		timeCalc = (calc_list.back());
+	}
+	if (timeCalc && timeCalc->m_displayFlag)
+	{
+		return true;
+	}
+	
+	return false;
+}
