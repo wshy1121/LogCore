@@ -82,10 +82,13 @@ void ThreadQueue::initQueue()
 	
 	return ;
 }
-void ThreadQueue::initThreadNode(ThreadNode *queue_node, bool enable, pthread_t thread_id)
+void ThreadQueue::initThreadNode(ThreadNode *queue_node)
 {
-	queue_node->enable = enable;
-	queue_node->thread_id = thread_id;
+	for (int i=0; i<e_ThreadEnableNum; ++i)
+	{
+		queue_node->enable[i] = true;
+	}
+	queue_node->thread_id = pthread_self();
 	return ;
 }
 
@@ -237,23 +240,27 @@ void ThreadQueue::dispQueue()
 	return ;
 
 }
-
-void ThreadQueue::wrapMalloc(size_t c, void* addr)
+ThreadNode *ThreadQueue::getQueueNode(pthread_t thread_id)
 {
 	ThreadNode *queue_node = NULL;
 	getQueue(pthread_self(), &queue_node);
 	if (!queue_node)
 	{
 		queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
-		initThreadNode(queue_node, true, pthread_self());
+		initThreadNode(queue_node);
 		insertQueue(queue_node);
 	}
+	return queue_node;
+}
+void ThreadQueue::wrapMalloc(size_t c, void* addr)
+{
+	ThreadNode *queue_node = getQueueNode(pthread_self());
 
-	if (queue_node->enable)
+	if (queue_node->enable[e_Mem])
 	{
-		queue_node->enable = false;
+		queue_node->enable[e_Mem] = false;
 		CalcMem::instance()->wrapMalloc(c, addr);
-		queue_node->enable = true;	
+		queue_node->enable[e_Mem] = true;	
 
 	}
 
@@ -262,20 +269,12 @@ void ThreadQueue::wrapMalloc(size_t c, void* addr)
 
 void ThreadQueue::wrapFree(void* addr)
 {
-	ThreadNode *queue_node = NULL;
-	getQueue(pthread_self(), &queue_node);
-	if (!queue_node)
+	ThreadNode *queue_node = getQueueNode(pthread_self());
+	if (queue_node->enable[e_Mem])
 	{
-		queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
-		initThreadNode(queue_node, true, pthread_self());
-		insertQueue(queue_node);
-	}
-
-	if (queue_node->enable)
-	{
-		queue_node->enable = false;
+		queue_node->enable[e_Mem] = false;
 		CalcMem::instance()->wrapFree(addr);
-		queue_node->enable = true;	
+		queue_node->enable[e_Mem] = true;	
 
 	}
 
@@ -296,6 +295,13 @@ CalcMem *CalcMem::instance()
 
 void CalcMem::wrapMalloc(size_t c, void* addr)
 {
+	std::string tmp;
+	CTimeCalc::getStackInfo(tmp);
+	if (tmp.size())
+	{
+		printf("tmp.c_str() %s\n", tmp.c_str());
+	}
+	
 	const int stackSize = 15;
 	void *stack_addr[stackSize];
 	int layer = 0;

@@ -25,7 +25,7 @@ void fun1()
 	time_trace_level(3);
 	std::string stack;
 	get_stack(stack);
-	time_printf("%s", stack.c_str());
+	time_printf("get_stack  %s", stack.c_str());
 	{
 		time_printf("NULL");
 		time_trace_level(4);
@@ -73,7 +73,7 @@ void testThreadQueue()
 	for (int i=0; i<5; ++i)
 	{
 		queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
-		threadQueue.initThreadNode(queue_node, true, ++threadId);
+		threadQueue.initThreadNode(queue_node);
 		threadQueue.insertQueue(queue_node);
 	}
 
@@ -83,7 +83,7 @@ void testThreadQueue()
 	for (int i=0; i<5; ++i)
 	{
 		queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
-		threadQueue.initThreadNode(queue_node, true, ++threadId);
+		threadQueue.initThreadNode(queue_node);
 		threadQueue.insertQueue(queue_node);
 	}
 
@@ -115,7 +115,7 @@ void* printfMallocMap(void *pArg)
 	while (1)
 	{
 		CalcMem::instance()->printfMallocMap();
-		usleep(5000*1000);		
+		usleep(100*1000);		
 	}
 	return NULL;
 }

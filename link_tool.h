@@ -20,10 +20,17 @@ void init_node(struct node *node);
 void insert_node(struct node *node, struct node *inser_node);
 void remov_node(struct node *node);
 
+enum
+{
+	e_Mem, 
+	e_TimeCalc, 
+	e_ThreadEnableNum,
+};
+
 typedef struct 
 {
 	pthread_t thread_id;
-	bool enable;
+	bool enable[e_ThreadEnableNum];
 	struct node node;
 }ThreadNode;
 
@@ -32,7 +39,7 @@ class  ThreadQueue
 public:
 	ThreadQueue();
 public:
-	void initThreadNode(ThreadNode *queue_node, bool enable, pthread_t thread_id);
+	void initThreadNode(ThreadNode *queue_node);
 	void initQueue();
 	int insertQueue(ThreadNode *queue_node);
 	int removeQueue(pthread_t thread_id);
@@ -44,6 +51,7 @@ public:
 	void start();
 	void wrapMalloc(size_t c, void* addr);
 	void wrapFree(void* addr);
+	ThreadNode *getQueueNode(pthread_t thread_id);
 	static ThreadQueue *instance();
 private:
 	static bool m_enable;

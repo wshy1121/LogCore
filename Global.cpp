@@ -9,6 +9,7 @@
 #include <map>
 #include <stdarg.h>
 #include <sys/stat.h>
+#include "link_tool.h"
 #ifdef WRAP
 #include <execinfo.h>
 #endif
@@ -39,31 +40,10 @@
 
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
 
-class CRefGuard
-{
-public:
-	///\brief 构造函数
-	inline CRefGuard(int& ref)
-		:m_ref(ref)
-	{
-		++m_ref;
-	};
-
-	///\brief 析构函数
-	inline ~CRefGuard()
-	{
-		--m_ref;
-	};
-private:
-	int &m_ref;
-};
-
-
 pthread_mutex_t  *CTimeCalc::m_thread_map_mutex = NULL;
 
 std::map<pthread_t, FuncTraceInfo_t *> CTimeCalc::m_thread_map; 
 std::map<std::string, int > CTimeCalc::m_stack_inf_map;
-int CTimeCalc::m_ref = 0;
 
 
 
@@ -266,10 +246,20 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_lev
 																				m_FileName(file_name), 
 																				m_FuncName(func_name)
 {
-	CRefGuard guard(m_ref);
+	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
+	if (!queue_node->enable[e_TimeCalc])
+	{
+		return;
+	}
+
+	queue_node->enable[e_TimeCalc] = false;
+	
 	InitMutex();
 	ftime(&m_StartTime);
 	DealFuncEnter();
+
+	queue_node->enable[e_TimeCalc] = true;
+
 }
 
 FuncTraceInfo_t * CTimeCalc::GreatTraceInf()
@@ -510,7 +500,17 @@ void CTimeCalc::DealFuncExit()
 }
 CTimeCalc::~CTimeCalc()
 {
+	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
+	if (!queue_node->enable[e_TimeCalc])
+	{
+		return ;
+	}
+	queue_node->enable[e_TimeCalc] = false;
+
 	DealFuncExit();
+
+	queue_node->enable[e_TimeCalc] = true;
+
 }
 
 
@@ -533,13 +533,20 @@ bool CTimeCalc::needPrint(CTimeCalcList &calc_list)
 
 void CTimeCalc::printStack(int line, char *file_name, const char* fmt, ...)
 {
-	CRefGuard guard(m_ref);
+	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
+	if (!queue_node->enable[e_TimeCalc])
+	{
+		return ;
+	}
+	queue_node->enable[e_TimeCalc] = false;
+
 	InitMutex();
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	pthread_mutex_unlock(m_thread_map_mutex);	
 	if (!TraceInfo)
 	{
+		queue_node->enable[e_TimeCalc] = true;
 		return ;
 	}
 
@@ -550,6 +557,7 @@ void CTimeCalc::printStack(int line, char *file_name, const char* fmt, ...)
 
 	insertStackInfo(TraceInfo, line, file_name, str);
 
+	queue_node->enable[e_TimeCalc] = true;
 	return ;
 }
 
@@ -597,21 +605,25 @@ void CTimeCalc::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file
 }
 bool CTimeCalc::getStackInfo(std::string &stackInf)
 {
-	if (m_ref > 0)
+	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
+	if (!queue_node->enable[e_TimeCalc])
 	{
 		return true;
 	}
+	queue_node->enable[e_TimeCalc] = false;
 	
-	CRefGuard guard(m_ref);
 	InitMutex();
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	pthread_mutex_unlock(m_thread_map_mutex);	
 	if (!TraceInfo || !TraceInfo->calc_list.size())
 	{
+		queue_node->enable[e_TimeCalc] = true;
 		return false;
 	}
 	getStackInfo(TraceInfo, stackInf);
+	
+	queue_node->enable[e_TimeCalc] = true;
 	return true;
 }
 void CTimeCalc::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf)
@@ -629,14 +641,21 @@ void CTimeCalc::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf)
 }
 void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 {
-	CRefGuard guard(m_ref);
+	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
+	if (!queue_node->enable[e_TimeCalc])
+	{
+		return;
+	}
+
+	queue_node->enable[e_TimeCalc] = false;
+
 	InitMutex();
 	pthread_mutex_lock(m_thread_map_mutex);
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	pthread_mutex_unlock(m_thread_map_mutex);
 	if (!needPrint(TraceInfo->calc_list))
 	{
-		
+		queue_node->enable[e_TimeCalc] = true;
 		return ;
 	}
 
@@ -658,13 +677,20 @@ void CTimeCalc::InsertTrace(int line, char *file_name, const char* fmt, ...)
 
 	va_end(ap);      
 
+	queue_node->enable[e_TimeCalc] = true;
 	return ;
 
 }
 
 void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 {
-	CRefGuard guard(m_ref);
+	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
+	if (!queue_node->enable[e_TimeCalc])
+	{
+		return ;
+	}
+	queue_node->enable[e_TimeCalc] = false;
+
 	InitMutex();
 
 	char time_tmp[128];
@@ -756,7 +782,7 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 		Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
 		pthread_mutex_unlock(m_thread_map_mutex);
 	}
- 
+ 	queue_node->enable[e_TimeCalc] = true;
 	return ;
 
 }
@@ -764,7 +790,13 @@ void CTimeCalc::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 
 void CTimeCalc::InsertTag(int line, char *file_name, const char* fmt, ...)
 {
-	CRefGuard guard(m_ref);
+	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
+	if (!queue_node->enable[e_TimeCalc])
+	{
+		return;
+	}
+	queue_node->enable[e_TimeCalc] = false;
+
 	InitMutex();
 	
 	va_list ap;
@@ -788,13 +820,20 @@ void CTimeCalc::InsertTag(int line, char *file_name, const char* fmt, ...)
 	pthread_mutex_unlock(m_thread_map_mutex);
 
 	va_end(ap);
-	
+
+	queue_node->enable[e_TimeCalc] = true;
 	return ;
 }
 
 void CTimeCalc::DispAll()
 {
-	CRefGuard guard(m_ref);
+	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
+	if (!queue_node->enable[e_TimeCalc])
+	{
+		return ;
+	}
+	queue_node->enable[e_TimeCalc] = false;
+
 	InitMutex();
 
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it;
@@ -812,11 +851,19 @@ void CTimeCalc::DispAll()
 	}
 	Debug_print((char *)"Debug", 3, (char *)"%s", "#endif");
 	pthread_mutex_unlock(m_thread_map_mutex);
+
+	queue_node->enable[e_TimeCalc] = true;
 	return ;
 }
 void CTimeCalc::DispTraces(int signo)
 {
-	CRefGuard guard(m_ref);
+	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
+	if (!queue_node->enable[e_TimeCalc])
+	{
+		return ;
+	}
+	queue_node->enable[e_TimeCalc] = false;
+
 	InitMutex();
 	
 	pthread_mutex_lock(m_thread_map_mutex);
@@ -850,6 +897,8 @@ void CTimeCalc::DispTraces(int signo)
 		exit(0);
 	}
 	pthread_mutex_unlock(m_thread_map_mutex);
+
+	queue_node->enable[e_TimeCalc] = true;
 	return ;
 }
 
