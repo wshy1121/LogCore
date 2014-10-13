@@ -1,5 +1,3 @@
-#ifdef WRAP
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -58,5 +56,4 @@ extern "C" void __wrap_free(void*p)
 
 }
 
-#endif
 

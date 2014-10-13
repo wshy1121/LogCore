@@ -180,6 +180,8 @@ private:
 	bool &m_enable;
 };
 
+#ifdef WRAP
+//防止嵌套调用处理
 #define threadQueueEnable(type)    \
 	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());  \
 	if (!queue_node->enable[type])  \
@@ -187,6 +189,10 @@ private:
 		return ;  \
 	}  \
 	CGuard guard(queue_node->enable[type])
+
+#else
+#define threadQueueEnable(type)    
+#endif
 
 void CTimeCalc::calcStartMem()
 {

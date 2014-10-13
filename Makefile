@@ -13,6 +13,9 @@ OPT_CFLAGS += -DWRAP -Wl,-wrap,malloc -Wl,-wrap,realloc -Wl,-wrap,calloc -Wl,-wr
 OPT_CFLAGS +=  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc
 OPT_CFLAGS	+= -fstack-protector-all
 CFLAGS += -DWRAP
+LIB_OBJS += wrap_malloc.o link_tool.o
+else
+OPT_CFLAGS +=  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc
 endif
 
 CPP	=	@echo " g++ $@"; $(CROSS)g++
@@ -27,7 +30,7 @@ RM	= rm
 
 AFLAGS	+= -r   
 
-LIB_OBJS = wrap_malloc.o Global.o link_tool.o
+LIB_OBJS += Global.o
 
 LIB_TARGET=libwrapmalloc.a
 
@@ -36,7 +39,7 @@ all	:	$(LIB_TARGET)
 $(LIB_TARGET): $(LIB_OBJS)
 	$(AR) $(AFLAGS) $@ $^
 	$(RANLIB) $@
-	$(CPP) -g -o test Global.cpp main.cpp wrap_malloc.cpp link_tool.cpp  $(OPT_CFLAGS)
+	$(CPP) -g -o test main.cpp  $(LIB_OBJS) $(OPT_CFLAGS)
 
 .c.o:
 	$(CC) -c $(CFLAGS) $^ -o $@

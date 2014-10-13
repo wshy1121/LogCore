@@ -62,43 +62,6 @@ void fun0(int count)
 	fun1();
 }
 
-static ThreadQueue threadQueue;
-
-void testThreadQueue()
-{
-
-	pthread_t threadId = 1;
-	ThreadNode *queue_node = NULL;
-
-	for (int i=0; i<5; ++i)
-	{
-		queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
-		threadQueue.initThreadNode(queue_node);
-		threadQueue.insertQueue(queue_node);
-	}
-
-	//threadQueue.dispQueue();
-	threadQueue.clearQueue();
-
-	for (int i=0; i<5; ++i)
-	{
-		queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
-		threadQueue.initThreadNode(queue_node);
-		threadQueue.insertQueue(queue_node);
-	}
-
-	for (int i=0; i<5; ++i)
-	{
-		threadQueue.getQueue(--threadId, &queue_node);
-		if (queue_node)
-		{
-			printf("qthreadId  %d\n", threadId);
-		}
-	}
-	threadQueue.clearQueue();
-
-	return ;
-}
 void* test1(void *pArg)
 {	
 	while (1)
@@ -112,16 +75,18 @@ void* test1(void *pArg)
 }
 void* printfMallocMap(void *pArg)
 {
+#ifdef WRAP
+	ThreadQueue::instance()->start();
 	while (1)
 	{
 		CalcMem::instance()->printfMallocMap();
 		usleep(100*1000);		
 	}
+#endif
 	return NULL;
 }
 int main()
 {
-	ThreadQueue::instance()->start();
 
 	pthread_t thread_id[32];
 
