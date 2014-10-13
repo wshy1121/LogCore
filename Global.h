@@ -66,7 +66,7 @@ public:
 	static CTimeCalcManager *instance();
 public:
 	void printStack(int line, char *file_name, const char* fmt, ...);
-	bool getStackInfo(std::string &stackInf);
+	void getStackInfo(std::string &stackInf);
 	void getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf);
 	void InsertTrace(int line, char *file_name, const char* fmt, ...);
 	void InsertTag(int line, char *file_name, const char* fmt, ...);

@@ -160,6 +160,34 @@ void NextStep(const char *function, const char *fileName, int line)
 	fgets(s, sizeof(s), stdin);
 	return ;
 }
+
+class CGuard
+{
+public:
+	///\brief 构造函数
+	inline CGuard(bool& enable)
+		:m_enable(enable)
+	{
+		m_enable = false;
+	};
+
+	///\brief 析构函数
+	inline ~CGuard()
+	{
+		m_enable = true;
+	};
+private:
+	bool &m_enable;
+};
+
+#define threadQueueEnable(type)    \
+	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());  \
+	if (!queue_node->enable[type])  \
+	{  \
+		return ;  \
+	}  \
+	CGuard guard(queue_node->enable[type])
+
 void CTimeCalc::calcStartMem()
 {
 	FILE *fp = fopen("/proc/buddyinfo", "rb");
@@ -225,19 +253,10 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_lev
 																				m_FileName(file_name), 
 																				m_FuncName(func_name)
 {
-	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
-	if (!queue_node->enable[e_TimeCalc])
-	{
-		return;
-	}
-
-	queue_node->enable[e_TimeCalc] = false;
-	
+	threadQueueEnable(e_TimeCalc);	
 	
 	ftime(&m_StartTime);
 	DealFuncEnter();
-
-	queue_node->enable[e_TimeCalc] = true;
 
 }
 
@@ -403,17 +422,9 @@ void CTimeCalc::DealFuncExit()
 }
 CTimeCalc::~CTimeCalc()
 {
-	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
-	if (!queue_node->enable[e_TimeCalc])
-	{
-		return ;
-	}
-	queue_node->enable[e_TimeCalc] = false;
+	threadQueueEnable(e_TimeCalc);
 
 	DealFuncExit();
-
-	queue_node->enable[e_TimeCalc] = true;
-
 }
 
 
@@ -504,18 +515,12 @@ FuncTraceInfo_t * CTimeCalcManager::GetTraceInf()
 
 void CTimeCalcManager::printStack(int line, char *file_name, const char* fmt, ...)
 {
-	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
-	if (!queue_node->enable[e_TimeCalc])
-	{
-		return ;
-	}
-	queue_node->enable[e_TimeCalc] = false;
+	threadQueueEnable(e_TimeCalc);
 
 	InitMutex();
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	if (!TraceInfo)
 	{
-		queue_node->enable[e_TimeCalc] = true;
 		return ;
 	}
 
@@ -526,7 +531,6 @@ void CTimeCalcManager::printStack(int line, char *file_name, const char* fmt, ..
 
 	insertStackInfo(TraceInfo, line, file_name, str);
 
-	queue_node->enable[e_TimeCalc] = true;
 	return ;
 }
 
@@ -574,27 +578,19 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	return ;
 }
 
-
-bool CTimeCalcManager::getStackInfo(std::string &stackInf)
+void CTimeCalcManager::getStackInfo(std::string &stackInf)
 {
-	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
-	if (!queue_node->enable[e_TimeCalc])
-	{
-		return true;
-	}
-	queue_node->enable[e_TimeCalc] = false;
-	
+	threadQueueEnable(e_TimeCalc);
+		
 	InitMutex();
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	if (!TraceInfo || !TraceInfo->calc_list.size())
 	{
-		queue_node->enable[e_TimeCalc] = true;
-		return false;
+		return ;
 	}
 	getStackInfo(TraceInfo, stackInf);
 	
-	queue_node->enable[e_TimeCalc] = true;
-	return true;
+	return ;
 }
 void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf)
 {
@@ -614,19 +610,12 @@ void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &sta
 
 void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, ...)
 {
-	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
-	if (!queue_node->enable[e_TimeCalc])
-	{
-		return;
-	}
-
-	queue_node->enable[e_TimeCalc] = false;
+	threadQueueEnable(e_TimeCalc);
 
 	InitMutex();
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	if (!needPrint(TraceInfo->calc_list))
 	{
-		queue_node->enable[e_TimeCalc] = true;
 		return ;
 	}
 
@@ -646,7 +635,6 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, .
 
 	va_end(ap);      
 
-	queue_node->enable[e_TimeCalc] = true;
 	return ;
 
 }
@@ -676,12 +664,7 @@ void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 
 void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 {
-	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
-	if (!queue_node->enable[e_TimeCalc])
-	{
-		return ;
-	}
-	queue_node->enable[e_TimeCalc] = false;
+	threadQueueEnable(e_TimeCalc);
 
 	InitMutex();
 
@@ -770,7 +753,6 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 	{
 		Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
 	}
- 	queue_node->enable[e_TimeCalc] = true;
 	return ;
 
 }
@@ -778,12 +760,7 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 
 void CTimeCalcManager::InsertTag(int line, char *file_name, const char* fmt, ...)
 {
-	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
-	if (!queue_node->enable[e_TimeCalc])
-	{
-		return;
-	}
-	queue_node->enable[e_TimeCalc] = false;
+	threadQueueEnable(e_TimeCalc);
 
 	InitMutex();
 	
@@ -807,18 +784,12 @@ void CTimeCalcManager::InsertTag(int line, char *file_name, const char* fmt, ...
 
 	va_end(ap);
 
-	queue_node->enable[e_TimeCalc] = true;
 	return ;
 }
 
 void CTimeCalcManager::DispAll()
 {
-	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
-	if (!queue_node->enable[e_TimeCalc])
-	{
-		return ;
-	}
-	queue_node->enable[e_TimeCalc] = false;
+	threadQueueEnable(e_TimeCalc);
 
 	InitMutex();
 
@@ -838,17 +809,11 @@ void CTimeCalcManager::DispAll()
 	Debug_print((char *)"Debug", 3, (char *)"%s", "#endif");
 	pthread_mutex_unlock(m_thread_map_mutex);
 
-	queue_node->enable[e_TimeCalc] = true;
 	return ;
 }
 void CTimeCalcManager::DispTraces(int signo)
 {
-	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());
-	if (!queue_node->enable[e_TimeCalc])
-	{
-		return ;
-	}
-	queue_node->enable[e_TimeCalc] = false;
+	threadQueueEnable(e_TimeCalc);
 
 	InitMutex();
 	
@@ -884,7 +849,6 @@ void CTimeCalcManager::DispTraces(int signo)
 	}
 	pthread_mutex_unlock(m_thread_map_mutex);
 
-	queue_node->enable[e_TimeCalc] = true;
 	return ;
 }
 
@@ -927,3 +891,4 @@ bool CTimeCalcManager::needPrint(CTimeCalcList &calc_list)
 	
 	return false;
 }
+
