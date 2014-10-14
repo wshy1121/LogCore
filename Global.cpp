@@ -161,18 +161,18 @@ void NextStep(const char *function, const char *fileName, int line)
 	return ;
 }
 
-class CGuard
+class CGuardEnable
 {
 public:
 	///\brief 构造函数
-	inline CGuard(bool& enable)
+	inline CGuardEnable(bool& enable)
 		:m_enable(enable)
 	{
 		m_enable = false;
 	};
 
 	///\brief 析构函数
-	inline ~CGuard()
+	inline ~CGuardEnable()
 	{
 		m_enable = true;
 	};
@@ -188,7 +188,7 @@ private:
 	{  \
 		return ;  \
 	}  \
-	CGuard guard(queue_node->enable[type])
+	CGuardEnable guard(queue_node->enable[type])
 
 #else
 #define threadQueueEnable(type)    
@@ -437,11 +437,15 @@ CTimeCalc::~CTimeCalc()
 
 
 
+CTimeCalcManager *CTimeCalcManager::_instance = NULL;
 
 CTimeCalcManager *CTimeCalcManager::instance()
 {
-	static CTimeCalcManager _instance;
-	return &_instance; 
+	if (!_instance)
+	{
+		_instance = new CTimeCalcManager;
+	}
+	return _instance; 
 }
 
 void CTimeCalcManager::InitMutex()
@@ -620,7 +624,7 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, .
 
 	InitMutex();
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
-	if (!needPrint(TraceInfo->calc_list))
+	if (TraceInfo && !needPrint(TraceInfo->calc_list))
 	{
 		return ;
 	}

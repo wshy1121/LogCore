@@ -90,6 +90,7 @@ private:
 	pthread_mutex_t  *m_thread_map_mutex;
 	std::map<pthread_t, FuncTraceInfo_t *> m_thread_map; 
 	std::map<std::string, int > m_stack_inf_map;
+	static CTimeCalcManager *_instance;
 };
 
 

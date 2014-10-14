@@ -15,7 +15,7 @@ OPT_CFLAGS	+= -fstack-protector-all
 CFLAGS += -DWRAP
 LIB_OBJS += wrap_malloc.o link_tool.o
 else
-OPT_CFLAGS +=  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc
+OPT_CFLAGS +=  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc -static
 endif
 
 CPP	=	@echo " g++ $@"; $(CROSS)g++
