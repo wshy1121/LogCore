@@ -480,6 +480,7 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf()
 		ftime(&TraceInfo->EndTime);
 		
 		TraceInfo->deep = 0;
+		TraceInfo->last_line = 0;
 
 
 		TraceInfo->up_string += "//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n";
@@ -649,9 +650,33 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, .
 
 }
 
+void CTimeCalcManager::getInsertTrace(std::string &insertTrace)
+{
+	threadQueueEnable(e_TimeCalc);
+	InitMutex();
+
+	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	if (TraceInfo && !needPrint(TraceInfo->calc_list))
+	{
+		return ;
+	}
+
+	if(TraceInfo)//如果查找到
+	{
+		char sline[64];
+		snprintf(sline, sizeof(sline), "%d", TraceInfo->last_line);
+		
+		insertTrace = TraceInfo->last_filename;
+		insertTrace += sline;
+	}
+
+	return ;
+}
 
 void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr)
 {
+	TraceInfo->last_filename = file_name;
+	TraceInfo->last_line = line;
 	struct timeb cur_time;
 	ftime(&cur_time);
 
