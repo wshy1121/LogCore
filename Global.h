@@ -27,6 +27,40 @@ typedef struct FuncTraceInfo_t
 } FuncTraceInfo_t;
 
 class CTimeCalcManager;
+class CPthreadMutex
+{
+public:
+	///\brief 构造函数，默认为互斥锁
+	CPthreadMutex()
+	{
+		m_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+		pthread_mutex_init(m_mutex, NULL);
+	}
+
+	///\brief 析构函数
+	~CPthreadMutex()
+	{
+		free(m_mutex);
+	}
+
+	///\brief 占用锁
+	bool Enter()
+	{
+		pthread_mutex_lock(m_mutex);
+		return true;
+	}
+
+	///\brief 释放锁
+	bool Leave()
+	{
+		pthread_mutex_unlock(m_mutex);
+		return true;
+	}
+
+private:
+	pthread_mutex_t  *m_mutex;
+};
+
 class CTimeCalc
 {
 	friend class CTimeCalcManager;
@@ -86,11 +120,10 @@ private:
 	bool needPrint(CTimeCalcList &calc_list);
 	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
 private:
-	CTimeCalcManager():m_thread_map_mutex(NULL){};
-	void InitMutex();
+	CTimeCalcManager(){}
 
 private:
-	pthread_mutex_t  *m_thread_map_mutex;
+	CPthreadMutex  m_thread_map_mutex;
 	std::map<pthread_t, FuncTraceInfo_t *> m_thread_map; 
 	std::map<std::string, int > m_stack_inf_map;
 	static CTimeCalcManager *_instance;
