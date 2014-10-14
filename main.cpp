@@ -8,21 +8,20 @@
 extern "C" void* __real_malloc(size_t);
 
 void fun1()
-{
+{	time_trace();
+	time_printf("NULL");
 	char *tmp = new char[32];
 
 	strcpy(tmp, "1234567789");
-	//delete tmp;
-
+	time_printf("NULL");
 	tmp = (char *)realloc(tmp, 33);
 	strcpy(tmp, "1234567789");
 	delete tmp;
-
+	time_printf("NULL");
 	tmp = (char *)calloc(1, 1024*4);
 	strcpy(tmp, "1234567789");
 	delete tmp;
-	
-	time_trace_level(3);
+	time_printf("NULL");	
 	std::string stack;
 	get_stack(stack);
 	time_printf("get_stack  %s", stack.c_str());

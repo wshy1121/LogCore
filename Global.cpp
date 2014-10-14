@@ -153,6 +153,9 @@ int Debug_print(char *sLogName, int nLogMode, char *sFmt, ...)
 
 	return 0;
 }
+
+static CPthreadMutex g_insMutex;
+ 
 void NextStep(const char *function, const char *fileName, int line)
 {
 	char s[80];
@@ -460,11 +463,15 @@ CTimeCalcManager *CTimeCalcManager::_instance = NULL;
 
 CTimeCalcManager *CTimeCalcManager::instance()
 {
-	if (!_instance)
+	if (NULL == _instance)
 	{
-		_instance = new CTimeCalcManager;
+		CGuardMutex guardMutex(g_insMutex);
+		if (NULL == _instance)
+		{
+			_instance = new CTimeCalcManager;
+		}
 	}
-	return _instance; 
+	return _instance;
 }
 
 
@@ -489,7 +496,7 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf()
 		ftime(&TraceInfo->EndTime);
 		
 		TraceInfo->deep = 0;
-		TraceInfo->last_line = 0;
+		TraceInfo->last_line = -1;
 
 
 		TraceInfo->up_string += "//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n";
@@ -662,7 +669,7 @@ void CTimeCalcManager::getInsertTrace(std::string &insertTrace)
 		return ;
 	}
 
-	if(TraceInfo)//如果查找到
+	if(TraceInfo && TraceInfo->last_line > 0)//如果查找到
 	{
 		char sline[64];
 		snprintf(sline, sizeof(sline), "%d", TraceInfo->last_line);

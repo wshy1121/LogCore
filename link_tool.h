@@ -72,6 +72,7 @@ typedef struct MemNodeInf
 typedef struct MemInf
 {
 	size_t memSize;
+	size_t maxSize;
 }MemInf;
 
 class  CalcMem
@@ -84,15 +85,14 @@ public:
 private:
 	CalcMem();
 private:
-	void dealMemInf(const char *mallocPath, const char *freePath, size_t size);
+	void dealMemInf(const char *mallocPath, size_t size);
 private:
 	pthread_mutex_t  m_mutex;
 
 	typedef std::map<void *, MemNodeInf *> MemNodeMap;
 	MemNodeMap m_memNodeMap;
 
-	typedef std::map<std::string, MemInf *> MemInfType;
-	typedef std::map<std::string, MemInfType *> MemInfMap;
+	typedef std::map<std::string, MemInf *> MemInfMap;
 	MemInfMap m_MemInfMap;
 };
 
