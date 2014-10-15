@@ -46,7 +46,6 @@ ThreadQueue *ThreadQueue::_instance = NULL;
 
 ThreadQueue::ThreadQueue()
 {
-	pthread_mutex_init(&m_mutex, NULL);
 	initQueue();
 	return ;
 }
@@ -85,11 +84,10 @@ bool ThreadQueue::getEnable()
 
 void ThreadQueue::initQueue()
 {
-	pthread_mutex_lock(&m_mutex);
+	CGuardMutex guardMutex(m_mutex);
 	init_node(&head_node.node);
 	tail = &head_node;
 	node_num = 0;
-	pthread_mutex_unlock(&m_mutex);
 	
 	return ;
 }
@@ -105,30 +103,27 @@ void ThreadQueue::initThreadNode(ThreadNode *queue_node)
 
 int ThreadQueue::insertQueue(ThreadNode *queue_node)
 {
-	pthread_mutex_lock(&m_mutex);
+	CGuardMutex guardMutex(m_mutex);
 	insert_node(head_node.node.pre, &queue_node->node); 
 	tail = queue_node;
 	++(node_num);
-	pthread_mutex_unlock(&m_mutex);
 	return 0;
 }
 
 
 int ThreadQueue::removeQueue(pthread_t thread_id)
 {
-	pthread_mutex_lock(&m_mutex);
+	CGuardMutex guardMutex(m_mutex);
 	struct node *node = NULL;
 	struct node *head = &head_node.node;
 	ThreadNode *queue_node = NULL;
 
 	if (node_num < 1) //无结点
 	{
-		pthread_mutex_unlock(&m_mutex);
 		return -1;
 	}
 	if (&head_node == tail) //无结点
 	{
-		pthread_mutex_unlock(&m_mutex);
 		return -1;
 	}
 
@@ -140,17 +135,15 @@ int ThreadQueue::removeQueue(pthread_t thread_id)
 			remov_node(&queue_node->node);
 			tail = TQueueContain(head_node.node.pre);
 			--(node_num);
-			pthread_mutex_unlock(&m_mutex);
 			return 0;	
 		}
 	}
 
-	pthread_mutex_unlock(&m_mutex);
 	return -1;
 }
 int ThreadQueue::getQueue(pthread_t thread_id, ThreadNode **ret_queue_node)
 {
-	pthread_mutex_lock(&m_mutex);
+	CGuardMutex guardMutex(m_mutex);
 	struct node *node = NULL;
 	struct node *head = &head_node.node;
 	ThreadNode *queue_node = NULL;
@@ -158,13 +151,11 @@ int ThreadQueue::getQueue(pthread_t thread_id, ThreadNode **ret_queue_node)
 	if (node_num < 1) //无结点
 	{
 		*ret_queue_node = NULL;
-		pthread_mutex_unlock(&m_mutex);
 		return -1;
 	}
 	if (&head_node == tail) //无结点
 	{
 		*ret_queue_node = NULL;
-		pthread_mutex_unlock(&m_mutex);
 		return -1;
 	}
 
@@ -175,32 +166,28 @@ int ThreadQueue::getQueue(pthread_t thread_id, ThreadNode **ret_queue_node)
 		{
 			*ret_queue_node = queue_node;
 			tail = TQueueContain(head_node.node.pre);
-			pthread_mutex_unlock(&m_mutex);
 			return 0;	
 		}
 	}
 
 	*ret_queue_node = NULL;
-	pthread_mutex_unlock(&m_mutex);
 	return -1;
 }
 
 
 void ThreadQueue::clearQueue()
 {
-	pthread_mutex_lock(&m_mutex);
+	CGuardMutex guardMutex(m_mutex);
 	struct node *node = NULL;
 	struct node *head = &head_node.node;
 	ThreadNode *queue_node = NULL;
 
 	if (node_num < 1) //无结点
 	{
-		pthread_mutex_unlock(&m_mutex);
 		return ;
 	}
 	if (&head_node == tail) //无结点
 	{
-		pthread_mutex_unlock(&m_mutex);
 		return ;
 	}
 
@@ -219,24 +206,21 @@ void ThreadQueue::clearQueue()
 	tail = &head_node;
 	node_num = 0;
 
-	pthread_mutex_unlock(&m_mutex);
 	return ;
 }
 void ThreadQueue::dispQueue()
 {
-	pthread_mutex_lock(&m_mutex);
+	CGuardMutex guardMutex(m_mutex);
 	struct node *node = NULL;
 	struct node *head = &head_node.node;
 	ThreadNode *queue_node = NULL;
 
 	if (node_num < 1) //无结点
 	{
-		pthread_mutex_unlock(&m_mutex);
 		return ;
 	}
 	if (&head_node == tail) //无结点
 	{
-		pthread_mutex_unlock(&m_mutex);
 		return ;
 	}
 
@@ -247,7 +231,6 @@ void ThreadQueue::dispQueue()
 
 	}
 
-	pthread_mutex_unlock(&m_mutex);
 	return ;
 
 }
@@ -295,7 +278,6 @@ void ThreadQueue::wrapFree(void* addr)
 CalcMem *CalcMem::_instance = NULL;
 CalcMem::CalcMem()
 {
-	pthread_mutex_init(&m_mutex, NULL);
 }
 CalcMem *CalcMem::instance()
 {
@@ -319,7 +301,7 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 		return ;
 	}
 	
-	pthread_mutex_lock(&m_mutex);
+	CGuardMutex guardMutex(m_mutex);
 	MemNodeMap::iterator iter = m_memNodeMap.find(addr);
 	if (iter == m_memNodeMap.end())
 	{
@@ -340,14 +322,13 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 		//printf("traceInf  %s\n", traceInf);
 	}
 	
-	pthread_mutex_unlock(&m_mutex);
 	
 }
 
 void CalcMem::wrapFree(void* addr)
 {
 
-	pthread_mutex_lock(&m_mutex);
+	CGuardMutex guardMutex(m_mutex);
 	MemNodeMap::iterator iter = m_memNodeMap.find(addr);
 	if (iter != m_memNodeMap.end())
 	{
@@ -362,7 +343,6 @@ void CalcMem::wrapFree(void* addr)
 		//printf("traceInf  %s\n", traceInf);
 	}
 	
-	pthread_mutex_unlock(&m_mutex);
 
 }
 void CalcMem::printfMallocMap()

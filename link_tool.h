@@ -60,7 +60,7 @@ private:
 	ThreadNode head_node;
 	ThreadNode *tail;
 	int node_num;
-	pthread_mutex_t  m_mutex;
+	CPthreadMutex  m_mutex;
 };
 typedef struct MemNodeInf
 {
@@ -89,7 +89,7 @@ private:
 	void dealMemInf(const char *mallocPath, size_t size);
 private:
 	static CalcMem *_instance;
-	pthread_mutex_t  m_mutex;
+	CPthreadMutex  m_mutex;
 
 	typedef std::map<void *, MemNodeInf *> MemNodeMap;
 	MemNodeMap m_memNodeMap;
