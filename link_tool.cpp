@@ -58,9 +58,7 @@ ThreadQueue *ThreadQueue::instance()
 		CGuardMutex guardMutex(g_insMutex);
 		if (NULL == _instance)
 		{
-			m_enable = false;
 			_instance = new ThreadQueue;
-			m_enable = true;
 		}
 	}
 	return _instance;
@@ -68,6 +66,9 @@ ThreadQueue *ThreadQueue::instance()
 
 void ThreadQueue::start()
 {
+	m_enable = false;
+	ThreadQueue::instance();
+	CalcMem::instance();
 	m_enable = true;
 }
 
