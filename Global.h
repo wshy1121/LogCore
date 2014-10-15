@@ -12,7 +12,7 @@
 
 void NextStep(const char *function, const char *fileName, int line);
 #define nextStep()  NextStep(__FUNCTION__, __FILE__, __LINE__)
-#define tracepoint()  printf("%d  %s  \t\t%ld\n", __LINE__, __FILE__, pthread_self());
+#define tracepoint1()  printf("%d  %s  \t\t%ld\n", __LINE__, __FILE__, pthread_self());
 class CTimeCalc;
 
 typedef std::list<CTimeCalc *> CTimeCalcList;
@@ -60,6 +60,47 @@ public:
 private:
 	pthread_mutex_t  *m_mutex;
 };
+
+
+class CGuardEnable
+{
+public:
+	///\brief 构造函数
+	inline CGuardEnable(bool& enable)
+		:m_enable(enable)
+	{
+		m_enable = false;
+	};
+
+	///\brief 析构函数
+	inline ~CGuardEnable()
+	{
+		m_enable = true;
+	};
+private:
+	bool &m_enable;
+};
+
+class CGuardMutex
+{
+public:
+	///\brief 构造函数
+	inline CGuardMutex(CPthreadMutex& mutex)
+		:m_mutex(mutex)
+	{
+		m_mutex.Enter();
+	};
+
+	///\brief 析构函数
+	inline ~CGuardMutex()
+	{
+		m_mutex.Leave();
+	};
+private:
+	CPthreadMutex &m_mutex;
+};
+
+extern CPthreadMutex g_insMutex;
 
 class CTimeCalc
 {

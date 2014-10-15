@@ -20,7 +20,7 @@ extern "C" void *__wrap_malloc(size_t c)
 {
 	void* p = __real_malloc(c);
 
-	if (p && ThreadQueue::instance()->getEnable())
+	if (p && ThreadQueue::getEnable())
 	{
 		ThreadQueue::instance()->wrapMalloc(c, p);
 	}
@@ -30,7 +30,7 @@ extern "C" void *__wrap_malloc(size_t c)
 extern "C" void* __wrap_realloc(size_t c)
 {
 	void *p = __real_realloc(c);
-	if (p && ThreadQueue::instance()->getEnable())
+	if (p && ThreadQueue::getEnable())
 	{
 		ThreadQueue::instance()->wrapMalloc(c, p);
 	}
@@ -40,7 +40,7 @@ extern "C" void* __wrap_realloc(size_t c)
 extern "C" void* __wrap_calloc(size_t c)
 {
 	void *p = __real_calloc(c); 
-	if (p && ThreadQueue::instance()->getEnable())
+	if (p && ThreadQueue::getEnable())
 	{
 		ThreadQueue::instance()->wrapMalloc(c, p);
 	}	
@@ -48,7 +48,7 @@ extern "C" void* __wrap_calloc(size_t c)
 }
 extern "C" void __wrap_free(void*p)
 {
-	if (p && ThreadQueue::instance()->getEnable())
+	if (p && ThreadQueue::getEnable())
 	{
 		ThreadQueue::instance()->wrapFree(p);
 	}

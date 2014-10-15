@@ -47,7 +47,7 @@ public:
 	void clearQueue();
 	void dispQueue();
 	void setEnable(bool enable);
-	bool getEnable();
+	static bool getEnable();
 	void start();
 	void wrapMalloc(size_t c, void* addr);
 	void wrapFree(void* addr);
@@ -55,6 +55,7 @@ public:
 	static ThreadQueue *instance();
 private:
 	static bool m_enable;
+	static ThreadQueue *_instance;
 private:
 	ThreadNode head_node;
 	ThreadNode *tail;
@@ -87,6 +88,7 @@ private:
 private:
 	void dealMemInf(const char *mallocPath, size_t size);
 private:
+	static CalcMem *_instance;
 	pthread_mutex_t  m_mutex;
 
 	typedef std::map<void *, MemNodeInf *> MemNodeMap;

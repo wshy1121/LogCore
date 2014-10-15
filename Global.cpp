@@ -40,6 +40,7 @@
 
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
 
+CPthreadMutex g_insMutex;
 
 
 /*****************************************************************************/
@@ -109,6 +110,7 @@ static FILE *OpenLogFile (char *sLogFilePath, char *sLogName, int nLogSwitchMode
  
 int Debug_print(char *sLogName, int nLogMode, char *sFmt, ...)
 {
+	CGuardMutex guardMutex(g_insMutex);
 	char tmp[32];
 	va_list	ap;
 
@@ -154,7 +156,6 @@ int Debug_print(char *sLogName, int nLogMode, char *sFmt, ...)
 	return 0;
 }
 
-static CPthreadMutex g_insMutex;
  
 void NextStep(const char *function, const char *fileName, int line)
 {
@@ -164,43 +165,6 @@ void NextStep(const char *function, const char *fileName, int line)
 	return ;
 }
 
-class CGuardEnable
-{
-public:
-	///\brief 构造函数
-	inline CGuardEnable(bool& enable)
-		:m_enable(enable)
-	{
-		m_enable = false;
-	};
-
-	///\brief 析构函数
-	inline ~CGuardEnable()
-	{
-		m_enable = true;
-	};
-private:
-	bool &m_enable;
-};
-
-class CGuardMutex
-{
-public:
-	///\brief 构造函数
-	inline CGuardMutex(CPthreadMutex& mutex)
-		:m_mutex(mutex)
-	{
-		m_mutex.Enter();
-	};
-
-	///\brief 析构函数
-	inline ~CGuardMutex()
-	{
-		m_mutex.Leave();
-	};
-private:
-	CPthreadMutex &m_mutex;
-};
 
 #ifdef WRAP
 //防止嵌套调用处理
@@ -683,8 +647,11 @@ void CTimeCalcManager::getInsertTrace(std::string &insertTrace)
 
 void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr)
 {
-	TraceInfo->last_filename = file_name;
-	TraceInfo->last_line = line;
+	if (line != 0 && strlen(file_name) != 0)
+	{
+		TraceInfo->last_filename = file_name;
+		TraceInfo->last_line = line;
+	}
 	struct timeb cur_time;
 	ftime(&cur_time);
 

@@ -42,6 +42,7 @@ void remov_node(struct node *node)
 }
 
 bool ThreadQueue::m_enable = false;
+ThreadQueue *ThreadQueue::_instance = NULL;
 
 ThreadQueue::ThreadQueue()
 {
@@ -52,8 +53,17 @@ ThreadQueue::ThreadQueue()
 
 ThreadQueue *ThreadQueue::instance()
 {
-	static ThreadQueue _instance;
-	return &_instance; 
+	if (NULL == _instance)
+	{
+		CGuardMutex guardMutex(g_insMutex);
+		if (NULL == _instance)
+		{
+			m_enable = false;
+			_instance = new ThreadQueue;
+			m_enable = true;
+		}
+	}
+	return _instance;
 }
 
 void ThreadQueue::start()
@@ -281,17 +291,23 @@ void ThreadQueue::wrapFree(void* addr)
 	return ;
 }
 
-
+CalcMem *CalcMem::_instance = NULL;
 CalcMem::CalcMem()
 {
 	pthread_mutex_init(&m_mutex, NULL);
 }
 CalcMem *CalcMem::instance()
 {
-	static CalcMem _instance;
-	return &_instance; 
+	if (NULL == _instance)
+	{
+		CGuardMutex guardMutex(g_insMutex);
+		if (NULL == _instance)
+		{
+			_instance = new CalcMem;
+		}
+	}
+	return _instance;
 }
-
 
 void CalcMem::wrapMalloc(size_t c, void* addr)
 {
@@ -376,7 +392,7 @@ void CalcMem::dealMemInf(const char *mallocPath, size_t size)
 	if (memInf->memSize > memInf->maxSize)
 	{
 		memInf->maxSize = memInf->memSize;
-		time_printf("mallocPath, size  %s %d", mallocPath, memInf->memSize);
+		CTimeCalcManager::instance()->InsertTrace(0, (char *)"", "mallocPath, size  %s %d", mallocPath, memInf->memSize);
 	}
 	return ;
 }
