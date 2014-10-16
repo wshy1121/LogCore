@@ -54,7 +54,7 @@ ThreadQueue *ThreadQueue::instance()
 {
 	if (NULL == _instance)
 	{
-		CGuardMutex guardMutex(g_insMutex);
+		CGuardMutex guardMutex(g_insMutexCalc);
 		if (NULL == _instance)
 		{
 			_instance = new ThreadQueue;
@@ -69,6 +69,11 @@ void ThreadQueue::start()
 	ThreadQueue::instance();
 	CalcMem::instance();
 	m_enable = true;
+}
+
+void ThreadQueue::stop()
+{
+	m_enable = false;
 }
 
 void ThreadQueue::setEnable(bool enable)
@@ -283,7 +288,7 @@ CalcMem *CalcMem::instance()
 {
 	if (NULL == _instance)
 	{
-		CGuardMutex guardMutex(g_insMutex);
+		CGuardMutex guardMutex(g_insMutexCalc);
 		if (NULL == _instance)
 		{
 			_instance = new CalcMem;

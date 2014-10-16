@@ -75,7 +75,7 @@ void* test1(void *pArg)
 void* printfMallocMap(void *pArg)
 {
 #ifdef WRAP
-	ThreadQueue::instance()->start();
+	CTimeCalcManager::instance()->start();
 	while (1)
 	{
 		CalcMem::instance()->printfMallocMap();

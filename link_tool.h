@@ -48,7 +48,8 @@ public:
 	void dispQueue();
 	void setEnable(bool enable);
 	static bool getEnable();
-	void start();
+	static void start();
+	static void stop();
 	void wrapMalloc(size_t c, void* addr);
 	void wrapFree(void* addr);
 	ThreadNode *getQueueNode(pthread_t thread_id);

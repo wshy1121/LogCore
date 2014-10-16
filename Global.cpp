@@ -40,7 +40,7 @@
 
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
 
-CPthreadMutex g_insMutex;
+CPthreadMutex g_insMutexCalc;
 
 
 /*****************************************************************************/
@@ -110,7 +110,7 @@ static FILE *OpenLogFile (char *sLogFilePath, char *sLogName, int nLogSwitchMode
  
 int Debug_print(char *sLogName, int nLogMode, char *sFmt, ...)
 {
-	CGuardMutex guardMutex(g_insMutex);
+	CGuardMutex guardMutex(g_insMutexCalc);
 	char tmp[32];
 	va_list	ap;
 
@@ -429,7 +429,7 @@ CTimeCalcManager *CTimeCalcManager::instance()
 {
 	if (NULL == _instance)
 	{
-		CGuardMutex guardMutex(g_insMutex);
+		CGuardMutex guardMutex(g_insMutexCalc);
 		if (NULL == _instance)
 		{
 			_instance = new CTimeCalcManager;
@@ -890,5 +890,15 @@ bool CTimeCalcManager::needPrint(CTimeCalcList &calc_list)
 	}
 	
 	return false;
+}
+
+void CTimeCalcManager::start()
+{
+	ThreadQueue::start();
+}
+
+void CTimeCalcManager::stop()
+{
+	ThreadQueue::stop();
 }
 

@@ -100,7 +100,7 @@ private:
 	CPthreadMutex &m_mutex;
 };
 
-extern CPthreadMutex g_insMutex;
+extern CPthreadMutex g_insMutexCalc;
 
 class CTimeCalc
 {
@@ -150,6 +150,8 @@ public:
 	void InsertTag(int line, char *file_name, const char* fmt, ...);
 	void DispAll();
 	void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
+	void start();
+	void stop();
 public:
 	FuncTraceInfo_t *CreatTraceInf();
 	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo);
