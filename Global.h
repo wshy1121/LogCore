@@ -156,7 +156,7 @@ public:
 	FuncTraceInfo_t *CreatTraceInf();
 	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo);
 	FuncTraceInfo_t *GetTraceInf();
-	int printLog(char *sFmt, ...);
+	void printLog(char *sFmt, ...);
 private:	
 	void insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
 	void BackTrace();

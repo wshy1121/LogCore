@@ -797,9 +797,8 @@ FILE *CTimeCalcManager::openLog(const char *sLogName)
 	fp = fopen (sLogName, "a+");
 	return fp;
 }
-int CTimeCalcManager::printLog(char *sFmt, ...)
+void CTimeCalcManager::printLog(char *sFmt, ...)
 {
-	CGuardMutex guardMutex(m_logFileMutex);
 	char tmp[32];
 	va_list	ap;
 
@@ -810,13 +809,13 @@ int CTimeCalcManager::printLog(char *sFmt, ...)
 	va_end(ap);
 	if (strlen(tmp) == 0)
 	{
-		return 0;
+		return ;
 	}
 	/* open log file */ 
 
 	fp = openLog (m_logName);
 	if (fp == NULL)
-		return (-1);
+		return ;
 
 	/* save log msg in file */
 
@@ -842,5 +841,5 @@ int CTimeCalcManager::printLog(char *sFmt, ...)
 	fclose (fp);
 
 
-	return 0;
+	return ;
 }
