@@ -813,6 +813,7 @@ void CTimeCalcManager::printLog(char *sFmt, ...)
 	}
 	/* open log file */ 
 
+	CGuardMutex guardMutex(m_logFileMutex);
 	fp = openLog (m_logName);
 	if (fp == NULL)
 		return ;

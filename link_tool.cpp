@@ -66,8 +66,9 @@ ThreadQueue *ThreadQueue::instance()
 void ThreadQueue::start()
 {
 	m_enable = false;
+	CalcMem::instance();	
 	ThreadQueue::instance();
-	CalcMem::instance();
+	CTimeCalcManager::instance();
 	m_enable = true;
 }
 
