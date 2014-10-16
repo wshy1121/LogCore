@@ -173,6 +173,7 @@ private:
 	std::map<std::string, int > m_stack_inf_map;
 	FILE *m_fp;
 	const char *m_logName;
+	CPthreadMutex  m_logFileMutex;
 	static CTimeCalcManager *_instance;
 };
 

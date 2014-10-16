@@ -799,7 +799,7 @@ FILE *CTimeCalcManager::openLog(const char *sLogName)
 }
 int CTimeCalcManager::printLog(char *sFmt, ...)
 {
-	CGuardMutex guardMutex(g_insMutexCalc);
+	CGuardMutex guardMutex(m_logFileMutex);
 	char tmp[32];
 	va_list	ap;
 
