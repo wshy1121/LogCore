@@ -62,24 +62,6 @@ private:
 };
 
 
-class CGuardEnable
-{
-public:
-	///\brief 构造函数
-	inline CGuardEnable(bool& enable)
-		:m_enable(enable)
-	{
-		m_enable = false;
-	};
-
-	///\brief 析构函数
-	inline ~CGuardEnable()
-	{
-		m_enable = true;
-	};
-private:
-	bool &m_enable;
-};
 
 class CGuardMutex
 {

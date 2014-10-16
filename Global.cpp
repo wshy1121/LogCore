@@ -53,13 +53,12 @@ void NextStep(const char *function, const char *fileName, int line)
 
 #ifdef WRAP
 //防止嵌套调用处理
-#define threadQueueEnable(type)    \
-	ThreadNode *queue_node = ThreadQueue::instance()->getQueueNode(pthread_self());  \
-	if (!queue_node->enable[type])  \
+#define threadQueueEnable(type)  \
+	CGuardEnable guard(type);  \
+	if (guard.needReturn())  \
 	{  \
 		return ;  \
-	}  \
-	CGuardEnable guard(queue_node->enable[type])
+	}
 
 #else
 #define threadQueueEnable(type)    

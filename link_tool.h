@@ -20,12 +20,12 @@ void init_node(struct node *node);
 void insert_node(struct node *node, struct node *inser_node);
 void remov_node(struct node *node);
 
-enum
+typedef enum
 {
 	e_Mem, 
 	e_TimeCalc, 
 	e_ThreadEnableNum,
-};
+}E_ENABLE_TYPE;
 
 typedef struct 
 {
@@ -34,6 +34,21 @@ typedef struct
 	struct node node;
 }ThreadNode;
 
+class CGuardEnable
+{
+public:
+	///\brief 构造函数
+	CGuardEnable(E_ENABLE_TYPE type);
+
+	///\brief 析构函数
+	~CGuardEnable();
+
+	bool needReturn();
+private:
+	E_ENABLE_TYPE m_type;
+	ThreadNode *m_queueNode;
+	bool m_needReturn;
+};
 class  ThreadQueue
 {
 public:

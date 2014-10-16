@@ -41,6 +41,37 @@ void remov_node(struct node *node)
 	return ;
 }
 
+
+///\brief ¹¹Ôìº¯Êý
+CGuardEnable::CGuardEnable(E_ENABLE_TYPE type)
+	:m_type(type)
+{
+	m_queueNode = ThreadQueue::instance()->getQueueNode(pthread_self());
+	m_needReturn = !m_queueNode->enable[m_type];
+}
+
+CGuardEnable::~CGuardEnable()
+{
+	if (m_needReturn) 
+	{
+		return ;
+	}
+	
+	m_queueNode->enable[m_type] = true;
+}
+
+bool CGuardEnable::needReturn()
+{
+	if (m_needReturn) 
+	{
+		return true;
+	}
+
+	m_queueNode->enable[m_type] = false;
+	return false;
+}
+	
+
 bool ThreadQueue::m_enable = false;
 ThreadQueue *ThreadQueue::_instance = NULL;
 
