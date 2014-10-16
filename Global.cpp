@@ -51,18 +51,7 @@ void NextStep(const char *function, const char *fileName, int line)
 }
 
 
-#ifdef WRAP
-//防止嵌套调用处理
-#define threadQueueEnable(type)  \
-	CGuardEnable guard(type);  \
-	if (guard.needReturn())  \
-	{  \
-		return ;  \
-	}
 
-#else
-#define threadQueueEnable(type)    
-#endif
 
 void CTimeCalc::calcStartMem()
 {

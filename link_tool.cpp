@@ -285,30 +285,15 @@ ThreadNode *ThreadQueue::getQueueNode(pthread_t thread_id)
 }
 void ThreadQueue::wrapMalloc(size_t c, void* addr)
 {
-	ThreadNode *queue_node = getQueueNode(pthread_self());
-
-	if (queue_node->enable[e_Mem])
-	{
-		queue_node->enable[e_Mem] = false;
-		CalcMem::instance()->wrapMalloc(c, addr);
-		queue_node->enable[e_Mem] = true;	
-
-	}
-
+	threadQueueEnable(e_Mem);
+	CalcMem::instance()->wrapMalloc(c, addr);
 	return ;
 }
 
 void ThreadQueue::wrapFree(void* addr)
 {
-	ThreadNode *queue_node = getQueueNode(pthread_self());
-	if (queue_node->enable[e_Mem])
-	{
-		queue_node->enable[e_Mem] = false;
-		CalcMem::instance()->wrapFree(addr);
-		queue_node->enable[e_Mem] = true;	
-
-	}
-
+	threadQueueEnable(e_Mem);
+	CalcMem::instance()->wrapFree(addr);
 	return ;
 }
 

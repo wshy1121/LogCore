@@ -49,6 +49,20 @@ private:
 	ThreadNode *m_queueNode;
 	bool m_needReturn;
 };
+
+#ifdef WRAP
+//防止嵌套调用处理
+#define threadQueueEnable(type)  \
+	CGuardEnable guard(type);  \
+	if (guard.needReturn())  \
+	{  \
+		return ;  \
+	}
+
+#else
+#define threadQueueEnable(type)    
+#endif
+
 class  ThreadQueue
 {
 public:
