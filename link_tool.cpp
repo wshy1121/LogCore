@@ -57,7 +57,7 @@ CGuardEnable::~CGuardEnable()
 		return ;
 	}
 	
-	m_queueNode->enable[m_type] = true;
+	ThreadQueue::instance()->removeNode(m_queueNode, m_type);
 }
 
 bool CGuardEnable::needReturn()
@@ -146,7 +146,29 @@ int ThreadQueue::insertQueue(ThreadNode *queue_node)
 	++(node_num);
 	return 0;
 }
+int ThreadQueue::removeNode(ThreadNode *queueNode, E_ENABLE_TYPE type)
+{
+	CGuardMutex guardMutex(m_mutex);
+	queueNode->enable[type] = true;
+	
+	for (int i=0; i<e_ThreadEnableNum; ++i)
+	{
+		if (queueNode->enable[i] == false)
+		{
+			return -1;
+		}
+	}
+	if (queueNode->thread_id == pthread_self())
+	{
+		remov_node(&queueNode->node);
+		tail = TQueueContain(head_node.node.pre);
+		--(node_num);
+		__real_free(queueNode);
+		return 0;	
+	}
 
+	return -1;
+}
 
 int ThreadQueue::removeQueue(pthread_t thread_id)
 {

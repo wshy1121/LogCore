@@ -72,6 +72,7 @@ public:
 	void initQueue();
 	int insertQueue(ThreadNode *queue_node);
 	int removeQueue(pthread_t thread_id);
+	int removeNode(ThreadNode *queueNode, E_ENABLE_TYPE m_type);
 	int getQueue(pthread_t thread_id, ThreadNode **ret_queue_node);
 	void clearQueue();
 	void dispQueue();
