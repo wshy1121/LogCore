@@ -156,19 +156,23 @@ public:
 	FuncTraceInfo_t *CreatTraceInf();
 	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo);
 	FuncTraceInfo_t *GetTraceInf();
+	int printLog(char *sFmt, ...);
 private:	
 	void insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
 	void BackTrace();
 	void DispTraces(int signo);
 	bool needPrint(CTimeCalcList &calc_list);
 	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
+	FILE *openLog(const char *sLogName);
 private:
-	CTimeCalcManager(){}
+	CTimeCalcManager();
 
 private:
 	CPthreadMutex  m_thread_map_mutex;
 	std::map<pthread_t, FuncTraceInfo_t *> m_thread_map; 
 	std::map<std::string, int > m_stack_inf_map;
+	FILE *m_fp;
+	const char *m_logName;
 	static CTimeCalcManager *_instance;
 };
 

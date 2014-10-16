@@ -41,121 +41,6 @@
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
 
 CPthreadMutex g_insMutexCalc;
-
-
-/*****************************************************************************/
-/* FUNC:   int OpenLogFile (char *sLogFilePath, char *sLogName,              */
-/*                          int nLogSwitchMode, int nLogSize,                */
-/*                          char *sDate, FILE *fp)                           */
-/* INPUT:  sLogFilePath: 日志路径                                            */
-/*         sLogName: 日志文件名                                              */
-/*         nLogSwitchMode: 日志切换模式                                      */
-/*                   LOG_SWITCH_MODE_SIZE, LOG_SWITCH_MODE_DATE              */
-/*         nLogSize: LOG_SWITCH_MODE_SIZE模式下文件大小                      */
-/*         sDateTime: 当前时间, YYYYMMDDhhmmss                               */
-/* OUTPUT: fp: 打开的日志文件的指针                                          */
-/* RETURN: 0: 成功, 其它: 失败                                               */
-/* DESC:   根据nLogSwitchMode, 打开日志文件                                  */
-/*         LOG_SWITCH_MODE_SIZE: 当文件大小(M)达到nLogSize, 切换到新文件,    */
-/*                               原文件改名为文件名中带有时间                */
-/*                               xx.log.YYYYMMDDhhmmss                       */
-/*         LOG_SWITCH_MODE_DATE: 日志文件名带有日期, xx.log.YYYYMMDD         */
-/*****************************************************************************/
-static FILE *OpenLogFile (char *sLogFilePath, char *sLogName, int nLogSwitchMode, int nLogSize, char *sDateTime ,int nLogMode)
-{
-	FILE *fp = NULL;
-	char		sFullLogName[MAX_LOG_PATH_LEN + MAX_LOG_NAME_LEN];
-	char		sFullBakLogName[MAX_LOG_PATH_LEN + MAX_LOG_NAME_LEN];
-	int			nReturnCode;
-	struct stat	statbuf;
-
-	memset (sFullLogName, 0x00, sizeof (sFullLogName));
-
-	/* set log file name */
-	if (!sLogName || strlen(sLogName) == 0)
-		sprintf (sFullLogName, "%s/%s", ".", LOG_DEFAULT_NAME);
-	else
-		sprintf (sFullLogName, "%s/%s", ".", sLogName);
-
-	if(nLogMode == LOG_MODE_ERROR)
-	{
-		strncat (sFullLogName, ".Error", 6);
-	}
-	else
-	{
-		if (nLogSwitchMode == LOG_SWITCH_MODE_DATE)
-		{
-			/* append date in log file name */
-			strncat (sFullLogName, ".", 1);
-			strncat (sFullLogName, sDateTime, 8);
-		}
-		else
-		{
-			/* this is LOG_SWITCH_MODE_SIZE */
-			/* check file size */
-			memset (&statbuf, 0x00, sizeof(statbuf));
-			nReturnCode = stat (sFullLogName, &statbuf);
-			if ( nReturnCode == 0 && statbuf.st_size >= LOG_SIZE_UNIT * nLogSize )
-			{
-				memset (sFullBakLogName, 0x00, sizeof(sFullBakLogName));
-				sprintf (sFullBakLogName, "%s.%s", sFullLogName, sDateTime);
-				rename (sFullLogName, sFullBakLogName);
-			}
-		}
-	}
-	/* open log file */
-	fp = fopen (sFullLogName, "a+");
-	return fp;
-}
- 
-int Debug_print(char *sLogName, int nLogMode, char *sFmt, ...)
-{
-	CGuardMutex guardMutex(g_insMutexCalc);
-	char tmp[32];
-	va_list	ap;
-
-	FILE *fp = NULL;
-
-	va_start(ap, sFmt);
-	vsnprintf(tmp, sizeof(tmp), sFmt, ap);
-	va_end(ap);
-	if (strlen(tmp) == 0)
-	{
-		return 0;
-	}
-	/* open log file */ 
-
-	fp = OpenLogFile ((char *)".", sLogName, 1, 10, (char *)"cpp", nLogMode);
-	if (fp == NULL)
-		return (-1);
-
-	/* save log msg in file */
-
-
-	va_start(ap, sFmt);
-	vfprintf(fp, sFmt, ap);
-	va_end(ap);
-
-	//time_t timep;
-	//time(&timep);
-	
-	char time_tmp[128];
-	strcpy(time_tmp, "creat by huang_yuan@dahuatech.com1");
-	time_tmp[strlen(time_tmp)-1] = '\0';
-	
-	fprintf(fp, "//thread id:%16d   %s\n\n", (int)pthread_self(), time_tmp);
-
-
-	fprintf(fp, "\n");
-	fflush(fp);
-
-	/* close file */
-	fclose (fp);
-
-
-	return 0;
-}
-
  
 void NextStep(const char *function, const char *fileName, int line)
 {
@@ -390,7 +275,7 @@ void CTimeCalc::DealFuncExit()
 		//-------------------
 		if (TraceInfo->deep < 1)
 		{
-			Debug_print((char *)"Debug", 3, (char *)"%s","//ERRERRERRERRERRERRERRERR");
+			CTimeCalcManager::instance()->printLog((char *)"%s","//ERRERRERRERRERRERRERRERR");
 			return;
 		}
 	
@@ -400,14 +285,14 @@ void CTimeCalc::DealFuncExit()
 
 		if (TraceInfo->deep == 0)
 		{
-			Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
+			CTimeCalcManager::instance()->printLog((char *)"%s", TraceInfo->up_string.c_str());
 			CTimeCalcManager::instance()->DestroyTraceInf(TraceInfo);
 		}
 
 	}
 	else
 	{
-		Debug_print((char *)"Debug", 3, (char *)"%s","//ERRERRERRERRERRERRERRERR");
+		CTimeCalcManager::instance()->printLog((char *)"%s","//ERRERRERRERRERRERRERRERR");
 		return;
 	}
 
@@ -424,6 +309,10 @@ CTimeCalc::~CTimeCalc()
 
 
 CTimeCalcManager *CTimeCalcManager::_instance = NULL;
+CTimeCalcManager::CTimeCalcManager():m_fp(NULL), 
+										m_logName("./Debug.cpp")
+{
+}
 
 CTimeCalcManager *CTimeCalcManager::instance()
 {
@@ -614,7 +503,7 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, .
 	}  
 	else
 	{
-		Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
+		CTimeCalcManager::instance()->printLog((char *)"trace:/*%s*/", str);
 	}
 
 	va_end(ap);      
@@ -759,7 +648,7 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 	}  
 	else
 	{
-		Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
+		printLog((char *)"trace:/*%s*/", str);
 	}
 	return ;
 
@@ -786,7 +675,7 @@ void CTimeCalcManager::InsertTag(int line, char *file_name, const char* fmt, ...
 	vsnprintf(str,sizeof(str), fmt, ap);
 	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
-	Debug_print((char *)"Debug", 3, (char *)"trace:/*%s*/", str);
+	printLog((char *)"trace:/*%s*/", str);
 
 	va_end(ap);
 
@@ -801,16 +690,16 @@ void CTimeCalcManager::DispAll()
 	FuncTraceInfo_t *TraceInfo = NULL;
 
 	CGuardMutex guardMutex(m_thread_map_mutex);
-	Debug_print((char *)"Debug", 3, (char *)"%s", "#if 0");
+	printLog((char *)"%s", "#if 0");
        for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)
 	{
 		TraceInfo = it->second;
 		if (TraceInfo)
 		{
-			Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
+			printLog((char *)"%s", TraceInfo->up_string.c_str());
 		}
 	}
-	Debug_print((char *)"Debug", 3, (char *)"%s", "#endif");
+	printLog((char *)"%s", "#endif");
 
 	return ;
 }
@@ -819,7 +708,7 @@ void CTimeCalcManager::DispTraces(int signo)
 	threadQueueEnable(e_TimeCalc);
 
 	CGuardMutex guardMutex(m_thread_map_mutex);
-	Debug_print((char *)"Debug", 3, (char *)"//%s    %2d","Except    DispTraces", signo);
+	printLog((char *)"//%s    %2d","Except    DispTraces", signo);
 	
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it;
 
@@ -828,7 +717,7 @@ void CTimeCalcManager::DispTraces(int signo)
 	{
 		TraceInfo = it->second;
 		
-		Debug_print((char *)"Debug", 3, (char *)"%s", TraceInfo->up_string.c_str());
+		printLog((char *)"%s", TraceInfo->up_string.c_str());
 	}
 	if ((signo == SIGSEGV) || (signo == SIGINT) )
 	{
@@ -845,7 +734,7 @@ void CTimeCalcManager::DispTraces(int signo)
 				break;
 		}
 		
-		Debug_print((char *)"Debug", 3, (char *)"%s  signo:%2d    %s","//ERRERRERRERRERRERRERRERR", signo, signo_inf);
+		printLog((char *)"%s  signo:%2d    %s","//ERRERRERRERRERRERRERRERR", signo, signo_inf);
 		exit(0);
 	}
 
@@ -902,3 +791,56 @@ void CTimeCalcManager::stop()
 	ThreadQueue::stop();
 }
 
+FILE *CTimeCalcManager::openLog(const char *sLogName)
+{
+	FILE *fp = NULL;
+	fp = fopen (sLogName, "a+");
+	return fp;
+}
+int CTimeCalcManager::printLog(char *sFmt, ...)
+{
+	CGuardMutex guardMutex(g_insMutexCalc);
+	char tmp[32];
+	va_list	ap;
+
+	FILE *fp = NULL;
+
+	va_start(ap, sFmt);
+	vsnprintf(tmp, sizeof(tmp), sFmt, ap);
+	va_end(ap);
+	if (strlen(tmp) == 0)
+	{
+		return 0;
+	}
+	/* open log file */ 
+
+	fp = openLog (m_logName);
+	if (fp == NULL)
+		return (-1);
+
+	/* save log msg in file */
+
+
+	va_start(ap, sFmt);
+	vfprintf(fp, sFmt, ap);
+	va_end(ap);
+
+	//time_t timep;
+	//time(&timep);
+	
+	char time_tmp[128];
+	strcpy(time_tmp, "creat by huang_yuan@dahuatech.com1");
+	time_tmp[strlen(time_tmp)-1] = '\0';
+	
+	fprintf(fp, "//thread id:%16d   %s\n\n", (int)pthread_self(), time_tmp);
+
+
+	fprintf(fp, "\n");
+	fflush(fp);
+
+	/* close file */
+	fclose (fp);
+
+
+	return 0;
+}
