@@ -46,12 +46,21 @@ void remov_node(struct node *node)
 CGuardEnable::CGuardEnable(E_ENABLE_TYPE type)
 	:m_type(type)
 {
+	if (!ThreadQueue::getEnable())
+	{
+		return ;
+	}
 	m_queueNode = ThreadQueue::instance()->getQueueNode(pthread_self());
 	m_needReturn = !m_queueNode->enable[m_type];
 }
 
 CGuardEnable::~CGuardEnable()
 {
+	if (!ThreadQueue::getEnable())
+	{
+		return ;
+	}
+	
 	if (m_needReturn) 
 	{
 		return ;
@@ -62,6 +71,11 @@ CGuardEnable::~CGuardEnable()
 
 bool CGuardEnable::needReturn()
 {
+	if (!ThreadQueue::getEnable())
+	{
+		return false;
+	}
+	
 	if (m_needReturn) 
 	{
 		return true;
