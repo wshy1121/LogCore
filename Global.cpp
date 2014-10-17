@@ -319,9 +319,9 @@ CTimeCalcManager *CTimeCalcManager::instance()
 
 FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf()
 {	
-	CGuardMutex guardMutex(m_thread_map_mutex);
-
 	pthread_t thread_id = pthread_self();
+
+	CGuardMutex guardMutex(m_thread_map_mutex);
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
 	FuncTraceInfo_t *TraceInfo = NULL;
 
@@ -353,8 +353,7 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf()
 
 void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo)
 {
-	pthread_t thread_id;
-	thread_id = pthread_self(); 
+	pthread_t thread_id = pthread_self();
 
 	CGuardMutex guardMutex(m_thread_map_mutex);
 	m_thread_map.erase(thread_id);
@@ -363,10 +362,10 @@ void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo)
 
 FuncTraceInfo_t * CTimeCalcManager::GetTraceInf()
 {
-	CGuardMutex guardMutex(m_thread_map_mutex);
 	pthread_t thread_id;
 	thread_id = pthread_self(); 
 
+	CGuardMutex guardMutex(m_thread_map_mutex);
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
 	if(it != m_thread_map.end())//如果查找到
 	{
@@ -386,12 +385,12 @@ void CTimeCalcManager::printStack(int line, char *file_name, const char* fmt, ..
 	{
 		return ;
 	}
-
+	
+	char str[4096];
 	va_list ap;
 	va_start(ap,fmt);
-	char str[4096];
 	vsnprintf(str,sizeof(str), fmt, ap);
-
+	va_end(ap); 
 	insertStackInfo(TraceInfo, line, file_name, str);
 
 	return ;
@@ -479,11 +478,12 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, .
 	{
 		return ;
 	}
-
+	
+	char str[4096];
 	va_list ap;
 	va_start(ap,fmt);
-	char str[4096];
 	vsnprintf(str,sizeof(str), fmt, ap);
+	va_end(ap);      
 
 	if(TraceInfo)//如果查找到
 	{
@@ -494,7 +494,6 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, .
 		CTimeCalcManager::instance()->printLog((char *)"trace:/*%s*/", str);
 	}
 
-	va_end(ap);      
 
 	return ;
 
@@ -648,11 +647,6 @@ void CTimeCalcManager::InsertTag(int line, char *file_name, const char* fmt, ...
 	threadQueueEnable(e_TimeCalc);
 	
 	va_list ap;
-	va_start(ap,fmt);
-
-	//time_t timep;
-	//time(&timep);
-
 	char time_tmp[128];
 	strcpy(time_tmp, "wshy");
 
@@ -660,12 +654,14 @@ void CTimeCalcManager::InsertTag(int line, char *file_name, const char* fmt, ...
 	ftime(&cur_time);
 	
 	char str[1024];
+	va_start(ap,fmt);
 	vsnprintf(str,sizeof(str), fmt, ap);
+	va_end(ap);
+
 	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
 	printLog((char *)"trace:/*%s*/", str);
 
-	va_end(ap);
 
 	return ;
 }
@@ -787,18 +783,11 @@ FILE *CTimeCalcManager::openLog(const char *sLogName)
 }
 void CTimeCalcManager::printLog(char *sFmt, ...)
 {
-	char tmp[32];
+	return ;
 	va_list	ap;
 
 	FILE *fp = NULL;
 
-	va_start(ap, sFmt);
-	vsnprintf(tmp, sizeof(tmp), sFmt, ap);
-	va_end(ap);
-	if (strlen(tmp) == 0)
-	{
-		return ;
-	}
 	/* open log file */ 
 
 	CGuardMutex guardMutex(m_logFileMutex);
