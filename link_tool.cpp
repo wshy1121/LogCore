@@ -408,7 +408,7 @@ void CalcMem::printfMallocMap()
 	return ;	
 }
 
-void CalcMem::dealMemInf(const char *mallocPath, size_t size)
+void CalcMem::dealMemInf(const char *mallocPath, int size)
 {
 	MemInf *memInf = NULL;
 	MemInfMap::iterator memInfMapIter = m_MemInfMap.find(mallocPath);
@@ -428,7 +428,7 @@ void CalcMem::dealMemInf(const char *mallocPath, size_t size)
 	}
 	
 	memInf->memSize += size;
-	if (memInf->memSize > memInf->maxSize)
+	if (memInf->memSize > (memInf->maxSize + 1024))
 	{
 		memInf->maxSize = memInf->memSize;
 		CTimeCalcManager::instance()->InsertTrace(0, (char *)"", "mallocPath, size  %s %d", mallocPath, memInf->memSize);

@@ -117,7 +117,7 @@ public:
 private:
 	CalcMem();
 private:
-	void dealMemInf(const char *mallocPath, size_t size);
+	void dealMemInf(const char *mallocPath, int size);
 private:
 	static CalcMem *_instance;
 	CPthreadMutex  m_mutex;
