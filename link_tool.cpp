@@ -432,18 +432,18 @@ void CalcMem::dealMemInf(const char *mallocPath, int size)
 	{
 		memInf->maxSize = memInf->memSize;
 		std::string fileName = mallocPath;
-		splitFilename(fileName);
+		fileName = splitFilename(fileName);
 		
 		CTimeCalcManager::instance()->InsertStrOnly("%s  malloc size  %d", fileName.c_str(), memInf->memSize);
 	}
 	return ;
 }
 
-void CalcMem::splitFilename (std::string &path)
+std::string CalcMem::splitFilename (std::string &path)
 {
 	size_t found;
 	found=path.find_last_of("/\\");
-	path.substr(found+1);
+	return path.substr(found+1);
 }
 
 CList::CList()
