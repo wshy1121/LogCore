@@ -105,6 +105,7 @@ typedef struct MemInf
 {
 	size_t memSize;
 	size_t maxSize;
+	size_t count;
 }MemInf;
 
 class  CalcMem
