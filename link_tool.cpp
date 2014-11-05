@@ -428,11 +428,67 @@ void CalcMem::dealMemInf(const char *mallocPath, int size)
 	}
 	
 	memInf->memSize += size;
-	if (memInf->memSize > (memInf->maxSize + 1024))
+	if (memInf->memSize > memInf->maxSize)
 	{
 		memInf->maxSize = memInf->memSize;
-		CTimeCalcManager::instance()->InsertTrace(0, (char *)"", "mallocPath, size  %s %d", mallocPath, memInf->memSize);
+		CTimeCalcManager::instance()->InsertStrOnly("malloc size  %d", memInf->memSize);
 	}
 	return ;
 }
+
+
+CList::CList()
+{
+	init_node(&head_node);
+	tail = &head_node;
+	node_num = 0;
+}
+
+
+
+int CList::push_back(node *pNode)
+{
+	insert_node(head_node.pre, pNode); 
+	tail = pNode;
+	++(node_num);
+	return 0;
+
+}
+
+node *CList::begin()
+{
+	return head_node.next;
+}
+
+void CList::pop_front()
+{
+	node *pNode = head_node.next;
+	remov_node(pNode);
+	tail = head_node.pre;
+	--(node_num);
+}
+
+
+bool CList::empty()
+{
+	if (node_num == 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void CList::clear()
+{
+	node *pNode = NULL;
+	#define each_link_node(head, node) for ((node)=(head)->next; (head) != (node); (node)=(node)->next)
+	
+	each_link_node(&head_node, pNode)
+	{
+	}		
+}
+
 

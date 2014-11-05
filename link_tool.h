@@ -10,11 +10,11 @@ const typeof( ((type *)0)->member ) *__mptr = (ptr);   \
 #define each_link_node(head, node) for ((node)=(head)->next; (head) != (node); (node)=(node)->next)
 #define TRACE_INF_LEN  512
 
-struct node
+typedef struct node
 {
     struct node *next;
 	struct node *pre;
-};
+}node;
 
 void init_node(struct node *node);
 void insert_node(struct node *node, struct node *inser_node);
@@ -127,6 +127,32 @@ private:
 
 	typedef std::map<std::string, MemInf *> MemInfMap;
 	MemInfMap m_MemInfMap;
+};
+
+
+
+typedef struct DSS_RECV_DATA
+{
+	int index;
+	struct node node;
+}dss_recv_data_List;	
+
+#define recvDataContain(ptr)  container_of(ptr, dss_recv_data_List, node)
+
+class  CList
+{
+public:
+	CList();
+public:
+	int push_back(node *pNode);
+	node *begin();
+	void pop_front();
+	bool empty();
+	void clear();
+private:
+	node head_node;
+	node *tail;
+	int node_num;
 };
 
 

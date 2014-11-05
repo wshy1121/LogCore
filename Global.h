@@ -128,6 +128,8 @@ public:
 	void getStackInfo(std::string &stackInf);
 	void getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf);
 	void InsertTrace(int line, char *file_name, const char* fmt, ...);
+	void InsertStrOnly(const char* fmt, ...);
+	void InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr);
 	void getInsertTrace(std::string &insertTrace);
 	void InsertTag(int line, char *file_name, const char* fmt, ...);
 	void DispAll();

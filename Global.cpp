@@ -499,6 +499,54 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, .
 
 }
 
+void CTimeCalcManager::InsertStrOnly(const char* fmt, ...)
+{
+	threadQueueEnable(e_TimeCalc);
+
+	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	if (TraceInfo && !needPrint(TraceInfo->calc_list))
+	{
+		return ;
+	}
+	
+	char str[4096];
+	va_list ap;
+	va_start(ap,fmt);
+	vsnprintf(str,sizeof(str), fmt, ap);
+	va_end(ap);      
+
+	if(TraceInfo)//如果查找到
+	{
+		InsertStrOnlyInfo(TraceInfo, str);
+	}  
+	else
+	{
+		CTimeCalcManager::instance()->printLog((char *)"trace:/*%s*/", str);
+	}
+
+
+	return ;
+
+}
+
+void CTimeCalcManager::InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr)
+{
+	struct timeb cur_time;
+	ftime(&cur_time);
+
+	//-------------------
+	for (int i=0; i<TraceInfo->deep; ++i)
+	{
+		TraceInfo->up_string += "\t";
+	}
+	TraceInfo->up_string += "/*tag:";
+
+	TraceInfo->up_string += pStr;
+	TraceInfo->up_string += "*/\n";
+
+	return ;
+}
+
 void CTimeCalcManager::getInsertTrace(std::string &insertTrace)
 {
 	threadQueueEnable(e_TimeCalc);
@@ -783,7 +831,7 @@ FILE *CTimeCalcManager::openLog(const char *sLogName)
 }
 void CTimeCalcManager::printLog(char *sFmt, ...)
 {
-	return ;
+
 	va_list	ap;
 
 	FILE *fp = NULL;
