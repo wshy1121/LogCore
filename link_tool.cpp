@@ -429,14 +429,21 @@ void CalcMem::dealMemInf(const char *mallocPath, int size)
 	}
 	
 	memInf->memSize += size;
-	memInf->count++;
+	if (size > 0)
+	{
+		memInf->count++;
+	}
+	else if (size < 0)
+	{
+		memInf->count--;
+	}
 	if (memInf->memSize > memInf->maxSize)
 	{
 		memInf->maxSize = memInf->memSize;
 		std::string fileName = mallocPath;
 		fileName = splitFilename(fileName);
 		
-		CTimeCalcManager::instance()->InsertStrOnly("%s  malloc size  %16d  %d", fileName.c_str(), memInf->memSize, memInf->count);
+		CTimeCalcManager::instance()->InsertStrOnly("%s  malloc size  %06d  %d", fileName.c_str(), memInf->count, memInf->memSize);
 	}
 	return ;
 }
