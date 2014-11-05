@@ -118,7 +118,7 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_lev
 																				m_FileName(file_name), 
 																				m_FuncName(func_name)
 {
-	threadQueueEnable(e_TimeCalc);	
+	threadQueueEnable(e_Mem);	
 	
 	ftime(&m_StartTime);
 	DealFuncEnter();
@@ -287,7 +287,7 @@ void CTimeCalc::DealFuncExit()
 }
 CTimeCalc::~CTimeCalc()
 {
-	threadQueueEnable(e_TimeCalc);
+	threadQueueEnable(e_Mem);
 
 	DealFuncExit();
 }
@@ -378,7 +378,7 @@ FuncTraceInfo_t * CTimeCalcManager::GetTraceInf()
 
 void CTimeCalcManager::printStack(int line, char *file_name, const char* fmt, ...)
 {
-	threadQueueEnable(e_TimeCalc);
+	threadQueueEnable(e_Mem);
 
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	if (!TraceInfo)
@@ -442,7 +442,7 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 
 void CTimeCalcManager::getStackInfo(std::string &stackInf)
 {
-	threadQueueEnable(e_TimeCalc);
+	threadQueueEnable(e_Mem);
 		
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	if (!TraceInfo || !TraceInfo->calc_list.size())
@@ -471,7 +471,7 @@ void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &sta
 
 void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, ...)
 {
-	threadQueueEnable(e_TimeCalc);
+	threadQueueEnable(e_Mem);
 
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	if (TraceInfo && !needPrint(TraceInfo->calc_list))
@@ -501,7 +501,6 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, .
 
 void CTimeCalcManager::InsertStrOnly(const char* fmt, ...)
 {
-	threadQueueEnable(e_TimeCalc);
 
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	if (TraceInfo && !needPrint(TraceInfo->calc_list))
@@ -549,7 +548,6 @@ void CTimeCalcManager::InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr)
 
 void CTimeCalcManager::getInsertTrace(std::string &insertTrace)
 {
-	threadQueueEnable(e_TimeCalc);
 
 	FuncTraceInfo_t *TraceInfo = GetTraceInf();
 	if (TraceInfo && !needPrint(TraceInfo->calc_list))
@@ -598,7 +596,7 @@ void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 
 void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 {
-	threadQueueEnable(e_TimeCalc);
+	threadQueueEnable(e_Mem);
 
 	char time_tmp[128];
 	strcpy(time_tmp, "wshy");
@@ -692,7 +690,7 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 
 void CTimeCalcManager::InsertTag(int line, char *file_name, const char* fmt, ...)
 {
-	threadQueueEnable(e_TimeCalc);
+	threadQueueEnable(e_Mem);
 	
 	va_list ap;
 	char time_tmp[128];
@@ -716,7 +714,7 @@ void CTimeCalcManager::InsertTag(int line, char *file_name, const char* fmt, ...
 
 void CTimeCalcManager::DispAll()
 {
-	threadQueueEnable(e_TimeCalc);
+	threadQueueEnable(e_Mem);
 
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it;
 	FuncTraceInfo_t *TraceInfo = NULL;
@@ -737,7 +735,7 @@ void CTimeCalcManager::DispAll()
 }
 void CTimeCalcManager::DispTraces(int signo)
 {
-	threadQueueEnable(e_TimeCalc);
+	threadQueueEnable(e_Mem);
 
 	CGuardMutex guardMutex(m_thread_map_mutex);
 	printLog((char *)"//%s    %2d","Except    DispTraces", signo);
