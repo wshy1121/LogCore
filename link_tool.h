@@ -118,6 +118,7 @@ private:
 	CalcMem();
 private:
 	void dealMemInf(const char *mallocPath, int size);
+	void splitFilename (std::string &path);
 private:
 	static CalcMem *_instance;
 	CPthreadMutex  m_mutex;
