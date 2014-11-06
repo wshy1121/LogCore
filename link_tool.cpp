@@ -403,8 +403,17 @@ void CalcMem::wrapFree(void* addr)
 	
 
 }
-void CalcMem::printfMallocMap()
+void CalcMem::printfMemInfMap()
 {
+	std::string path;
+	CGuardMutex guardMutex(m_mutex);
+	for (MemInfMap::iterator iter = m_MemInfMap.begin(); iter != m_MemInfMap.end(); ++iter)
+	{
+		path = iter->first;
+		MemInf *memInf = iter->second;		
+		CTimeCalcManager::instance()->InsertStrOnly("maxSize  count  memSize  %d  %d  %d  %s", memInf->maxSize, memInf->count, memInf->memSize, path.c_str());
+	}
+	
 	return ;	
 }
 
@@ -448,7 +457,7 @@ void CalcMem::dealMemInf(const char *mallocPath, int size)
 std::string& CalcMem::getBackTrace(std::string &backTrace)
 {
 #ifdef WRAP
-	const int stackNum = 5;
+	const int stackNum = 16;
        void *stack_addr[stackNum];
        int layer;
        int i;
@@ -456,7 +465,7 @@ std::string& CalcMem::getBackTrace(std::string &backTrace)
 	char tmp[256];
 	
 	layer = backtrace(stack_addr, stackNum);
-	for(i = 0; i < layer; i++)
+	for(i = 3; i < layer; i++)
 	{
 		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
 		backTrace += tmp;

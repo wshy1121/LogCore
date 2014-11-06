@@ -439,6 +439,11 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	return ;
 }
 
+void CTimeCalcManager::printfMemInfMap()
+{	time_trace();
+	threadQueueEnable(e_Mem);
+	CalcMem::instance()->printfMemInfMap();
+}
 void CTimeCalcManager::getStackInfo(std::string &stackInf)
 {
 	threadQueueEnable(e_Mem);

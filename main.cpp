@@ -78,8 +78,8 @@ void* printfMallocMap(void *pArg)
 	CTimeCalcManager::instance()->start();
 	while (1)
 	{
-		CalcMem::instance()->printfMallocMap();
-		usleep(100*1000);		
+		time_stack();
+		usleep(1*1000);		
 	}
 #endif
 	return NULL;

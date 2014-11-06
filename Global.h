@@ -122,6 +122,7 @@ class CTimeCalcManager
 public:
 	static CTimeCalcManager *instance();
 public:
+	void printfMemInfMap();
 	void printStack(int line, char *file_name, const char* fmt, ...);
 	void getStackInfo(std::string &stackInf);
 	void getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf);
@@ -169,7 +170,7 @@ private:
 #define time_all()     CTimeCalcManager::instance()->DispAll()
 #define time_str(str, len)  CTimeCalcManager::instance()->InsertHex(__LINE__, __FILE__, str, len)
 #define time_tag(format, ...) CTimeCalcManager::instance()->InsertTag(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
-#define time_stack(format, ...)   CTimeCalcManager::instance()->printStack(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
+#define time_stack()   CTimeCalcManager::instance()->printfMemInfMap()
 #define get_stack(str)	CTimeCalcManager::instance()->getStackInfo(str);
 #else
 #define time_trace_level()    

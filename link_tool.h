@@ -114,7 +114,7 @@ public:
 	static CalcMem *instance();
 	void wrapMalloc(size_t c, void* addr);
 	void wrapFree(void* addr);
-	void printfMallocMap();
+	void printfMemInfMap();
 private:
 	CalcMem();
 private:
