@@ -411,7 +411,7 @@ void CalcMem::printfMemInfMap()
 	{
 		path = iter->first;
 		MemInf *memInf = iter->second;		
-		CTimeCalcManager::instance()->InsertStrOnly("maxSize  count  memSize  %d  %d  %d  %s", memInf->maxSize, memInf->count, memInf->memSize, path.c_str());
+		CTimeCalcManager::instance()->InsertStrOnly("maxSize  count  memSize  %016d  %08d  %d  %s", memInf->maxSize, memInf->count, memInf->memSize, path.c_str());
 	}
 	
 	return ;	
