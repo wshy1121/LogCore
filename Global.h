@@ -172,6 +172,8 @@ private:
 #define time_tag(format, ...) CTimeCalcManager::instance()->InsertTag(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
 #define time_stack()   CTimeCalcManager::instance()->printfMemInfMap()
 #define get_stack(str)	CTimeCalcManager::instance()->getStackInfo(str);
+#define time_start()    CTimeCalcManager::instance()->start();
+#define time_stop()    CTimeCalcManager::instance()->stop();
 #else
 #define time_trace_level()    
 #define time_untrace()    
@@ -182,8 +184,10 @@ private:
 #define time_all()     
 #define time_str(str, len)    
 #define time_tag(format, ...)   
-#define time_stack(format, ...)  
+#define time_stack()
 #define get_stack(str)  
+#define time_start()  
+#define time_stop()  
 #endif
 
 #define VOUT16
