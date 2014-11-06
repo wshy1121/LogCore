@@ -119,6 +119,7 @@ private:
 	CalcMem();
 private:
 	void dealMemInf(const char *mallocPath, int size);
+	std::string& getBackTrace(std::string &backTrace);
 	inline std::string splitFilename (std::string &path);
 private:
 	static CalcMem *_instance;

@@ -353,7 +353,7 @@ CalcMem *CalcMem::instance()
 void CalcMem::wrapMalloc(size_t c, void* addr)
 {
 	std::string insertTrace;
-	CTimeCalcManager::instance()->getInsertTrace(insertTrace);
+	getBackTrace(insertTrace);
 	if (!insertTrace.size())
 	{
 		return ;
@@ -440,14 +440,30 @@ void CalcMem::dealMemInf(const char *mallocPath, int size)
 	if (memInf->memSize > memInf->maxSize)
 	{
 		memInf->maxSize = memInf->memSize;
-		std::string fileName = mallocPath;
-		fileName = splitFilename(fileName);
-		
-		CTimeCalcManager::instance()->InsertStrOnly("%s  malloc size  %06d  %d", fileName.c_str(), memInf->count, memInf->memSize);
+		CTimeCalcManager::instance()->InsertStrOnly("%s  malloc size  %06d  %d", mallocPath, memInf->count, memInf->memSize);
 	}
 	return ;
 }
 
+std::string& CalcMem::getBackTrace(std::string &backTrace)
+{
+#ifdef WRAP
+	const int stackNum = 5;
+       void *stack_addr[stackNum];
+       int layer;
+       int i;
+	backTrace = "addr2line -e ./Challenge_Debug -f -C  ";
+	char tmp[256];
+	
+	layer = backtrace(stack_addr, stackNum);
+	for(i = 0; i < layer; i++)
+	{
+		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
+		backTrace += tmp;
+	}
+#endif	
+	return backTrace;
+}
 std::string CalcMem::splitFilename (std::string &path)
 {
 	size_t found;

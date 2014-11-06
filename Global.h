@@ -22,8 +22,6 @@ typedef struct FuncTraceInfo_t
 	int deep;
 	std::string up_string;
 	CTimeCalcList calc_list;
-	std::string last_filename;
-	int last_line;
 } FuncTraceInfo_t;
 
 class CTimeCalcManager;
@@ -130,7 +128,6 @@ public:
 	void InsertTrace(int line, char *file_name, const char* fmt, ...);
 	void InsertStrOnly(const char* fmt, ...);
 	void InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr);
-	void getInsertTrace(std::string &insertTrace);
 	void InsertTag(int line, char *file_name, const char* fmt, ...);
 	void DispAll();
 	void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
@@ -143,7 +140,6 @@ public:
 	void printLog(char *sFmt, ...);
 private:	
 	void insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
-	void BackTrace();
 	void DispTraces(int signo);
 	bool needPrint(CTimeCalcList &calc_list);
 	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);

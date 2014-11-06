@@ -337,7 +337,6 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf()
 		ftime(&TraceInfo->EndTime);
 		
 		TraceInfo->deep = 0;
-		TraceInfo->last_line = -1;
 
 
 		TraceInfo->up_string += "//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n";
@@ -520,7 +519,7 @@ void CTimeCalcManager::InsertStrOnly(const char* fmt, ...)
 	}  
 	else
 	{
-		CTimeCalcManager::instance()->printLog((char *)"trace:/*%s*/", str);
+		//CTimeCalcManager::instance()->printLog((char *)"trace:/*%s*/", str);
 	}
 
 
@@ -546,34 +545,9 @@ void CTimeCalcManager::InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr)
 	return ;
 }
 
-void CTimeCalcManager::getInsertTrace(std::string &insertTrace)
-{
-
-	FuncTraceInfo_t *TraceInfo = GetTraceInf();
-	if (TraceInfo && !needPrint(TraceInfo->calc_list))
-	{
-		return ;
-	}
-
-	if(TraceInfo && TraceInfo->last_line > 0)//如果查找到
-	{
-		char sline[64];
-		snprintf(sline, sizeof(sline), "%d", TraceInfo->last_line);
-		
-		insertTrace = TraceInfo->last_filename;
-		insertTrace += sline;
-	}
-
-	return ;
-}
 
 void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr)
 {
-	if (line != 0 && strlen(file_name) != 0)
-	{
-		TraceInfo->last_filename = file_name;
-		TraceInfo->last_line = line;
-	}
 	struct timeb cur_time;
 	ftime(&cur_time);
 
@@ -770,31 +744,6 @@ void CTimeCalcManager::DispTraces(int signo)
 
 	return ;
 }
-
-
-void CTimeCalcManager::BackTrace()
-{
-#ifdef WRAP
-	//CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__);
-       void *stack_addr[10];
-       int layer;
-       int i;
-	std::string traceInf = "addr2line -e ./Challenge_Debug -f -C  ";
-	char tmp[256];
-	
-	/* 通过调用libc函数实现 */
-	layer = backtrace(stack_addr, 10);
-	for(i = 0; i < layer; i++)
-	{
-		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
-		traceInf += tmp;
-	}
-	printf("%s\n", traceInf.c_str());
-	//CTimeCalc::InsertTrace(__LINE__, (char *)__FILE__, "%s", traceInf.c_str());
-#endif
-	return ;
-}
-
 
 bool CTimeCalcManager::needPrint(CTimeCalcList &calc_list)
 {
