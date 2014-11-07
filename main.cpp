@@ -75,7 +75,6 @@ void* test1(void *pArg)
 void* printfMallocMap(void *pArg)
 {
 #ifdef WRAP
-	CTimeCalcManager::instance()->start();
 	while (1)
 	{
 		time_stack();
@@ -86,6 +85,7 @@ void* printfMallocMap(void *pArg)
 }
 int main()
 {
+	CTimeCalcManager::instance()->start();
 
 	pthread_t thread_id[32];
 

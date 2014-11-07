@@ -457,7 +457,7 @@ void CalcMem::dealMemInf(const char *mallocPath, int size)
 std::string& CalcMem::getBackTrace(std::string &backTrace)
 {
 #ifdef WRAP
-	const int stackNum = 16;
+	const int stackNum = 24;
        void *stack_addr[stackNum];
        int layer;
        int i;
