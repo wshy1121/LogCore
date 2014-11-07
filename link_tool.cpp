@@ -410,8 +410,13 @@ void CalcMem::printfMemInfMap()
 	for (MemInfMap::iterator iter = m_MemInfMap.begin(); iter != m_MemInfMap.end(); ++iter)
 	{
 		path = iter->first;
-		MemInf *memInf = iter->second;		
-		CTimeCalcManager::instance()->InsertStrOnly("maxSize  count  memSize  %016d  %08d  %d  %s", memInf->maxSize, memInf->count, memInf->memSize, path.c_str());
+		MemInf *memInf = iter->second;
+		int itemSize = 0;
+		if (memInf->count > 0)
+		{
+			itemSize = memInf->memSize /memInf->count;
+		}
+		CTimeCalcManager::instance()->InsertStrOnly("maxSize  count  memSize  %016d  %08d  %d  %d  %s", memInf->maxSize, itemSize, memInf->count, memInf->memSize, path.c_str());
 	}
 	
 	return ;	
