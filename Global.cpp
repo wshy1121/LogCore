@@ -440,9 +440,12 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 }
 
 void CTimeCalcManager::printfMemInfMap()
-{	time_trace();
+{
+#ifdef WRAP
+	time_trace();
 	threadQueueEnable(e_Mem);
 	CalcMem::instance()->printfMemInfMap();
+#endif
 }
 void CTimeCalcManager::getStackInfo(std::string &stackInf)
 {
@@ -767,12 +770,16 @@ bool CTimeCalcManager::needPrint(CTimeCalcList &calc_list)
 
 void CTimeCalcManager::start()
 {
+#ifdef WRAP
 	ThreadQueue::start();
+#endif
 }
 
 void CTimeCalcManager::stop()
 {
+#ifdef WRAP
 	ThreadQueue::stop();
+#endif
 }
 
 FILE *CTimeCalcManager::openLog(const char *sLogName)
