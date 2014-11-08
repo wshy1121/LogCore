@@ -690,6 +690,15 @@ void CTimeCalcManager::DispAll()
 	FuncTraceInfo_t *TraceInfo = NULL;
 
 	CGuardMutex guardMutex(m_thread_map_mutex);
+	for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)
+	{
+		TraceInfo = it->second;
+		if (TraceInfo)
+		{
+			printf("%s\n", TraceInfo->up_string.c_str());
+		}
+	}
+	
 	printLog((char *)"%s", "#if 0");
        for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)
 	{
