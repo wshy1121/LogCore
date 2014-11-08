@@ -155,9 +155,6 @@ private:
 
 
 #if !defined(NO_CTIME_CALC)
-#define time_trace_level(level)  CCandy timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, level)
-#define time_untrace()  time_trace_level(0)
-#define time_trace()   time_trace_level(100)
 
 #define time_all()     CTimeCalcManager::instance()->DispAll()
 #define time_str(str, len)  CTimeCalcManager::instance()->InsertHex(__LINE__, __FILE__, str, len)
@@ -167,9 +164,7 @@ private:
 #define time_start()    CTimeCalcManager::instance()->start();
 #define time_stop()    CTimeCalcManager::instance()->stop();
 #else
-#define time_trace_level()    
-#define time_untrace()    
-#define time_trace()    
+ 
 #define time_all()     
 #define time_str(str, len)    
 #define time_tag(format, ...)   
