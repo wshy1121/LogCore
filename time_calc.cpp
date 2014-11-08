@@ -1,11 +1,11 @@
- #include "Global.h"
+ #include "time_calc.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <pthread.h>
 #include <assert.h>
 #include <string.h>
-#include "Global.h"
+#include "time_calc.h"
 #include <map>
 #include <stdarg.h>
 #include <sys/stat.h>

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "Global.h"
+#include "time_calc.h"
 #include "link_tool.h"
 
 //≤‚ ‘CTimeCalc π”√

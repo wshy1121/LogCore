@@ -1,5 +1,5 @@
-#ifndef _GLOBAL_H_
-#define _GLOBAL_H_
+#ifndef _TIME_CALC_H_
+#define _TIME_CALC_H_
 #include <time.h>
 #include <string>
 #include <map>

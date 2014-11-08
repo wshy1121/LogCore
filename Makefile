@@ -30,7 +30,7 @@ RM	= rm
 
 AFLAGS	+= -r   
 
-LIB_OBJS += Global.o
+LIB_OBJS += time_calc.o
 
 LIB_TARGET=libwrapmalloc.a
 
@@ -39,7 +39,7 @@ all	:	$(LIB_TARGET)
 $(LIB_TARGET): $(LIB_OBJS)
 	$(AR) $(AFLAGS) $@ $^
 	$(RANLIB) $@
-	$(CPP) -g -o test main.cpp  $(LIB_OBJS) $(OPT_CFLAGS)
+	$(CPP) -g -o deamon main.cpp  $(LIB_OBJS) $(OPT_CFLAGS)
 
 .c.o:
 	$(CC) -c $(CFLAGS) $^ -o $@

@@ -1,6 +1,6 @@
 #ifndef __LINK_TOOL_H
 #define __LINK_TOOL_H
-#include "Global.h"
+#include "time_calc.h"
 #include <map>
 #define container_of(ptr, type, member) ({  \
 const typeof( ((type *)0)->member ) *__mptr = (ptr);   \
