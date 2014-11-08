@@ -56,8 +56,6 @@ class CTimeCalc
 {
 	friend class CTimeCalcManager;
 private:
-	void calcStartMem();
-	void calcEndMem();
 	void DealFuncEnter();
 	void DealFuncExit();
 	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
@@ -81,68 +79,7 @@ private:
 	std::string m_FuncName;
 
 	struct timeb m_StartTime;
-	//用于记录内存情况
-	int m_startMem[64];
-	int m_endMem[64];
 };
-
-void CTimeCalc::calcStartMem()
-{
-	FILE *fp = fopen("/proc/buddyinfo", "rb");
-	if (!fp)
-	{
-		return ;
-	}
-	
-	char buf[256];
-	rewind(fp);
-	for (int i=0;i<64; ++i)
-	{
-		memset(buf, 0, sizeof(buf));
-		char *ptr1 = fgets(buf, sizeof(buf), fp);
-		if (!ptr1)//说明数据已经读取完毕
-		{
-			break;
-		}
-		
-		char *ptr2 = strpbrk(ptr1, " ");	
-		int num = 0;
-		num = atoi(ptr2);
-		m_startMem[i] = num;
-	}
-	fclose(fp);
-	return ;
-}
-
-void CTimeCalc::calcEndMem()
-{
-	FILE *fp = fopen("/proc/buddyinfo", "rb");
-	if (!fp)
-	{
-		return ;
-	}
-	char buf[256];
-	
-	rewind(fp);
-	for (int i=0;i<64; ++i)
-	{
-		memset(buf, 0, sizeof(buf));
-		char *ptr1 = fgets(buf, sizeof(buf), fp);
-		if (!ptr1)//说明数据已经读取完毕
-		{
-			break;
-		}
-		
-		char *ptr2 = strpbrk(ptr1, " ");	
-		int num = 0;
-		num = atoi(ptr2);
-		m_endMem[i] = num;
-	}
-	fclose(fp);
-	return ;
-}
-
-
 
 CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_level) : 	m_displayFlag(true), 
 																				m_DisplayLevel(display_level), 

@@ -28,6 +28,7 @@ void insert_node(struct node *node, struct node *inser_node)
 	inser_node->next= temp_node;
 	temp_node->pre = inser_node;
 }
+extern CPthreadMutex g_insMutexCalc;
 
 void remov_node(struct node *node)
 {

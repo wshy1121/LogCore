@@ -80,9 +80,6 @@ private:
 	CPthreadMutex &m_mutex;
 };
 
-extern CPthreadMutex g_insMutexCalc;
-
-
 class CCandy
 {
 public:
@@ -99,10 +96,8 @@ public:
 	void printfMemInfMap();
 	void printStack(int line, char *file_name, const char* fmt, ...);
 	void getStackInfo(std::string &stackInf);
-	void getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf);
 	void InsertTrace(int line, char *file_name, const char* fmt, ...);
 	void InsertStrOnly(const char* fmt, ...);
-	void InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr);
 	void InsertTag(int line, char *file_name, const char* fmt, ...);
 	void DispAll();
 	void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
@@ -114,6 +109,8 @@ public:
 	FuncTraceInfo_t *GetTraceInf();
 	void printLog(char *sFmt, ...);
 private:	
+	void getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf);
+	void InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr);
 	void insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
 	void DispTraces(int signo);
 	bool needPrint(CTimeCalcList &calc_list);
