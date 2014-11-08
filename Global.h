@@ -82,38 +82,12 @@ private:
 
 extern CPthreadMutex g_insMutexCalc;
 
-class CTimeCalc
+
+class CCandy
 {
-	friend class CTimeCalcManager;
-private:
-	void calcStartMem();
-	void calcEndMem();
-	void DealFuncEnter();
-	void DealFuncExit();
-	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
-	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 public:
-	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
-	~CTimeCalc();
-private:
-	void initTimeCalc(CTimeCalcList &calc_list);
-	void exitTimeCalc(CTimeCalcList &calc_list);
-	CTimeCalc *getLastTimeCalc(CTimeCalcList &calc_list);
-	void setDisplayFlag(CTimeCalc *timeCalc);
-private:
-	bool m_displayFlag;
-	int m_DisplayLevel;
-	 //使当前TimeCale不能显示的等级
-	int m_noDisplayLevel;  
-
-	int m_Line;
-	std::string m_FileName;
-	std::string m_FuncName;
-
-	struct timeb m_StartTime;
-	//用于记录内存情况
-	int m_startMem[64];
-	int m_endMem[64];
+	CCandy(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
+	~CCandy();
 };
 
 
@@ -160,7 +134,7 @@ private:
 
 
 #if !defined(NO_CTIME_CALC)
-#define time_trace_level(level)  CTimeCalc timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, level)
+#define time_trace_level(level)  CCandy timeCalc(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, level)
 #define time_untrace()  time_trace_level(0)
 #define time_trace()   time_trace_level(100)
 

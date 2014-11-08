@@ -52,6 +52,39 @@ void NextStep(const char *function, const char *fileName, int line)
 
 
 
+class CTimeCalc
+{
+	friend class CTimeCalcManager;
+private:
+	void calcStartMem();
+	void calcEndMem();
+	void DealFuncEnter();
+	void DealFuncExit();
+	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
+	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
+public:
+	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
+	~CTimeCalc();
+private:
+	void initTimeCalc(CTimeCalcList &calc_list);
+	void exitTimeCalc(CTimeCalcList &calc_list);
+	CTimeCalc *getLastTimeCalc(CTimeCalcList &calc_list);
+	void setDisplayFlag(CTimeCalc *timeCalc);
+private:
+	bool m_displayFlag;
+	int m_DisplayLevel;
+	 //使当前TimeCale不能显示的等级
+	int m_noDisplayLevel;  
+
+	int m_Line;
+	std::string m_FileName;
+	std::string m_FuncName;
+
+	struct timeb m_StartTime;
+	//用于记录内存情况
+	int m_startMem[64];
+	int m_endMem[64];
+};
 
 void CTimeCalc::calcStartMem()
 {
@@ -292,9 +325,27 @@ CTimeCalc::~CTimeCalc()
 	DealFuncExit();
 }
 
+CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
+{
+	CTimeCalc *pTimeCalc = new CTimeCalc(line, file_name, func_name, display_level);
+	if (pTimeCalc == NULL)
+	{
+		return ;
+	}	
+}
 
+CCandy::~CCandy()
+{
 
+	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf();
+	if (TraceInfo == NULL)
+	{
+		return ;
+	}
 
+	CTimeCalc *pTimeCalc = TraceInfo->calc_list.back();
+	delete pTimeCalc;
+}
 
 CTimeCalcManager *CTimeCalcManager::_instance = NULL;
 CTimeCalcManager::CTimeCalcManager():m_fp(NULL), 
