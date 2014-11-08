@@ -120,7 +120,7 @@ public:
 	void printfMemInfMap();
 	void printStack(int line, char *file_name, const char* fmt, ...);
 	void getStackInfo(std::string &stackInf);
-	void InsertTrace(int line, char *file_name, const char* fmt, ...);
+	void InsertTrace(int line, char *file_name, const char* content);
 	void InsertStrOnly(const char* fmt, ...);
 	void InsertTag(int line, char *file_name, const char* fmt, ...);
 	void DispAll();
@@ -138,7 +138,7 @@ private:
 	void insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
 	void DispTraces(int signo);
 	bool needPrint(CTimeCalcList &calc_list);
-	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
+	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, const char *pStr);
 	FILE *openLog(const char *sLogName);
 private:
 	CTimeCalcManager();
@@ -159,9 +159,6 @@ private:
 #define time_untrace()  time_trace_level(0)
 #define time_trace()   time_trace_level(100)
 
-#define time_printf(format, ...)    CTimeCalcManager::instance()->InsertTrace(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
-#define time_num(num)	 time_printf("num:%d    %d", num, __LINE__)
-#define time_err(num)       time_printf("ERRERRERRERRERRERRERR:%d    %d    %s", (num), __LINE__, __FILE__)
 #define time_all()     CTimeCalcManager::instance()->DispAll()
 #define time_str(str, len)  CTimeCalcManager::instance()->InsertHex(__LINE__, __FILE__, str, len)
 #define time_tag(format, ...) CTimeCalcManager::instance()->InsertTag(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
@@ -173,9 +170,6 @@ private:
 #define time_trace_level()    
 #define time_untrace()    
 #define time_trace()    
-#define time_printf(format, ...)      
-#define time_num(num)	   
-#define time_err(num)        
 #define time_all()     
 #define time_str(str, len)    
 #define time_tag(format, ...)   

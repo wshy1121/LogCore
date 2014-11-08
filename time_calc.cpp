@@ -411,7 +411,7 @@ void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &sta
 
 
 
-void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, ...)
+void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* content)
 {
 	threadQueueEnable(e_Mem);
 
@@ -421,19 +421,13 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* fmt, .
 		return ;
 	}
 	
-	char str[4096];
-	va_list ap;
-	va_start(ap,fmt);
-	vsnprintf(str,sizeof(str), fmt, ap);
-	va_end(ap);      
-
 	if(TraceInfo)//如果查找到
 	{
-		insertTraceInfo(TraceInfo, line, file_name, str);
+		insertTraceInfo(TraceInfo, line, file_name, content);
 	}  
 	else
 	{
-		CTimeCalcManager::instance()->printLog((char *)"trace:/*%s*/", str);
+		CTimeCalcManager::instance()->printLog((char *)"trace:/*%s*/", content);
 	}
 
 
@@ -489,7 +483,7 @@ void CTimeCalcManager::InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr)
 }
 
 
-void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr)
+void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, const char *pStr)
 {
 	struct timeb cur_time;
 	ftime(&cur_time);

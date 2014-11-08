@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "time_calc.h"
+
 #include "Global.h"
+#include "time_calc.h"
 
 //≤‚ ‘CTimeCalc π”√
 extern "C" void* __real_malloc(size_t);
