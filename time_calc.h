@@ -80,11 +80,35 @@ private:
 	CPthreadMutex &m_mutex;
 };
 
-class CCandy
+
+
+class CTimeCalc
 {
+	friend class CTimeCalcManager;
+private:
+	void DealFuncEnter();
+	void DealFuncExit();
+	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
+	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 public:
-	CCandy(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
-	~CCandy();
+	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
+	~CTimeCalc();
+private:
+	void initTimeCalc(CTimeCalcList &calc_list);
+	void exitTimeCalc(CTimeCalcList &calc_list);
+	CTimeCalc *getLastTimeCalc(CTimeCalcList &calc_list);
+	void setDisplayFlag(CTimeCalc *timeCalc);
+private:
+	bool m_displayFlag;
+	int m_DisplayLevel;
+	 //使当前TimeCale不能显示的等级
+	int m_noDisplayLevel;  
+
+	int m_Line;
+	std::string m_FileName;
+	std::string m_FuncName;
+
+	struct timeb m_StartTime;
 };
 
 

@@ -30,7 +30,7 @@ RM	= rm
 
 AFLAGS	+= -r   
 
-LIB_OBJS += time_calc.o
+LIB_OBJS += time_calc.o Global.o
 
 LIB_TARGET=libwrapmalloc.a
 
