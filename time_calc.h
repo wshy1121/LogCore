@@ -122,7 +122,7 @@ public:
 	void getStackInfo(std::string &stackInf);
 	void InsertTrace(int line, char *file_name, const char* content);
 	void InsertStrOnly(const char* fmt, ...);
-	void InsertTag(int line, char *file_name, const char* fmt, ...);
+	void InsertTag(int line, char *file_name, const char* content);
 	void DispAll();
 	void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
 	void start();
@@ -156,18 +156,13 @@ private:
 
 #if !defined(NO_CTIME_CALC)
 
-#define time_all()     CTimeCalcManager::instance()->DispAll()
-#define time_str(str, len)  CTimeCalcManager::instance()->InsertHex(__LINE__, __FILE__, str, len)
-#define time_tag(format, ...) CTimeCalcManager::instance()->InsertTag(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
 #define time_stack()   CTimeCalcManager::instance()->printfMemInfMap()
 #define get_stack(str)	CTimeCalcManager::instance()->getStackInfo(str);
 #define time_start()    CTimeCalcManager::instance()->start();
 #define time_stop()    CTimeCalcManager::instance()->stop();
 #else
  
-#define time_all()     
 #define time_str(str, len)    
-#define time_tag(format, ...)   
 #define time_stack()
 #define get_stack(str)  
 #define time_start()  

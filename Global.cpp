@@ -45,3 +45,19 @@ void CBugKiller::InsertTrace(int line, char *file_name, const char* fmt, ...)
 	return ;
 }
 
+void CBugKiller::DispAll()
+{
+	 CTimeCalcManager::instance()->DispAll();
+}
+
+
+void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
+{
+	char content[1024];
+	va_list ap;
+	va_start(ap,fmt);
+	vsnprintf(content,sizeof(content), fmt, ap);
+	va_end(ap);
+	
+	CTimeCalcManager::instance()->InsertTag(line, file_name, content);
+}

@@ -14,6 +14,8 @@ class CBugKiller
 {
 public:
 	static void InsertTrace(int line, char *file_name, const char* fmt, ...);
+	static void DispAll();
+	static void InsertTag(int line, char *file_name, const char* fmt, ...);
 private:
 	CBugKiller();
 };
@@ -26,6 +28,11 @@ private:
 #define time_printf(format, ...)    CBugKiller::InsertTrace(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
 #define time_num(num)	 time_printf("num:%d    %d", num, __LINE__)
 #define time_err(num)       time_printf("ERRERRERRERRERRERRERR:%d    %d    %s", (num), __LINE__, __FILE__)
+
+#define time_all()    CBugKiller::DispAll();
+
+#define time_tag(format, ...)  CBugKiller::InsertTag(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__);
+
 #else
 #define time_trace_level()    
 #define time_untrace()    
@@ -34,6 +41,12 @@ private:
 #define time_printf(format, ...)      
 #define time_num(num)	   
 #define time_err(num)        
+
+#define time_all()     
+
+#define time_tag(format, ...)   
+
+
 #endif
 
 

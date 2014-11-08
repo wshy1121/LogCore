@@ -599,27 +599,17 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 }
 
 
-void CTimeCalcManager::InsertTag(int line, char *file_name, const char* fmt, ...)
+void CTimeCalcManager::InsertTag(int line, char *file_name, const char* content)
 {
 	threadQueueEnable(e_Mem);
 	
-	va_list ap;
-	char time_tmp[128];
-	strcpy(time_tmp, "wshy");
-
 	struct timeb cur_time;
 	ftime(&cur_time);
-	
-	char str[1024];
-	va_start(ap,fmt);
-	vsnprintf(str,sizeof(str), fmt, ap);
-	va_end(ap);
 
-	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
+	char str[256];
+	snprintf(str, sizeof(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), "huang_yuan", cur_time.time, cur_time.millitm);
 
-	printLog((char *)"trace:/*%s*/", str);
-
-
+	printLog((char *)"trace:/*%s %s*/", content, str);
 	return ;
 }
 
