@@ -154,21 +154,6 @@ private:
 };
 
 
-#if !defined(NO_CTIME_CALC)
-
-#define time_stack()   CTimeCalcManager::instance()->printfMemInfMap()
-#define get_stack(str)	CTimeCalcManager::instance()->getStackInfo(str);
-#define time_start()    CTimeCalcManager::instance()->start();
-#define time_stop()    CTimeCalcManager::instance()->stop();
-#else
- 
-#define time_str(str, len)    
-#define time_stack()
-#define get_stack(str)  
-#define time_start()  
-#define time_stop()  
-#endif
-
 #define VOUT16
 #ifdef VOUT16
 #define cutLine  // 

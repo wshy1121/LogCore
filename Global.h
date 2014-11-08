@@ -1,5 +1,6 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
+#include <string>
 
 
 class CCandy
@@ -16,6 +17,10 @@ public:
 	static void InsertTrace(int line, char *file_name, const char* fmt, ...);
 	static void DispAll();
 	static void InsertTag(int line, char *file_name, const char* fmt, ...);
+	static void printfMemInfMap();
+	static void getStackInfo(std::string &stackInf);
+	static void start();
+	static void stop();
 private:
 	CBugKiller();
 };
@@ -33,6 +38,12 @@ private:
 
 #define time_tag(format, ...)  CBugKiller::InsertTag(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__);
 
+
+#define time_stack()   CBugKiller::printfMemInfMap();
+#define get_stack(str)	CBugKiller::getStackInfo(str);
+#define time_start()    CBugKiller::start()
+#define time_stop()    CBugKiller::stop()
+
 #else
 #define time_trace_level()    
 #define time_untrace()    
@@ -47,6 +58,11 @@ private:
 #define time_tag(format, ...)   
 
 
+#define time_str(str, len)    
+#define time_stack()
+#define get_stack(str)  
+#define time_start()  
+#define time_stop()  
 #endif
 
 

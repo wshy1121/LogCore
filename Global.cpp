@@ -61,3 +61,27 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 	
 	CTimeCalcManager::instance()->InsertTag(line, file_name, content);
 }
+
+
+void CBugKiller::printfMemInfMap()
+{
+	CTimeCalcManager::instance()->printfMemInfMap();
+}
+
+void CBugKiller::getStackInfo(std::string &stackInf)
+{
+	CTimeCalcManager::instance()->getStackInfo(stackInf);
+}
+
+
+void CBugKiller::start()
+{
+	CTimeCalcManager::instance()->start();
+}
+
+void CBugKiller::stop()
+{
+	CTimeCalcManager::instance()->stop();
+}
+
+
