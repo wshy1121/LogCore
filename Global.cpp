@@ -65,6 +65,7 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 
 void CBugKiller::printfMemInfMap()
 {
+	CCandy candy(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, 0);
 	CTimeCalcManager::instance()->printfMemInfMap();
 }
 

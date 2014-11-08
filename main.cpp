@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "Global.h"
-#include "time_calc.h"
 
 //²âÊÔCTimeCalcÊ¹ÓÃ
 extern "C" void* __real_malloc(size_t);
@@ -86,8 +85,7 @@ void* printfMallocMap(void *pArg)
 }
 int main()
 {
-	CTimeCalcManager::instance()->start();
-
+	time_start();
 	pthread_t thread_id[32];
 
 	int i = 0;
