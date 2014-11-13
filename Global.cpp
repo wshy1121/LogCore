@@ -4,6 +4,7 @@
 
 #include "Global.h"
 #include "time_calc.h"
+#include "link_tool.h"
 
 CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 {
@@ -62,7 +63,10 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 	CTimeCalcManager::instance()->InsertTag(line, file_name, content);
 }
 
-
+std::string& getBackTrace(std::string &backTrace)
+{
+	return CalcMem::instance()->getBackTrace(backTrace);
+}
 void CBugKiller::printfMemInfMap()
 {
 	CCandy candy(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, 0);

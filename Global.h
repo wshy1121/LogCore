@@ -17,6 +17,7 @@ public:
 	static void InsertTrace(int line, char *file_name, const char* fmt, ...);
 	static void DispAll();
 	static void InsertTag(int line, char *file_name, const char* fmt, ...);
+	static std::string& getBackTrace(std::string &backTrace);	
 	static void printfMemInfMap();
 	static void getStackInfo(std::string &stackInf);
 	static void start();
@@ -32,6 +33,7 @@ private:
 #define time_tag(format, ...)  CBugKiller::InsertTag(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
 #define time_stack()   CBugKiller::printfMemInfMap()
 #define get_stack(str)	CBugKiller::getStackInfo(str)
+#define get_backtrace(str)	CBugKiller::getBackTrace(str)
 #define time_start()    CBugKiller::start()
 #define time_stop()    CBugKiller::stop()
 #define time_num(num)	 time_printf("num:%d    %d", num, __LINE__)
@@ -47,6 +49,7 @@ private:
 #define time_str(str, len)    
 #define time_stack()
 #define get_stack(str)  
+#define get_backtrace(str)  
 #define time_start()  
 #define time_stop()  
 #define time_num(num)	   

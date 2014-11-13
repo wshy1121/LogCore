@@ -117,11 +117,11 @@ public:
 	void wrapMalloc(size_t c, void* addr);
 	void wrapFree(void* addr);
 	void printfMemInfMap();
+	std::string& getBackTrace(std::string &backTrace);
 private:
 	CalcMem();
 private:
 	void dealMemInf(const char *mallocPath, int size);
-	std::string& getBackTrace(std::string &backTrace);
 	inline std::string splitFilename (std::string &path);
 private:
 	static CalcMem *_instance;
