@@ -427,7 +427,7 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* conten
 	}  
 	else
 	{
-		CTimeCalcManager::instance()->printLog((char *)"trace:/*%s*/", content);
+		CTimeCalcManager::instance()->printLog((char *)"trace:/*%s  %d  %s*/", content, line, file_name);
 	}
 
 

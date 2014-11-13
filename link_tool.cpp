@@ -412,12 +412,15 @@ void CalcMem::printfMemInfMap()
 	{
 		path = iter->first;
 		MemInf *memInf = iter->second;
+
+		size_t diffCount = memInf->mallocCount - memInf->freeCount;
 		int itemSize = 0;
-		if (memInf->count > 0)
+		if (diffCount > 0)
 		{
-			itemSize = memInf->memSize /memInf->count;
+			itemSize = memInf->memSize /diffCount;
 		}
-		CTimeCalcManager::instance()->InsertStrOnly("maxSize  count  memSize  %016d  %08d  %d  %d  %s", memInf->maxSize, itemSize, memInf->count, memInf->memSize, path.c_str());
+		CTimeCalcManager::instance()->InsertStrOnly("maxSize  itemSize  memSize  diffCount  mallocCount  freeCount  %016d  %08d  %d  %d  %d  %d %s", memInf->maxSize, itemSize, memInf->memSize, 
+												diffCount, memInf->mallocCount, memInf->freeCount, path.c_str());
 	}
 	
 	return ;	
@@ -438,7 +441,8 @@ void CalcMem::dealMemInf(const char *mallocPath, int size)
 		
 		memInf->memSize = 0;
 		memInf->maxSize = 0;
-		memInf->count = 0;
+		memInf->mallocCount = 0;
+		memInf->freeCount = 0;
 		
 		m_MemInfMap.insert(std::make_pair(mallocPath, memInf));
 	}
@@ -446,16 +450,18 @@ void CalcMem::dealMemInf(const char *mallocPath, int size)
 	memInf->memSize += size;
 	if (size > 0)
 	{
-		memInf->count++;
+		memInf->mallocCount++;
 	}
 	else if (size < 0)
 	{
-		memInf->count--;
+		memInf->freeCount++;
 	}
 	if (memInf->memSize > memInf->maxSize)
 	{
 		memInf->maxSize = memInf->memSize;
-		CTimeCalcManager::instance()->InsertStrOnly("%s  malloc size  %06d  %d", mallocPath, memInf->count, memInf->memSize);
+
+		int count = memInf->mallocCount - memInf->freeCount;
+		CTimeCalcManager::instance()->InsertStrOnly("%s  malloc size  %06d  %d", mallocPath, count, memInf->memSize);
 	}
 	return ;
 }
