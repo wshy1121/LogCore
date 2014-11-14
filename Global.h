@@ -2,6 +2,7 @@
 #define _GLOBAL_H_
 #include <string>
 
+#define debug_printf()  printf("WSHY DEBUG  %d  %s\n", __LINE__, __FILE__);
 
 class CCandy
 {

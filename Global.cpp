@@ -63,7 +63,7 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 	CTimeCalcManager::instance()->InsertTag(line, file_name, content);
 }
 
-std::string& getBackTrace(std::string &backTrace)
+std::string& CBugKiller::getBackTrace(std::string &backTrace)
 {
 	return CalcMem::instance()->getBackTrace(backTrace);
 }
