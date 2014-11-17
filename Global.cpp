@@ -65,7 +65,10 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 
 std::string& CBugKiller::getBackTrace(std::string &backTrace)
 {
-	return CalcMem::instance()->getBackTrace(backTrace);
+#ifdef WRAP
+	CalcMem::instance()->getBackTrace(backTrace);
+#endif
+	return backTrace;
 }
 void CBugKiller::printfMemInfMap()
 {
@@ -76,7 +79,9 @@ void CBugKiller::printfMemInfMap()
 void CBugKiller::printfStackInfo(int line, char *file_name)
 {
 	std::string backTrace;
+#ifdef WRAP	
 	CalcMem::instance()->getBackTrace(backTrace);
+#endif
 	CTimeCalcManager::instance()->InsertTrace(line, file_name, backTrace.c_str());
 }
 

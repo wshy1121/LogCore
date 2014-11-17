@@ -629,7 +629,13 @@ void CTimeCalcManager::DispAll()
 			printf("%s\n", TraceInfo->up_string.c_str());
 		}
 	}
-	
+
+	std::string backTrace;
+#ifdef WRAP	
+	CalcMem::instance()->getBackTrace(backTrace);
+#endif
+	printf("backTrace  %s\n", backTrace.c_str());
+
 	printLog((char *)"%s", "#if 0");
        for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)
 	{
