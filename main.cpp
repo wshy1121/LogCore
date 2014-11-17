@@ -23,7 +23,7 @@ void fun1()
 	delete tmp;
 	time_printf("NULL");	
 	std::string stack;
-	get_stack(stack);
+	time_stack();
 	time_printf("get_stack  %s", stack.c_str());
 	{
 		time_printf("NULL");
@@ -77,7 +77,6 @@ void* printfMallocMap(void *pArg)
 #ifdef WRAP
 	while (1)
 	{
-		time_stack();
 		usleep(1*1000);		
 	}
 #endif

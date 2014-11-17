@@ -73,6 +73,13 @@ void CBugKiller::printfMemInfMap()
 	CTimeCalcManager::instance()->printfMemInfMap();
 }
 
+void CBugKiller::printfStackInfo(int line, char *file_name)
+{
+	std::string backTrace;
+	CalcMem::instance()->getBackTrace(backTrace);
+	CTimeCalcManager::instance()->InsertTrace(line, file_name, backTrace.c_str());
+}
+
 void CBugKiller::getStackInfo(std::string &stackInf)
 {
 	CTimeCalcManager::instance()->getStackInfo(stackInf);
