@@ -52,7 +52,7 @@ void NextStep(const char *function, const char *fileName, int line)
 }
 
 
-CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_level) : 	m_displayFlag(true), 
+CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_level, pthread_t thread_id) : 	m_displayFlag(true), 
 																				m_DisplayLevel(display_level), 
 																				m_noDisplayLevel(display_level), 
 																				m_Line(line), 
@@ -62,6 +62,7 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_lev
 	threadQueueEnable(e_Mem);	
 	
 	ftime(&m_StartTime);
+	m_threadId = thread_id;
 	DealFuncEnter();
 
 }
@@ -74,7 +75,7 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 	char time_tmp[128];
 	snprintf(time_tmp, sizeof(time_tmp), "level  %4d ", m_DisplayLevel);
 	
-	snprintf(tmp, sizeof(tmp), ":  %4d  thread id:  %16d  %s", m_Line, (int)pthread_self(), time_tmp);
+	snprintf(tmp, sizeof(tmp), ":  %4d  thread id:  %16d  %s", m_Line, (int)m_threadId, time_tmp);
 
 	if (this->m_DisplayLevel == 0)
 	{
@@ -144,7 +145,7 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 void CTimeCalc::DealFuncEnter()
 {
 	
-	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->CreatTraceInf();
+	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->CreatTraceInf(m_threadId);
 	
 	initTimeCalc(TraceInfo->calc_list);
 	if (!this->m_displayFlag)
@@ -191,7 +192,7 @@ void CTimeCalc::setDisplayFlag(CTimeCalc *timeCalc)
 }
 void CTimeCalc::DealFuncExit()
 {
-	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf();
+	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf(m_threadId);
 
 	exitTimeCalc(TraceInfo->calc_list);
 	if(TraceInfo)//如果查找到
@@ -254,12 +255,10 @@ CTimeCalcManager *CTimeCalcManager::instance()
 
 
 
-FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf()
+FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(pthread_t threadId)
 {	
-	pthread_t thread_id = pthread_self();
-
 	CGuardMutex guardMutex(m_thread_map_mutex);
-	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
+	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(threadId);
 	FuncTraceInfo_t *TraceInfo = NULL;
 
 	if(it != m_thread_map.end())//如果查找到
@@ -278,7 +277,7 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf()
 
 		TraceInfo->up_string += "//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n";
 
-		std::pair<pthread_t, FuncTraceInfo_t *> thread_map_pair(thread_id, TraceInfo);
+		std::pair<pthread_t, FuncTraceInfo_t *> thread_map_pair(threadId, TraceInfo);
 
 		m_thread_map.insert(thread_map_pair);
 	}
@@ -287,22 +286,18 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf()
 
 
 
-void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo)
+void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo, pthread_t threadId)
 {
-	pthread_t thread_id = pthread_self();
 
 	CGuardMutex guardMutex(m_thread_map_mutex);
-	m_thread_map.erase(thread_id);
+	m_thread_map.erase(threadId);
 	delete TraceInfo;
 }
 
-FuncTraceInfo_t * CTimeCalcManager::GetTraceInf()
+FuncTraceInfo_t * CTimeCalcManager::GetTraceInf(pthread_t threadI)
 {
-	pthread_t thread_id;
-	thread_id = pthread_self(); 
-
 	CGuardMutex guardMutex(m_thread_map_mutex);
-	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(thread_id);
+	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(threadI);
 	if(it != m_thread_map.end())//如果查找到
 	{
 		return it->second;
@@ -771,6 +766,7 @@ CTimeCalcInf::CTimeCalcInf() : 	m_opr(e_node),
 								m_funcName(NULL), 
 								m_displayLevel(-1)
 {
+	m_threadId = pthread_self();
 }
 
 
@@ -828,9 +824,34 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
 	switch (opr)
 	{
 		case CTimeCalcInf::e_createCandy:
-			break;
+			{
+				int threadId = pRecvData->m_threadId;
+				int line = pRecvData->m_line;
+				char *file_name = pRecvData->m_fileName;
+				char *func_name = pRecvData->m_funcName;
+				int display_level = pRecvData->m_displayLevel;
+				CTimeCalc *pTimeCalc = new CTimeCalc(line, file_name, func_name, display_level, threadId);
+				if (pTimeCalc == NULL)
+				{
+					break;
+				}
+				break;
+			}
+
 		case CTimeCalcInf::e_destroyCandy:
-			break;
+			{
+				int threadId = pRecvData->m_threadId;
+				FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf(threadId);
+				if (TraceInfo == NULL)
+				{
+					return ;
+				}
+
+				CTimeCalc *pTimeCalc = TraceInfo->calc_list.back();
+				delete pTimeCalc;
+				break;
+			}
+			
 		default:
 			break;
 	}

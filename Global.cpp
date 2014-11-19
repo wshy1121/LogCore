@@ -16,32 +16,18 @@ CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 	pCalcInf->m_funcName = func_name;
 	pCalcInf->m_displayLevel = display_level;
 
-	
-	CTimeCalcInfManager::instance()->pushRecvData(pCalcInf);
 
-	
-	CTimeCalc *pTimeCalc = new CTimeCalc(line, file_name, func_name, display_level);
-	if (pTimeCalc == NULL)
-	{
-		return ;
-	}	
+	CTimeCalcInfManager::instance()->pushRecvData(pCalcInf);	
 }
-
 CCandy::~CCandy()
 {
 	CTimeCalcInf *pCalcInf = new CTimeCalcInf;
 	pCalcInf->m_opr = CTimeCalcInf::e_destroyCandy;
-
+	pCalcInf->m_threadId = pthread_self();
+	
 	CTimeCalcInfManager::instance()->pushRecvData(pCalcInf);
-	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf();
-	if (TraceInfo == NULL)
-	{
-		return ;
-	}
-
-	CTimeCalc *pTimeCalc = TraceInfo->calc_list.back();
-	delete pTimeCalc;
 }
+
 
 
 

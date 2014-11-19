@@ -91,7 +91,7 @@ private:
 	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
 	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 public:
-	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
+	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100, pthread_t thread_id = pthread_self());
 	~CTimeCalc();
 private:
 	void initTimeCalc(CTimeCalcList &calc_list);
@@ -101,6 +101,7 @@ private:
 private:
 	bool m_displayFlag;
 	int m_DisplayLevel;
+	pthread_t m_threadId;
 	 //使当前TimeCale不能显示的等级
 	int m_noDisplayLevel;  
 
@@ -109,6 +110,7 @@ private:
 	std::string m_FuncName;
 
 	struct timeb m_StartTime;
+	
 };
 
 
@@ -128,9 +130,9 @@ public:
 	void start();
 	void stop();
 public:
-	FuncTraceInfo_t *CreatTraceInf();
-	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo);
-	FuncTraceInfo_t *GetTraceInf();
+	FuncTraceInfo_t *CreatTraceInf(pthread_t threadId = pthread_self());
+	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo, pthread_t threadId = pthread_self());
+	FuncTraceInfo_t *GetTraceInf(pthread_t threadId = pthread_self());
 	void printLog(char *sFmt, ...);
 private:	
 	void getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf);
@@ -184,11 +186,11 @@ class CTimeCalcInfManager
 public:
 	static CTimeCalcInfManager *instance();
 	void pushRecvData(CTimeCalcInf *pRecvData);	
+	void dealRecvData(CTimeCalcInf *pRecvData);
 private:
 	CTimeCalcInfManager();
 	static void* threadFunc(void *pArg);
 	void threadProc();
-	void dealRecvData(CTimeCalcInf *pRecvData);
 private:
 	static CTimeCalcInfManager *_instance;
 	std::list<CTimeCalcInf *> m_recvList;

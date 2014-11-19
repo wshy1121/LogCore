@@ -48,7 +48,7 @@ $(LIB_TARGET): $(LIB_OBJS)
 	$(CPP) -c -Wall $(CFLAGS) $^ -o $@
 
 clean:
-	$(RM) $(LIB_OBJS) test
+	$(RM) $(LIB_OBJS) deamon 
 
 install:
 	cp $(LIB_TARGET) ../Libs/libwrapmalloc.a 
