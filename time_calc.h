@@ -91,7 +91,7 @@ private:
 	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
 	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 public:
-	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100, pthread_t thread_id = pthread_self());
+	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100, pthread_t threadId = pthread_self());
 	~CTimeCalc();
 private:
 	void initTimeCalc(CTimeCalcList &calc_list);
@@ -122,7 +122,7 @@ public:
 	void printfMemInfMap();
 	void printStack(int line, char *file_name, const char* fmt, ...);
 	void getStackInfo(std::string &stackInf);
-	void InsertTrace(int line, char *file_name, const char* content);
+	void InsertTrace(int line, char *file_name, pthread_t threadId, const char* content);
 	void InsertStrOnly(const char* fmt, ...);
 	void InsertTag(int line, char *file_name, const char* content);
 	void DispAll();
@@ -140,7 +140,7 @@ private:
 	void insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
 	void DispTraces(int signo);
 	bool needPrint(CTimeCalcList &calc_list);
-	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, const char *pStr);
+	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, pthread_t threadId, const char *pStr);
 	FILE *openLog(const char *sLogName);
 private:
 	CTimeCalcManager();
@@ -174,11 +174,12 @@ public:
 		e_getStackInfo, 
 	}TimeCalcOpr;
 	TimeCalcOpr m_opr;
-	int m_threadId;
+	pthread_t m_threadId;
 	int m_line;
 	char * m_fileName;
 	char * m_funcName;
 	int m_displayLevel;
+	std::string m_content;
 };
 
 class CTimeCalcInfManager

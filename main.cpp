@@ -23,7 +23,7 @@ void fun1()
 	delete tmp;
 	time_printf("NULL");	
 	std::string stack;
-	time_stack();
+	//time_stack();
 	time_printf("get_stack  %s", stack.c_str());
 	{
 		time_printf("NULL");

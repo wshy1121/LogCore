@@ -8,6 +8,7 @@
 
 CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 {
+#if 0
 	CTimeCalcInf *pCalcInf = new CTimeCalcInf;
 	pCalcInf->m_opr = CTimeCalcInf::e_createCandy;
 	pCalcInf->m_threadId = pthread_self();
@@ -17,17 +18,33 @@ CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 	pCalcInf->m_displayLevel = display_level;
 
 
-	CTimeCalcInfManager::instance()->pushRecvData(pCalcInf);	
+	CTimeCalcInfManager::instance()->dealRecvData(pCalcInf);	
+#endif
+	CTimeCalc *pTimeCalc = new CTimeCalc(line, file_name, func_name, display_level, pthread_self());
+	if (pTimeCalc == NULL)
+	{
+		return ;
+	}
 }
+
 CCandy::~CCandy()
 {
+#if 0
 	CTimeCalcInf *pCalcInf = new CTimeCalcInf;
 	pCalcInf->m_opr = CTimeCalcInf::e_destroyCandy;
 	pCalcInf->m_threadId = pthread_self();
 	
-	CTimeCalcInfManager::instance()->pushRecvData(pCalcInf);
-}
+	CTimeCalcInfManager::instance()->dealRecvData(pCalcInf);
+#endif
+	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf(pthread_self());
+	if (TraceInfo == NULL)
+	{
+		return ;
+	}
 
+	CTimeCalc *pTimeCalc = TraceInfo->calc_list.back();
+	delete pTimeCalc;
+}
 
 
 
@@ -42,8 +59,18 @@ void CBugKiller::InsertTrace(int line, char *file_name, const char* fmt, ...)
 	va_start(ap,fmt);
 	vsnprintf(content,sizeof(content), fmt, ap);
 	va_end(ap);
-	
-	CTimeCalcManager::instance()->InsertTrace(line, file_name, content);
+
+#if 0
+	CTimeCalcInf *pCalcInf = new CTimeCalcInf;
+	pCalcInf->m_opr = CTimeCalcInf::e_insertTrace;
+	pCalcInf->m_threadId = pthread_self();
+	pCalcInf->m_line = line;
+	pCalcInf->m_fileName = file_name;
+	pCalcInf->m_content = content;
+
+	CTimeCalcInfManager::instance()->dealRecvData(pCalcInf);
+#endif
+	CTimeCalcManager::instance()->InsertTrace(line, file_name, pthread_self(), content);
 	return ;
 }
 
@@ -83,7 +110,7 @@ void CBugKiller::printfStackInfo(int line, char *file_name)
 #ifdef WRAP	
 	CalcMem::instance()->getBackTrace(backTrace);
 #endif
-	CTimeCalcManager::instance()->InsertTrace(line, file_name, backTrace.c_str());
+	CTimeCalcManager::instance()->InsertTrace(line, file_name, pthread_self(), backTrace.c_str());
 }
 
 void CBugKiller::getStackInfo(std::string &stackInf)

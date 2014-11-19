@@ -52,7 +52,7 @@ void NextStep(const char *function, const char *fileName, int line)
 }
 
 
-CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_level, pthread_t thread_id) : 	m_displayFlag(true), 
+CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_level, pthread_t threadId) : 	m_displayFlag(true), 
 																				m_DisplayLevel(display_level), 
 																				m_noDisplayLevel(display_level), 
 																				m_Line(line), 
@@ -62,7 +62,7 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_lev
 	threadQueueEnable(e_Mem);	
 	
 	ftime(&m_StartTime);
-	m_threadId = thread_id;
+	m_threadId = threadId;
 	DealFuncEnter();
 
 }
@@ -407,11 +407,11 @@ void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &sta
 
 
 
-void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* content)
+void CTimeCalcManager::InsertTrace(int line, char *file_name, pthread_t threadId, const char* content)
 {
 	threadQueueEnable(e_Mem);
 
-	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	FuncTraceInfo_t *TraceInfo = GetTraceInf(threadId);
 	if (TraceInfo && !needPrint(TraceInfo->calc_list))
 	{
 		return ;
@@ -419,7 +419,7 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, const char* conten
 	
 	if(TraceInfo)//如果查找到
 	{
-		insertTraceInfo(TraceInfo, line, file_name, content);
+		insertTraceInfo(TraceInfo, line, file_name, threadId, content);
 	}  
 	else
 	{
@@ -479,13 +479,13 @@ void CTimeCalcManager::InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr)
 }
 
 
-void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, const char *pStr)
+void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, pthread_t threadId, const char *pStr)
 {
 	struct timeb cur_time;
 	ftime(&cur_time);
 
 	char tmp[128];
-	snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
+	snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)threadId, "wshy", cur_time.time, cur_time.millitm);
 
 	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
@@ -821,11 +821,11 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
 {
 	CTimeCalcInf::TimeCalcOpr &opr = pRecvData->m_opr;
+	int threadId = pRecvData->m_threadId;
 	switch (opr)
 	{
 		case CTimeCalcInf::e_createCandy:
 			{
-				int threadId = pRecvData->m_threadId;
 				int line = pRecvData->m_line;
 				char *file_name = pRecvData->m_fileName;
 				char *func_name = pRecvData->m_funcName;
@@ -837,21 +837,27 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
 				}
 				break;
 			}
-
 		case CTimeCalcInf::e_destroyCandy:
 			{
-				int threadId = pRecvData->m_threadId;
 				FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf(threadId);
 				if (TraceInfo == NULL)
 				{
-					return ;
+					break ;
 				}
 
 				CTimeCalc *pTimeCalc = TraceInfo->calc_list.back();
 				delete pTimeCalc;
 				break;
 			}
-			
+		case CTimeCalcInf::e_insertTrace:
+			{
+				int line = pRecvData->m_line;
+				char *file_name = pRecvData->m_fileName;
+				const char *content = pRecvData->m_content.c_str();
+				CTimeCalcManager::instance()->InsertTrace(line, file_name, threadId, content);
+				break;
+
+			}
 		default:
 			break;
 	}
