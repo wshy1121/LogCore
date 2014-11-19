@@ -546,4 +546,8 @@ void CList::clear()
 	}		
 }
 
+int CList::size()
+{
+	return node_num;
+}
 

@@ -154,6 +154,7 @@ public:
 	void pop_front();
 	bool empty();
 	void clear();
+	int size();
 private:
 	node head_node;
 	node *tail;

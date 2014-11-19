@@ -762,3 +762,95 @@ void CTimeCalcManager::printLog(char *sFmt, ...)
 
 	return ;
 }
+
+
+
+CTimeCalcInfManager *CTimeCalcInfManager::_instance = NULL;
+
+CTimeCalcInfManager::CTimeCalcInfManager() : m_isLocked(false)
+{
+	pthread_create(&m_threadId, NULL,threadFunc,NULL);
+}
+
+CTimeCalcInfManager *CTimeCalcInfManager::instance()
+{
+	if (NULL == _instance)
+	{
+		CGuardMutex guardMutex(g_insMutexCalc);
+		if (NULL == _instance)
+		{
+			_instance = new CTimeCalcInfManager;
+		}
+	}
+	return _instance;
+}
+
+
+void CTimeCalcInfManager::threadProc()
+{	
+	while(1)
+	{
+
+		if(m_recvList.empty())
+		{
+			usleep(10 * 1000);
+			continue;
+		}
+
+		recvListLock();		
+		node *pNode = m_recvList.begin();
+		dss_recv_data_List *pRecvDataNode = recvDataContain(pNode);
+		m_recvList.pop_front();	
+		recvListUnLock();
+		dealRecvData(pRecvDataNode);
+	}
+}
+
+
+void* CTimeCalcInfManager::threadFunc(void *pArg)
+{
+	CTimeCalcInfManager::instance()->threadProc();
+	return NULL;
+}
+
+void CTimeCalcInfManager::dealRecvData(dss_recv_data_List *pRecvDataNode)
+{
+
+	delete pRecvDataNode;
+	return ;
+}
+
+void CTimeCalcInfManager::pushRecvData()
+{
+	dss_recv_data_List *pRecvDataNode = new dss_recv_data_List;
+	init_node(&pRecvDataNode->node);
+	
+	//pRecvDataNode->pSigData = pSigData;
+	//pRecvDataNode->pPacket = pPacket;
+
+	recvListLock();
+	m_recvList.push_back(&pRecvDataNode->node);
+	recvListUnLock();
+
+}
+
+void CTimeCalcInfManager::recvListLock()
+{
+	if (m_recvList.size() < 16)
+	{
+		m_recvListMutex.Enter();
+		m_isLocked = true;
+
+	}
+}
+void CTimeCalcInfManager::recvListUnLock()
+{
+	if (m_isLocked)
+	{
+		m_isLocked = false;
+		m_recvListMutex.Leave();
+	}
+}
+
+
+

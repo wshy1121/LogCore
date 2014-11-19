@@ -153,6 +153,54 @@ private:
 	static CTimeCalcManager *_instance;
 };
 
+#include "link_tool.h"
+
+class CTimeCalcInf
+{
+public:
+	CTimeCalcInf(){}
+public:
+	typedef enum
+	{
+		e_createCandy, 
+		e_destroyCandy, 			
+		e_insertTrace, 
+		e_dispAll, 
+		e_insertTag, 
+		e_getBackTrace, 
+		e_printfMemInfMap, 
+		e_printfStackInfo, 
+		e_getStackInfo, 
+	}TimeCalcOpr;
+	TimeCalcOpr m_opr;
+	int m_threadId;
+	int m_line;
+	std::string m_fileName;
+	std::string m_funcName;
+	int m_displayLevel;
+};
+
+class CTimeCalcInfManager
+{
+public:
+	static CTimeCalcInfManager *instance();
+private:
+	CTimeCalcInfManager();
+	static void* threadFunc(void *pArg);
+	void threadProc();
+	void dealRecvData(dss_recv_data_List *pRecvDataNode);
+	void pushRecvData();
+	void recvListLock();
+	void recvListUnLock();
+private:
+	static CTimeCalcInfManager *_instance;
+	CList m_recvList;
+	CPthreadMutex m_recvListMutex;
+	pthread_t m_threadId;
+	bool m_isLocked;
+};
+
+
 
 #define VOUT16
 #ifdef VOUT16
