@@ -9,6 +9,7 @@
 #include <map>
 #include <stdarg.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include "link_tool.h"
 #ifdef WRAP
 #include <execinfo.h>
@@ -797,12 +798,12 @@ void CTimeCalcInfManager::threadProc()
 			continue;
 		}
 
-		recvListLock();		
-		node *pNode = m_recvList.begin();
-		dss_recv_data_List *pRecvDataNode = recvDataContain(pNode);
+		m_recvListMutex.Enter();	
+		CTimeCalcInf *pRecvData = *(m_recvList.begin());
 		m_recvList.pop_front();	
-		recvListUnLock();
-		dealRecvData(pRecvDataNode);
+		m_recvListMutex.Leave();
+		
+		dealRecvData(pRecvData);
 	}
 }
 
@@ -813,43 +814,23 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 	return NULL;
 }
 
-void CTimeCalcInfManager::dealRecvData(dss_recv_data_List *pRecvDataNode)
+void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
 {
 
-	delete pRecvDataNode;
+	delete pRecvData;
 	return ;
 }
 
-void CTimeCalcInfManager::pushRecvData()
+void CTimeCalcInfManager::pushRecvData(CTimeCalcInf *pRecvData)
 {
-	dss_recv_data_List *pRecvDataNode = new dss_recv_data_List;
-	init_node(&pRecvDataNode->node);
+	if (pRecvData == NULL)
+	{
+		return ;
+	}
 	
-	//pRecvDataNode->pSigData = pSigData;
-	//pRecvDataNode->pPacket = pPacket;
-
-	recvListLock();
-	m_recvList.push_back(&pRecvDataNode->node);
-	recvListUnLock();
-
-}
-
-void CTimeCalcInfManager::recvListLock()
-{
-	if (m_recvList.size() < 16)
-	{
-		m_recvListMutex.Enter();
-		m_isLocked = true;
-
-	}
-}
-void CTimeCalcInfManager::recvListUnLock()
-{
-	if (m_isLocked)
-	{
-		m_isLocked = false;
-		m_recvListMutex.Leave();
-	}
+	m_recvListMutex.Enter();
+	m_recvList.push_back(pRecvData);
+	m_recvListMutex.Leave();
 }
 
 

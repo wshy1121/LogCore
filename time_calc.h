@@ -153,8 +153,6 @@ private:
 	static CTimeCalcManager *_instance;
 };
 
-#include "link_tool.h"
-
 class CTimeCalcInf
 {
 public:
@@ -184,17 +182,15 @@ class CTimeCalcInfManager
 {
 public:
 	static CTimeCalcInfManager *instance();
+	void pushRecvData(CTimeCalcInf *pRecvData);	
 private:
 	CTimeCalcInfManager();
 	static void* threadFunc(void *pArg);
 	void threadProc();
-	void dealRecvData(dss_recv_data_List *pRecvDataNode);
-	void pushRecvData();
-	void recvListLock();
-	void recvListUnLock();
+	void dealRecvData(CTimeCalcInf *pRecvData);
 private:
 	static CTimeCalcInfManager *_instance;
-	CList m_recvList;
+	std::list<CTimeCalcInf *> m_recvList;
 	CPthreadMutex m_recvListMutex;
 	pthread_t m_threadId;
 	bool m_isLocked;
