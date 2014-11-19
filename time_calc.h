@@ -162,7 +162,7 @@ public:
 public:
 	typedef enum
 	{
-		e_node,
+		e_none,
 		e_createCandy, 
 		e_destroyCandy, 			
 		e_insertTrace, 

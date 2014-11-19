@@ -622,7 +622,7 @@ void CTimeCalcManager::DispAll()
 		TraceInfo = it->second;
 		if (TraceInfo)
 		{
-			printf("%s\n", TraceInfo->up_string.c_str());
+			//printf("%s\n", TraceInfo->up_string.c_str());
 		}
 	}
 
@@ -630,7 +630,7 @@ void CTimeCalcManager::DispAll()
 #ifdef WRAP	
 	CalcMem::instance()->getBackTrace(backTrace);
 #endif
-	printf("backTrace  %s\n", backTrace.c_str());
+	//printf("backTrace  %s\n", backTrace.c_str());
 
 	printLog((char *)"%s", "#if 0");
        for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)
@@ -759,7 +759,7 @@ void CTimeCalcManager::printLog(char *sFmt, ...)
 	return ;
 }
 
-CTimeCalcInf::CTimeCalcInf() : 	m_opr(e_node), 
+CTimeCalcInf::CTimeCalcInf() : 	m_opr(e_none), 
 								m_threadId(-1), 
 								m_line(-1), 
 								m_fileName(NULL), 
@@ -858,6 +858,22 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
 				break;
 
 			}
+		case CTimeCalcInf::e_dispAll:
+			{
+				CTimeCalcManager::instance()->DispAll();
+				break;
+
+			}
+		case CTimeCalcInf::e_insertTag:
+			{
+				int line = pRecvData->m_line;
+				char *file_name = pRecvData->m_fileName;
+				const char *content = pRecvData->m_content.c_str();
+				CTimeCalcManager::instance()->InsertTag(line, file_name, content);
+				break;
+
+			}
+		
 		default:
 			break;
 	}

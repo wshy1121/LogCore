@@ -84,7 +84,12 @@ void CBugKiller::InsertTrace(int line, char *file_name, const char* fmt, ...)
 
 void CBugKiller::DispAll()
 {
-	 CTimeCalcManager::instance()->DispAll();
+	CTimeCalcInf *pCalcInf = new CTimeCalcInf;
+	pCalcInf->m_opr = CTimeCalcInf::e_dispAll;
+	pCalcInf->m_threadId = pthread_self();
+
+	CTimeCalcInfManager::instance()->dealRecvData(pCalcInf);
+	//CTimeCalcManager::instance()->DispAll();
 }
 
 
@@ -95,8 +100,20 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 	va_start(ap,fmt);
 	vsnprintf(content,sizeof(content), fmt, ap);
 	va_end(ap);
-	
+
+	CTimeCalcInf *pCalcInf = new CTimeCalcInf;
+	pCalcInf->m_opr = CTimeCalcInf::e_insertTag;
+	pCalcInf->m_threadId = pthread_self();
+	pCalcInf->m_line = line;
+	pCalcInf->m_fileName = file_name;
+	pCalcInf->m_content = content;
+
+	CTimeCalcInfManager::instance()->dealRecvData(pCalcInf);
+	return ;
+
+#if 0
 	CTimeCalcManager::instance()->InsertTag(line, file_name, content);
+#endif	
 }
 
 std::string& CBugKiller::getBackTrace(std::string &backTrace)
