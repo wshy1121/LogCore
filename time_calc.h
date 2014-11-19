@@ -156,10 +156,11 @@ private:
 class CTimeCalcInf
 {
 public:
-	CTimeCalcInf(){}
+	CTimeCalcInf();
 public:
 	typedef enum
 	{
+		e_node,
 		e_createCandy, 
 		e_destroyCandy, 			
 		e_insertTrace, 
@@ -173,8 +174,8 @@ public:
 	TimeCalcOpr m_opr;
 	int m_threadId;
 	int m_line;
-	std::string m_fileName;
-	std::string m_funcName;
+	char * m_fileName;
+	char * m_funcName;
 	int m_displayLevel;
 };
 

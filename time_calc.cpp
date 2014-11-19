@@ -764,6 +764,14 @@ void CTimeCalcManager::printLog(char *sFmt, ...)
 	return ;
 }
 
+CTimeCalcInf::CTimeCalcInf() : 	m_opr(e_node), 
+								m_threadId(-1), 
+								m_line(-1), 
+								m_fileName(NULL), 
+								m_funcName(NULL), 
+								m_displayLevel(-1)
+{
+}
 
 
 CTimeCalcInfManager *CTimeCalcInfManager::_instance = NULL;
@@ -816,6 +824,16 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 
 void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
 {
+	CTimeCalcInf::TimeCalcOpr &opr = pRecvData->m_opr;
+	switch (opr)
+	{
+		case CTimeCalcInf::e_createCandy:
+			break;
+		case CTimeCalcInf::e_destroyCandy:
+			break;
+		default:
+			break;
+	}
 
 	delete pRecvData;
 	return ;
