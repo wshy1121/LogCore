@@ -190,6 +190,8 @@ public:
 	void dealRecvData(CTimeCalcInf *pRecvData);
 private:
 	CTimeCalcInfManager();
+	void recvListLock();
+	void recvListUnLock();
 	static void* threadFunc(void *pArg);
 	void threadProc();
 private:

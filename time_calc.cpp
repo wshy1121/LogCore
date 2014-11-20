@@ -802,10 +802,10 @@ void CTimeCalcInfManager::threadProc()
 			continue;
 		}
 
-		m_recvListMutex.Enter();	
+		recvListLock();
 		CTimeCalcInf *pRecvData = *(m_recvList.begin());
 		m_recvList.pop_front();	
-		m_recvListMutex.Leave();
+		recvListUnLock();
 		
 		dealRecvData(pRecvData);
 	}
@@ -891,5 +891,21 @@ void CTimeCalcInfManager::pushRecvData(CTimeCalcInf *pRecvData)
 	return ;
 }
 
+void CTimeCalcInfManager::recvListLock()
+{
+	if (m_recvList.size() < 8)
+	{
+		m_recvListMutex.Enter();
+		m_isLocked = true;
 
+	}
+}
+void CTimeCalcInfManager::recvListUnLock()
+{
+	if (m_isLocked)
+	{
+		m_isLocked = false;
+		m_recvListMutex.Leave();
+	}
+}
 
