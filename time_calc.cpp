@@ -194,9 +194,9 @@ void CTimeCalc::DealFuncExit()
 {
 	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf(m_threadId);
 
-	exitTimeCalc(TraceInfo->calc_list);
 	if(TraceInfo)//如果查找到
 	{
+		exitTimeCalc(TraceInfo->calc_list);
 		if (!this->m_displayFlag)
 		{
 			return ;
@@ -822,14 +822,16 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
 {
 	CTimeCalcInf::TimeCalcOpr &opr = pRecvData->m_opr;
 	int threadId = pRecvData->m_threadId;
+	int line = pRecvData->m_line;
+	char *file_name = pRecvData->m_fileName;
+	char *func_name = pRecvData->m_funcName;
+	int display_level = pRecvData->m_displayLevel;
+	const char *content = pRecvData->m_content.c_str();
+	
 	switch (opr)
 	{
 		case CTimeCalcInf::e_createCandy:
 			{
-				int line = pRecvData->m_line;
-				char *file_name = pRecvData->m_fileName;
-				char *func_name = pRecvData->m_funcName;
-				int display_level = pRecvData->m_displayLevel;
 				CTimeCalc *pTimeCalc = new CTimeCalc(line, file_name, func_name, display_level, threadId);
 				if (pTimeCalc == NULL)
 				{
@@ -840,7 +842,7 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
 		case CTimeCalcInf::e_destroyCandy:
 			{
 				FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf(threadId);
-				if (TraceInfo == NULL)
+				if (TraceInfo == NULL || TraceInfo->calc_list.size() == 0)
 				{
 					break ;
 				}
@@ -851,9 +853,6 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
 			}
 		case CTimeCalcInf::e_insertTrace:
 			{
-				int line = pRecvData->m_line;
-				char *file_name = pRecvData->m_fileName;
-				const char *content = pRecvData->m_content.c_str();
 				CTimeCalcManager::instance()->InsertTrace(line, file_name, threadId, content);
 				break;
 
@@ -866,9 +865,6 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
 			}
 		case CTimeCalcInf::e_insertTag:
 			{
-				int line = pRecvData->m_line;
-				char *file_name = pRecvData->m_fileName;
-				const char *content = pRecvData->m_content.c_str();
 				CTimeCalcManager::instance()->InsertTag(line, file_name, content);
 				break;
 
@@ -892,7 +888,7 @@ void CTimeCalcInfManager::pushRecvData(CTimeCalcInf *pRecvData)
 	m_recvListMutex.Enter();
 	m_recvList.push_back(pRecvData);
 	//m_recvListMutex.Leave();
-
+	
 	//m_recvListMutex.Enter();	
 	pRecvData = *(m_recvList.begin());
 	m_recvList.pop_front();	
