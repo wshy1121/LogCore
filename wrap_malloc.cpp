@@ -5,7 +5,7 @@
 #include "time_calc.h"
 #include "link_tool.h"
 extern "C" void* __real_malloc(size_t);
-extern "C" void* __real_realloc(size_t);
+extern "C" void *__real_realloc(void* c, int size);
 extern "C" void* __real_calloc(size_t);
 extern "C" void __real_free(void* p);
 
@@ -27,9 +27,9 @@ extern "C" void *__wrap_malloc(size_t c)
 
 	return p; 
 }
-extern "C" void* __wrap_realloc(size_t c)
+extern "C" void* __wrap_realloc(void *p, size_t c)
 {
-	void *p = __real_realloc(c);
+	p = __real_realloc(p, c);
 	if (p && ThreadQueue::getEnable())
 	{
 		ThreadQueue::instance()->wrapMalloc(c, p);
