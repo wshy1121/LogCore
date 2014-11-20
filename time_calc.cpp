@@ -774,7 +774,7 @@ CTimeCalcInfManager *CTimeCalcInfManager::_instance = NULL;
 
 CTimeCalcInfManager::CTimeCalcInfManager() : m_isLocked(false)
 {
-	//pthread_create(&m_threadId, NULL,threadFunc,NULL);
+	pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
 
 CTimeCalcInfManager *CTimeCalcInfManager::instance()
@@ -887,15 +887,8 @@ void CTimeCalcInfManager::pushRecvData(CTimeCalcInf *pRecvData)
 	
 	m_recvListMutex.Enter();
 	m_recvList.push_back(pRecvData);
-	//m_recvListMutex.Leave();
-	
-	//m_recvListMutex.Enter();	
-	pRecvData = *(m_recvList.begin());
-	m_recvList.pop_front();	
 	m_recvListMutex.Leave();
-
-	dealRecvData(pRecvData);
-
+	return ;
 }
 
 
