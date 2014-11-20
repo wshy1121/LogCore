@@ -216,7 +216,7 @@ void CTimeCalc::DealFuncExit()
 		if (TraceInfo->deep == 0)
 		{
 			CTimeCalcManager::instance()->printLog((char *)"%s", TraceInfo->up_string.c_str());
-			CTimeCalcManager::instance()->DestroyTraceInf(TraceInfo);
+			CTimeCalcManager::instance()->DestroyTraceInf(TraceInfo, m_threadId);
 		}
 
 	}
@@ -311,7 +311,7 @@ void CTimeCalcManager::printStack(int line, char *file_name, const char* fmt, ..
 {
 	threadQueueEnable(e_Mem);
 
-	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	FuncTraceInfo_t *TraceInfo = GetTraceInf(pthread_self());
 	if (!TraceInfo)
 	{
 		return ;
@@ -382,7 +382,7 @@ void CTimeCalcManager::getStackInfo(std::string &stackInf)
 {
 	threadQueueEnable(e_Mem);
 		
-	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	FuncTraceInfo_t *TraceInfo = GetTraceInf(pthread_self());
 	if (!TraceInfo || !TraceInfo->calc_list.size())
 	{
 		return ;
@@ -434,7 +434,7 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, pthread_t threadId
 void CTimeCalcManager::InsertStrOnly(const char* fmt, ...)
 {
 
-	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	FuncTraceInfo_t *TraceInfo = GetTraceInf(pthread_self());
 	if (TraceInfo && !needPrint(TraceInfo->calc_list))
 	{
 		return ;
@@ -570,7 +570,7 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 
 	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
-	FuncTraceInfo_t *TraceInfo = GetTraceInf();
+	FuncTraceInfo_t *TraceInfo = GetTraceInf(pthread_self());
 	
 	if(TraceInfo)//如果查找到
 	{	

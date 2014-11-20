@@ -130,9 +130,9 @@ public:
 	void start();
 	void stop();
 public:
-	FuncTraceInfo_t *CreatTraceInf(pthread_t threadId = pthread_self());
-	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo, pthread_t threadId = pthread_self());
-	FuncTraceInfo_t *GetTraceInf(pthread_t threadId = pthread_self());
+	FuncTraceInfo_t *CreatTraceInf(pthread_t threadId);
+	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo, pthread_t threadId);
+	FuncTraceInfo_t *GetTraceInf(pthread_t threadId);
 	void printLog(char *sFmt, ...);
 private:	
 	void getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf);
