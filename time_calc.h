@@ -155,6 +155,7 @@ private:
 	static CTimeCalcManager *_instance;
 };
 
+#include "link_tool.h"
 class CTimeCalcInf
 {
 public:
@@ -182,11 +183,18 @@ public:
 	std::string m_content;
 };
 
+typedef struct RECV_DATA
+{
+	CTimeCalcInf calcInf;
+	struct node node;
+}RECV_DATA;	
+#define recvDataContain(ptr)  container_of(ptr, RECV_DATA, node)
+
 class CTimeCalcInfManager
 {
 public:
 	static CTimeCalcInfManager *instance();
-	void pushRecvData(CTimeCalcInf *pRecvData);	
+	void pushRecvData(RECV_DATA *pRecvData);	
 	void dealRecvData(CTimeCalcInf *pRecvData);
 private:
 	CTimeCalcInfManager();
@@ -196,7 +204,7 @@ private:
 	void threadProc();
 private:
 	static CTimeCalcInfManager *_instance;
-	std::list<CTimeCalcInf *> m_recvList;
+	CList m_recvList;
 	CPthreadMutex m_recvListMutex;
 	pthread_t m_threadId;
 	bool m_isLocked;

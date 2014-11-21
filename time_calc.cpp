@@ -801,13 +801,17 @@ void CTimeCalcInfManager::threadProc()
 			usleep(10 * 1000);
 			continue;
 		}
-
+		if (m_recvList.size() > 1024)
+		{
+			printf("m_recvList.size()  %d\n", m_recvList.size());
+		}
 		recvListLock();
-		CTimeCalcInf *pRecvData = *(m_recvList.begin());
+		struct node *pNode =  m_recvList.begin();
+		RECV_DATA *pRecvData = recvDataContain(pNode);
 		m_recvList.pop_front();	
 		recvListUnLock();
 		
-		dealRecvData(pRecvData);
+		dealRecvData(&pRecvData->calcInf);
 	}
 }
 
@@ -878,7 +882,7 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
 	return ;
 }
 
-void CTimeCalcInfManager::pushRecvData(CTimeCalcInf *pRecvData)
+void CTimeCalcInfManager::pushRecvData(RECV_DATA *pRecvData)
 {
 	if (pRecvData == NULL)
 	{
@@ -886,7 +890,7 @@ void CTimeCalcInfManager::pushRecvData(CTimeCalcInf *pRecvData)
 	}
 	
 	m_recvListMutex.Enter();
-	m_recvList.push_back(pRecvData);
+	m_recvList.push_back(&pRecvData->node);
 	m_recvListMutex.Leave();
 	return ;
 }

@@ -134,16 +134,6 @@ private:
 	MemInfMap m_MemInfMap;
 };
 
-
-
-typedef struct DSS_RECV_DATA
-{
-	int index;
-	struct node node;
-}dss_recv_data_List;	
-
-#define recvDataContain(ptr)  container_of(ptr, dss_recv_data_List, node)
-
 class  CList
 {
 public:

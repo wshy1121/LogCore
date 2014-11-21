@@ -9,7 +9,9 @@
 CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 {
 
-	CTimeCalcInf *pCalcInf = new CTimeCalcInf;
+	RECV_DATA *pRecvData = new RECV_DATA;
+	CTimeCalcInf *pCalcInf = &pRecvData->calcInf;
+
 	pCalcInf->m_opr = CTimeCalcInf::e_createCandy;
 	pCalcInf->m_threadId = pthread_self();
 	pCalcInf->m_line = line;
@@ -18,7 +20,7 @@ CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 	pCalcInf->m_displayLevel = display_level;
 
 
-	CTimeCalcInfManager::instance()->pushRecvData(pCalcInf);	
+	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);	
 	return ;
 	
 #if 0
@@ -33,11 +35,13 @@ CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 CCandy::~CCandy()
 {
 
-	CTimeCalcInf *pCalcInf = new CTimeCalcInf;
+	RECV_DATA *pRecvData = new RECV_DATA;
+	CTimeCalcInf *pCalcInf = &pRecvData->calcInf;
+
 	pCalcInf->m_opr = CTimeCalcInf::e_destroyCandy;
 	pCalcInf->m_threadId = pthread_self();
 	
-	CTimeCalcInfManager::instance()->pushRecvData(pCalcInf);
+	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 	return ;
 #if 0	
 	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf();
@@ -66,14 +70,16 @@ void CBugKiller::InsertTrace(int line, char *file_name, const char* fmt, ...)
 	va_end(ap);
 
 
-	CTimeCalcInf *pCalcInf = new CTimeCalcInf;
+	RECV_DATA *pRecvData = new RECV_DATA;
+	CTimeCalcInf *pCalcInf = &pRecvData->calcInf;
+
 	pCalcInf->m_opr = CTimeCalcInf::e_insertTrace;
 	pCalcInf->m_threadId = pthread_self();
 	pCalcInf->m_line = line;
 	pCalcInf->m_fileName = file_name;
 	pCalcInf->m_content = content;
 
-	CTimeCalcInfManager::instance()->pushRecvData(pCalcInf);
+	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 	return ;
 
 #if 0
@@ -84,11 +90,13 @@ void CBugKiller::InsertTrace(int line, char *file_name, const char* fmt, ...)
 
 void CBugKiller::DispAll()
 {
-	CTimeCalcInf *pCalcInf = new CTimeCalcInf;
+	RECV_DATA *pRecvData = new RECV_DATA;
+	CTimeCalcInf *pCalcInf = &pRecvData->calcInf;
+
 	pCalcInf->m_opr = CTimeCalcInf::e_dispAll;
 	pCalcInf->m_threadId = pthread_self();
 
-	CTimeCalcInfManager::instance()->pushRecvData(pCalcInf);
+	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 	//CTimeCalcManager::instance()->DispAll();
 }
 
@@ -101,14 +109,16 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 	vsnprintf(content,sizeof(content), fmt, ap);
 	va_end(ap);
 
-	CTimeCalcInf *pCalcInf = new CTimeCalcInf;
+	RECV_DATA *pRecvData = new RECV_DATA;
+	CTimeCalcInf *pCalcInf = &pRecvData->calcInf;
+
 	pCalcInf->m_opr = CTimeCalcInf::e_insertTag;
 	pCalcInf->m_threadId = pthread_self();
 	pCalcInf->m_line = line;
 	pCalcInf->m_fileName = file_name;
 	pCalcInf->m_content = content;
 
-	CTimeCalcInfManager::instance()->pushRecvData(pCalcInf);
+	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 	return ;
 
 #if 0
