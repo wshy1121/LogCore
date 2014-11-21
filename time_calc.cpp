@@ -801,10 +801,6 @@ void CTimeCalcInfManager::threadProc()
 			usleep(10 * 1000);
 			continue;
 		}
-		if (m_recvList.size() > 1024)
-		{
-			printf("m_recvList.size()  %d\n", m_recvList.size());
-		}
 		recvListLock();
 		struct node *pNode =  m_recvList.begin();
 		RECV_DATA *pRecvData = recvDataContain(pNode);

@@ -9,7 +9,6 @@ extern "C" void* __real_malloc(size_t);
 
 void fun1()
 {	time_trace();
-	time_all();
 	time_printf("NULL");
 	char *tmp = new char[32];
 
@@ -18,7 +17,6 @@ void fun1()
 	tmp = (char *)realloc(tmp, 33);
 	strcpy(tmp, "1234567789");
 	delete tmp;
-	time_tag("NULL");
 	tmp = (char *)calloc(1, 1024*4);
 	strcpy(tmp, "1234567789");
 	delete tmp;
