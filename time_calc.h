@@ -204,6 +204,7 @@ private:
 	void threadProc();
 private:
 	static CTimeCalcInfManager *_instance;
+	const int  m_maxListSize;
 	CList m_recvList;
 	CPthreadMutex m_recvListMutex;
 	pthread_t m_threadId;

@@ -766,7 +766,7 @@ CTimeCalcInf::CTimeCalcInf() : 	m_opr(e_none),
 
 CTimeCalcInfManager *CTimeCalcInfManager::_instance = NULL;
 
-CTimeCalcInfManager::CTimeCalcInfManager() : m_isLocked(false)
+CTimeCalcInfManager::CTimeCalcInfManager() : m_isLocked(false), m_maxListSize(4)
 {
 	pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
@@ -895,11 +895,10 @@ void CTimeCalcInfManager::pushRecvData(RECV_DATA *pRecvData)
 
 void CTimeCalcInfManager::recvListLock()
 {
-	const int maxListSize = 4;
-	if (m_recvList.size() < maxListSize)
+	if (m_recvList.size() < m_maxListSize)
 	{
 		m_recvListMutex.Enter();
-		if (m_recvList.size() < maxListSize)
+		if (m_recvList.size() < m_maxListSize)
 		{
 			m_isLocked = true;
 		}
