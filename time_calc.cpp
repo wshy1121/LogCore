@@ -888,11 +888,18 @@ void CTimeCalcInfManager::pushRecvData(RECV_DATA *pRecvData)
 
 void CTimeCalcInfManager::recvListLock()
 {
-	if (m_recvList.size() < 8)
+	const int maxListSize = 2;
+	if (m_recvList.size() < maxListSize)
 	{
 		m_recvListMutex.Enter();
-		m_isLocked = true;
-
+		if (m_recvList.size() < maxListSize)
+		{
+			m_isLocked = true;
+		}
+		else
+		{
+			m_recvListMutex.Leave();
+		}
 	}
 }
 void CTimeCalcInfManager::recvListUnLock()
