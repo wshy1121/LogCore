@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <assert.h>
 
 
 #include "Global.h"
@@ -158,13 +159,11 @@ void CBugKiller::getStackInfo(std::string &stackInf)
 
 void CBugKiller::start()
 {
-	assert(0);
 	CTimeCalcManager::instance()->start();
 }
 
 void CBugKiller::stop()
 {
-	assert(0);
 	CTimeCalcManager::instance()->stop();
 }
 
