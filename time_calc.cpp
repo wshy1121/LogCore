@@ -824,13 +824,13 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
 	int display_level = pCalcInf->m_displayLevel;
 	const char *content = pCalcInf->m_content.c_str();
 
-	//会内嵌WrapMalloc的
+	//会被WrapMalloc调进去
 	switch (opr)
 	{
 		default:
 			break;
 	}
-	//不会内嵌WrapMalloc的
+	//不会被WrapMalloc调进去
 	threadQueueEnable(e_Mem);	
 	switch (opr)
 	{
