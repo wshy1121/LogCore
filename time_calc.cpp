@@ -808,6 +808,7 @@ void CTimeCalcInfManager::threadProc()
 		recvListUnLock();
 		
 		dealRecvData(&pRecvData->calcInf);
+		delete pRecvData;
 	}
 }
 
@@ -818,15 +819,15 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 	return NULL;
 }
 
-void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
+void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
 {
-	CTimeCalcInf::TimeCalcOpr &opr = pRecvData->m_opr;
-	int threadId = pRecvData->m_threadId;
-	int line = pRecvData->m_line;
-	char *file_name = pRecvData->m_fileName;
-	char *func_name = pRecvData->m_funcName;
-	int display_level = pRecvData->m_displayLevel;
-	const char *content = pRecvData->m_content.c_str();
+	CTimeCalcInf::TimeCalcOpr &opr = pCalcInf->m_opr;
+	int threadId = pCalcInf->m_threadId;
+	int line = pCalcInf->m_line;
+	char *file_name = pCalcInf->m_fileName;
+	char *func_name = pCalcInf->m_funcName;
+	int display_level = pCalcInf->m_displayLevel;
+	const char *content = pCalcInf->m_content.c_str();
 	
 	switch (opr)
 	{
@@ -873,8 +874,6 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pRecvData)
 		default:
 			break;
 	}
-
-	delete pRecvData;
 	return ;
 }
 

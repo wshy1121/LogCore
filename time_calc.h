@@ -195,7 +195,7 @@ class CTimeCalcInfManager
 public:
 	static CTimeCalcInfManager *instance();
 	void pushRecvData(RECV_DATA *pRecvData);	
-	void dealRecvData(CTimeCalcInf *pRecvData);
+	void dealRecvData(CTimeCalcInf *pCalcInf);
 private:
 	CTimeCalcInfManager();
 	void recvListLock();
