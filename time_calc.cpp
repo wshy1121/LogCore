@@ -59,7 +59,6 @@ CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_lev
 																				m_FileName(file_name), 
 																				m_FuncName(func_name)
 {
-	threadQueueEnable(e_Mem);	
 	
 	ftime(&m_StartTime);
 	m_threadId = threadId;
@@ -229,7 +228,6 @@ void CTimeCalc::DealFuncExit()
 }
 CTimeCalc::~CTimeCalc()
 {
-	threadQueueEnable(e_Mem);
 
 	DealFuncExit();
 }
@@ -409,8 +407,6 @@ void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &sta
 
 void CTimeCalcManager::InsertTrace(int line, char *file_name, pthread_t threadId, const char* content)
 {
-	threadQueueEnable(e_Mem);
-
 	FuncTraceInfo_t *TraceInfo = GetTraceInf(threadId);
 	if (TraceInfo && !needPrint(TraceInfo->calc_list))
 	{
@@ -597,7 +593,6 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 
 void CTimeCalcManager::InsertTag(int line, char *file_name, const char* content)
 {
-	threadQueueEnable(e_Mem);
 	
 	struct timeb cur_time;
 	ftime(&cur_time);
@@ -611,7 +606,6 @@ void CTimeCalcManager::InsertTag(int line, char *file_name, const char* content)
 
 void CTimeCalcManager::DispAll()
 {
-	threadQueueEnable(e_Mem);
 
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it;
 	FuncTraceInfo_t *TraceInfo = NULL;
@@ -820,7 +814,9 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 }
 
 void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
-{
+{	
+	threadQueueEnable(e_Mem);
+	
 	CTimeCalcInf::TimeCalcOpr &opr = pCalcInf->m_opr;
 	int threadId = pCalcInf->m_threadId;
 	int line = pCalcInf->m_line;

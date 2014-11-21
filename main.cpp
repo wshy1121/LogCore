@@ -79,7 +79,7 @@ void* printfMallocMap(void *pArg)
 }
 int main()
 {
-	//time_start();
+	time_start();
 	pthread_t thread_id[32];
 	
 	while (1)
