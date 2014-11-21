@@ -18,6 +18,7 @@ public:
 	static void InsertTrace(int line, char *file_name, const char* fmt, ...);
 	static void DispAll();
 	static void InsertTag(int line, char *file_name, const char* fmt, ...);
+	static void InsertStrOnly(const char* fmt, ...);
 	static std::string& getBackTrace(std::string &backTrace);	
 	static void printfMemInfMap();
 	static void printfStackInfo(int line, char *file_name);

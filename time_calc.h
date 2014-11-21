@@ -123,7 +123,7 @@ public:
 	void printStack(int line, char *file_name, const char* fmt, ...);
 	void getStackInfo(std::string &stackInf);
 	void InsertTrace(int line, char *file_name, pthread_t threadId, const char* content);
-	void InsertStrOnly(const char* fmt, ...);
+	void InsertStrOnly(pthread_t threadId, const char* fmt, ...);
 	void InsertTag(int line, char *file_name, const char* content);
 	void DispAll();
 	void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
@@ -167,6 +167,7 @@ public:
 		e_createCandy, 
 		e_destroyCandy, 			
 		e_insertTrace, 
+		e_InsertStrOnly, 
 		e_dispAll, 
 		e_insertTag, 
 		e_getBackTrace, 

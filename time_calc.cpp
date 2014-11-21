@@ -427,10 +427,9 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, pthread_t threadId
 
 }
 
-void CTimeCalcManager::InsertStrOnly(const char* fmt, ...)
+void CTimeCalcManager::InsertStrOnly(pthread_t threadId, const char* fmt, ...)
 {
-
-	FuncTraceInfo_t *TraceInfo = GetTraceInf(pthread_self());
+	FuncTraceInfo_t *TraceInfo = GetTraceInf(threadId);
 	if (TraceInfo && !needPrint(TraceInfo->calc_list))
 	{
 		return ;
@@ -827,6 +826,11 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
 	//会被WrapMalloc调进去
 	switch (opr)
 	{
+		case CTimeCalcInf::e_InsertStrOnly:
+			{
+				CTimeCalcManager::instance()->InsertStrOnly(threadId, content);
+				break;
+			}
 		default:
 			break;
 	}
