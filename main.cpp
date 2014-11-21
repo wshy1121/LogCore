@@ -64,13 +64,8 @@ void fun0(int count)
 
 void* test1(void *pArg)
 {	
-	while (1)
-	{
-		time_trace();
-		fun0(100);
-		//testThreadQueue();
-		usleep(1000*1000);		
-	}
+	time_trace();
+	fun0(100);
 	return NULL;
 }
 void* printfMallocMap(void *pArg)
@@ -87,20 +82,20 @@ int main()
 {
 	//time_start();
 	pthread_t thread_id[32];
-
-	int i = 0;
-	for (i=0; i<10;)
-	{
-		pthread_create(&thread_id[i++], NULL,test1,NULL);
-	}
-	pthread_create(&thread_id[i++], NULL,printfMallocMap,NULL);
-	//-------------------------------------------------------------
-	for (i=0; i<10;)
-	{
-		pthread_join(thread_id[i++], NULL);
-	}
-	pthread_join(thread_id[i++], NULL);
 	
+	while (1)
+	{
+		for (int i=0; i<50; ++i)
+		{
+			pthread_create(&thread_id[i], NULL,test1,NULL);
+		}
+		//-------------------------------------------------------------
+		for (int i=0; i<50; ++i)
+		{
+			pthread_join(thread_id[i], NULL);
+		}
+		usleep(10*1000*1000);
+	}
 	return 0;
 }
 
