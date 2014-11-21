@@ -766,7 +766,7 @@ CTimeCalcInf::CTimeCalcInf() : 	m_opr(e_none),
 
 CTimeCalcInfManager *CTimeCalcInfManager::_instance = NULL;
 
-CTimeCalcInfManager::CTimeCalcInfManager() : m_isLocked(false), m_maxListSize(4)
+CTimeCalcInfManager::CTimeCalcInfManager() : m_maxListSize(4), m_isLocked(false)
 {
 	pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
