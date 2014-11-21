@@ -135,6 +135,7 @@ std::string& CBugKiller::getBackTrace(std::string &backTrace)
 }
 void CBugKiller::printfMemInfMap()
 {
+	assert(0);
 	CCandy candy(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, 0);
 	CTimeCalcManager::instance()->printfMemInfMap();
 }
@@ -150,17 +151,20 @@ void CBugKiller::printfStackInfo(int line, char *file_name)
 
 void CBugKiller::getStackInfo(std::string &stackInf)
 {
+	assert(0);
 	CTimeCalcManager::instance()->getStackInfo(stackInf);
 }
 
 
 void CBugKiller::start()
 {
+	assert(0);
 	CTimeCalcManager::instance()->start();
 }
 
 void CBugKiller::stop()
 {
+	assert(0);
 	CTimeCalcManager::instance()->stop();
 }
 
