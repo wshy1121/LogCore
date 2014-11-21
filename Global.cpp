@@ -159,6 +159,9 @@ void CBugKiller::getStackInfo(std::string &stackInf)
 
 void CBugKiller::start()
 {
+	CalcMem::instance();	
+	ThreadQueue::instance();
+	CTimeCalcInfManager::instance();
 	CTimeCalcManager::instance()->start();
 }
 
