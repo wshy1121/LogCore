@@ -815,7 +815,6 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 
 void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
 {	
-	threadQueueEnable(e_Mem);
 	
 	CTimeCalcInf::TimeCalcOpr &opr = pCalcInf->m_opr;
 	int threadId = pCalcInf->m_threadId;
@@ -824,7 +823,15 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
 	char *func_name = pCalcInf->m_funcName;
 	int display_level = pCalcInf->m_displayLevel;
 	const char *content = pCalcInf->m_content.c_str();
-	
+
+	//会内嵌WrapMalloc的
+	switch (opr)
+	{
+		default:
+			break;
+	}
+	//不会内嵌WrapMalloc的
+	threadQueueEnable(e_Mem);	
 	switch (opr)
 	{
 		case CTimeCalcInf::e_createCandy:
