@@ -888,7 +888,7 @@ void CTimeCalcInfManager::pushRecvData(RECV_DATA *pRecvData)
 
 void CTimeCalcInfManager::recvListLock()
 {
-	const int maxListSize = 2;
+	const int maxListSize = 4;
 	if (m_recvList.size() < maxListSize)
 	{
 		m_recvListMutex.Enter();
