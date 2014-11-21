@@ -145,7 +145,7 @@ void CBugKiller::printfStackInfo(int line, char *file_name)
 #ifdef WRAP	
 	CalcMem::instance()->getBackTrace(backTrace);
 #endif
-	CTimeCalcManager::instance()->InsertTrace(line, file_name, pthread_self(), backTrace.c_str());
+	InsertTrace(line, file_name, backTrace.c_str());
 }
 
 void CBugKiller::getStackInfo(std::string &stackInf)

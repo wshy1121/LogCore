@@ -10,6 +10,7 @@ extern "C" void* __real_malloc(size_t);
 void fun1()
 {	time_trace();
 	time_printf("NULL");
+	time_stack();
 	char *tmp = new char[32];
 
 	strcpy(tmp, "1234567789");
