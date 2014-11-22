@@ -489,7 +489,7 @@ void CalcMemManager::wrapFree(void* addr, pthread_t threadId)
 	
 
 }
-void CalcMemManager::printfMemInfMap()
+void CalcMemManager::printfMemInfMap(pthread_t threadId)
 {
 	std::string path;
 	CGuardMutex guardMutex(m_mutex);
@@ -504,7 +504,7 @@ void CalcMemManager::printfMemInfMap()
 		{
 			itemSize = memInf->memSize /diffCount;
 		}
-		CBugKiller::InsertStrOnly(pthread_self(), "maxSize  itemSize  memSize  diffCount  mallocCount  freeCount  %016d  %08d  %d  %d  %d  %d %s", memInf->maxSize, itemSize, memInf->memSize, 
+		CBugKiller::InsertStrOnly(threadId, "maxSize  itemSize  memSize  diffCount  mallocCount  freeCount  %016d  %08d  %d  %d  %d  %d %s", memInf->maxSize, itemSize, memInf->memSize, 
 												diffCount, memInf->mallocCount, memInf->freeCount, path.c_str());
 	}
 	

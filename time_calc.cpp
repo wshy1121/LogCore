@@ -369,11 +369,10 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	return ;
 }
 
-void CTimeCalcManager::printfMemInfMap()
+void CTimeCalcManager::printfMemInfMap(pthread_t threadId)
 {
 #ifdef WRAP
-	threadQueueEnable(e_Mem);
-	CalcMemManager::instance()->printfMemInfMap();
+	CalcMemManager::instance()->printfMemInfMap(threadId);
 #endif
 }
 void CTimeCalcManager::getStackInfo(std::string &stackInf)
@@ -868,6 +867,11 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
 		case CTimeCalcInf::e_InsertStrOnly:
 			{
 				CTimeCalcManager::instance()->InsertStrOnly(threadId, content);
+				break;
+			}
+		case CTimeCalcInf::e_printfMemInfMap:
+			{
+				CTimeCalcManager::instance()->printfMemInfMap(threadId);
 				break;
 			}
 		default:

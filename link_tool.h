@@ -154,7 +154,7 @@ public:
 	static CalcMemManager *instance();
 	void wrapMalloc(void* addr, size_t c, pthread_t threadId);
 	void wrapFree(void* addr, pthread_t threadId);
-	void printfMemInfMap();
+	void printfMemInfMap(pthread_t threadId);
 	std::string& getBackTrace(std::string &backTrace);
 	void pushMemData(MEM_DATA *pCalcInf);
 private:

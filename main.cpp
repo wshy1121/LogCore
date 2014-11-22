@@ -72,7 +72,8 @@ void* printfMallocMap(void *pArg)
 #ifdef WRAP
 	while (1)
 	{
-		usleep(1*1000);		
+		usleep(1*1000);
+		time_mem();
 	}
 #endif
 	return NULL;
@@ -80,16 +81,20 @@ void* printfMallocMap(void *pArg)
 int main()
 {
 	time_start();
-	pthread_t thread_id[32];
-	
+
+	pthread_t printfThreadId;
+	pthread_create(&printfThreadId, NULL,printfMallocMap,NULL);
+
+	const int threadNum = 50;
+	pthread_t thread_id[threadNum];	
 	while (1)
 	{
-		for (int i=0; i<50; ++i)
+		for (int i=0; i<threadNum; ++i)
 		{
 			pthread_create(&thread_id[i], NULL,test1,NULL);
 		}
 		//-------------------------------------------------------------
-		for (int i=0; i<50; ++i)
+		for (int i=0; i<threadNum; ++i)
 		{
 			pthread_join(thread_id[i], NULL);
 		}

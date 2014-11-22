@@ -119,7 +119,7 @@ class CTimeCalcManager
 public:
 	static CTimeCalcManager *instance();
 public:
-	void printfMemInfMap();
+	void printfMemInfMap(pthread_t threadId);
 	void printStack(int line, char *file_name, const char* fmt, ...);
 	void getStackInfo(std::string &stackInf);
 	void InsertTrace(int line, char *file_name, pthread_t threadId, const char* content);
