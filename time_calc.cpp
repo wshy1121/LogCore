@@ -794,11 +794,11 @@ void CTimeCalcInfManager::threadProc()
 			usleep(10 * 1000);
 			continue;
 		}
-		recvListLock();
+		m_recvListMutex.Enter();
 		struct node *pNode =  m_recvList.begin();
 		RECV_DATA *pRecvData = recvDataContain(pNode);
 		m_recvList.pop_front();	
-		recvListUnLock();
+		m_recvListMutex.Leave();
 		
 		dealRecvData(&pRecvData->calcInf);
 		delete pRecvData;
@@ -889,27 +889,4 @@ void CTimeCalcInfManager::pushRecvData(RECV_DATA *pRecvData)
 	return ;
 }
 
-void CTimeCalcInfManager::recvListLock()
-{
-	if (m_recvList.size() < m_maxListSize)
-	{
-		m_recvListMutex.Enter();
-		if (m_recvList.size() < m_maxListSize)
-		{
-			m_isLocked = true;
-		}
-		else
-		{
-			m_recvListMutex.Leave();
-		}
-	}
-}
-void CTimeCalcInfManager::recvListUnLock()
-{
-	if (m_isLocked)
-	{
-		m_isLocked = false;
-		m_recvListMutex.Leave();
-	}
-}
 
