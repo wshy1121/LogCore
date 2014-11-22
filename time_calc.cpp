@@ -814,7 +814,8 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 
 void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
 {	
-	
+	threadQueueEnable(e_Mem);	
+
 	CTimeCalcInf::TimeCalcOpr &opr = pCalcInf->m_opr;
 	int threadId = pCalcInf->m_threadId;
 	int line = pCalcInf->m_line;
@@ -823,19 +824,6 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
 	int display_level = pCalcInf->m_displayLevel;
 	const char *content = pCalcInf->m_content.c_str();
 
-	//会被WrapMalloc调进去
-	switch (opr)
-	{
-		case CTimeCalcInf::e_InsertStrOnly:
-			{
-				CTimeCalcManager::instance()->InsertStrOnly(threadId, content);
-				break;
-			}
-		default:
-			break;
-	}
-	//不会被WrapMalloc调进去
-	threadQueueEnable(e_Mem);	
 	switch (opr)
 	{
 		case CTimeCalcInf::e_createCandy:
@@ -877,7 +865,11 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
 				break;
 
 			}
-		
+		case CTimeCalcInf::e_InsertStrOnly:
+			{
+				CTimeCalcManager::instance()->InsertStrOnly(threadId, content);
+				break;
+			}
 		default:
 			break;
 	}
