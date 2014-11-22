@@ -504,7 +504,7 @@ void CalcMemManager::printfMemInfMap()
 		{
 			itemSize = memInf->memSize /diffCount;
 		}
-		CBugKiller::InsertStrOnly("maxSize  itemSize  memSize  diffCount  mallocCount  freeCount  %016d  %08d  %d  %d  %d  %d %s", memInf->maxSize, itemSize, memInf->memSize, 
+		CBugKiller::InsertStrOnly(pthread_self(), "maxSize  itemSize  memSize  diffCount  mallocCount  freeCount  %016d  %08d  %d  %d  %d  %d %s", memInf->maxSize, itemSize, memInf->memSize, 
 												diffCount, memInf->mallocCount, memInf->freeCount, path.c_str());
 	}
 	
@@ -546,7 +546,7 @@ void CalcMemManager::dealMemInf(const char *mallocPath, int size, pthread_t thre
 		memInf->maxSize = memInf->memSize;
 
 		int count = memInf->mallocCount - memInf->freeCount;
-		CBugKiller::InsertStrOnly("%s  malloc size  %06d  %d", mallocPath, count, memInf->memSize);
+		CBugKiller::InsertStrOnly(threadId, "%s  malloc size  %06d  %d", mallocPath, count, memInf->memSize);
 	}
 	return ;
 }

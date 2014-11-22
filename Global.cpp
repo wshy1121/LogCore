@@ -89,7 +89,7 @@ void CBugKiller::InsertTrace(int line, char *file_name, const char* fmt, ...)
 #endif	
 }
 
-void CBugKiller::InsertStrOnly(const char* fmt, ...)
+void CBugKiller::InsertStrOnly(pthread_t threadId, const char* fmt, ...)
 {
 	char content[4096];
 	va_list ap;
@@ -102,7 +102,7 @@ void CBugKiller::InsertStrOnly(const char* fmt, ...)
 	CTimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = CTimeCalcInf::e_InsertStrOnly;
-	pCalcInf->m_threadId = pthread_self();
+	pCalcInf->m_threadId = threadId;
 	pCalcInf->m_content = content;
 
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
