@@ -25,9 +25,10 @@ char *__getBackTrace()
        int layer;
        int i;
 	char tmp[256];
-	int backTraceLen = strlen("addr2line -e ./Challenge_Debug -f -C  ") + stackNum * 8;
+	const char *pTraceHead = "addr2line -e ./Challenge_Debug -f -C  ";
+	int backTraceLen = strlen(pTraceHead) + stackNum * 8;
 	char* pBackTrace = (char*)__real_malloc(backTraceLen);
-	((char *)pBackTrace)[0] = '\0';
+	strcpy(pBackTrace, pTraceHead);
 	
 	layer = backtrace(stack_addr, stackNum);
 	for(i = 3; i < layer; i++)
