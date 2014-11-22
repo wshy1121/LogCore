@@ -9,7 +9,8 @@
 
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
-
+extern char *__getBackTrace();
+extern void __realaseBackTrace(char *backTrace);
 /******************************************************/
 void init_node(struct node *node)
 {
@@ -438,8 +439,10 @@ CalcMemManager *CalcMemManager::instance()
 
 void CalcMemManager::wrapMalloc(void* addr, size_t c, pthread_t threadId)
 {
-	std::string insertTrace;
-	//getBackTrace(insertTrace);
+	char *pBackTrace = __getBackTrace();
+	std::string insertTrace = pBackTrace;
+	__realaseBackTrace(pBackTrace);
+	
 	if (!insertTrace.size())
 	{
 		return ;

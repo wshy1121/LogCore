@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <execinfo.h>
+#include <string.h>
 #include "time_calc.h"
 #include "link_tool.h"
 extern "C" void* __real_malloc(size_t);
@@ -15,6 +16,30 @@ static ThreadQueue threadQueue;
 pid_t gettid()
 {
 	return syscall(SYS_gettid);
+}
+
+char *__getBackTrace()
+{
+	const int stackNum = 24;
+       void *stack_addr[stackNum];
+       int layer;
+       int i;
+	char tmp[256];
+	int backTraceLen = strlen("addr2line -e ./Challenge_Debug -f -C  ") + stackNum * 8;
+	char* pBackTrace = (char*)__real_malloc(backTraceLen);
+	((char *)pBackTrace)[0] = '\0';
+	
+	layer = backtrace(stack_addr, stackNum);
+	for(i = 3; i < layer; i++)
+	{
+		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
+		strcat(pBackTrace, tmp);
+	}
+	return pBackTrace;
+}
+void __realaseBackTrace(char *backTrace)
+{
+	__real_free(backTrace);
 }
 
 extern "C" void *__wrap_malloc(size_t c)
@@ -57,22 +82,6 @@ extern "C" void __wrap_free(void*p)
 
 }
 
-std::string& getBackTrace(std::string &backTrace)
-{
-	const int stackNum = 24;
-       void *stack_addr[stackNum];
-       int layer;
-       int i;
-	backTrace = "addr2line -e ./Challenge_Debug -f -C  ";
-	char tmp[256];
-	
-	layer = backtrace(stack_addr, stackNum);
-	for(i = 3; i < layer; i++)
-	{
-		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
-		backTrace += tmp;
-	}
-	return backTrace;
-}
+
 
 

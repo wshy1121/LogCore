@@ -44,7 +44,8 @@
 CPthreadMutex g_insMutexCalc;
 extern "C" void* __real_malloc(size_t);
 extern "C" void __real_free(void* p);
-extern std::string& getBackTrace(std::string &backTrace);
+extern char *__getBackTrace();
+extern void __realaseBackTrace(char *backTrace);
 
 void NextStep(const char *function, const char *fileName, int line)
 {
@@ -621,11 +622,12 @@ void CTimeCalcManager::DispAll()
 		}
 	}
 
-	std::string backTrace;
+	
 #ifdef WRAP	
-	getBackTrace(backTrace);
+	char *pBackTrace = __getBackTrace();
+	printf("backTrace  %s\n", pBackTrace);
+	__realaseBackTrace(pBackTrace);
 #endif
-	//printf("backTrace  %s\n", backTrace.c_str());
 
 	printLog((char *)"%s", "#if 0");
        for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)
@@ -789,7 +791,7 @@ void *CTimeCalcInfManager::calcMalloc(int size)
 #else
 	pMem = malloc(size);
 #endif
-	((char *)pMem)[0] = '\n';
+	((char *)pMem)[0] = '\0';
 	return pMem;
 }
 
