@@ -42,7 +42,9 @@
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
 
 CPthreadMutex g_insMutexCalc;
- 
+extern "C" void* __real_malloc(size_t);
+extern "C" void __real_free(void* p);
+
 void NextStep(const char *function, const char *fileName, int line)
 {
 	char s[80];
@@ -751,15 +753,6 @@ void CTimeCalcManager::printLog(char *sFmt, ...)
 	return ;
 }
 
-CTimeCalcInf::CTimeCalcInf() : 	m_opr(e_none), 
-								m_threadId(-1), 
-								m_line(-1), 
-								m_fileName(NULL), 
-								m_funcName(NULL), 
-								m_displayLevel(-1)
-{
-	m_threadId = pthread_self();
-}
 
 
 CTimeCalcInfManager *CTimeCalcInfManager::_instance = NULL;
@@ -782,7 +775,57 @@ CTimeCalcInfManager *CTimeCalcInfManager::instance()
 	return _instance;
 }
 
+void *CTimeCalcInfManager::calcMalloc(int size)
+{
+	if (size <= 0)
+	{
+		return NULL;
+	}
+	
+	void *pMem = NULL;
+#ifdef WRAP
+	pMem = __real_malloc(size);
+#else
+	pMem = malloc(size);
+#endif
+	((char *)pMem)[0] = '\n';
+	return pMem;
+}
 
+void CTimeCalcInfManager::calcFree(void *pMem)
+{
+	if (pMem == NULL)
+	{
+		return ;
+	}
+#ifdef WRAP
+	 __real_free(pMem);
+#else
+	 free(pMem);
+#endif
+	return ;
+}
+
+RECV_DATA *CTimeCalcInfManager::createRecvData(int contentLen)
+{
+	RECV_DATA *pRecvData = (RECV_DATA *)calcMalloc(sizeof(RECV_DATA));
+	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
+	pCalcInf->m_pContent = (char *)calcMalloc(contentLen+1);
+	
+	pCalcInf->m_opr = TimeCalcInf::e_none;
+	pCalcInf->m_threadId = -1;
+	pCalcInf->m_line = -1;
+	pCalcInf->m_fileName = NULL;
+	pCalcInf->m_funcName = NULL;
+	pCalcInf->m_displayLevel = -1;
+	return pRecvData;
+	
+}
+void CTimeCalcInfManager::destroyRecvData(RECV_DATA *pRecvData)
+{
+	calcFree(pRecvData->calcInf.m_pContent);
+	calcFree(pRecvData);
+}
 void CTimeCalcInfManager::threadProc()
 {	
 	while(1)
@@ -800,7 +843,7 @@ void CTimeCalcInfManager::threadProc()
 		m_recvListMutex.Leave();
 		
 		dealRecvData(&pRecvData->calcInf);
-		delete pRecvData;
+		destroyRecvData(pRecvData);
 	}
 }
 
@@ -811,21 +854,21 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 	return NULL;
 }
 
-void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
+void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 {	
 	threadQueueEnable(e_Mem);	
 
-	CTimeCalcInf::TimeCalcOpr &opr = pCalcInf->m_opr;
+	TimeCalcInf::TimeCalcOpr &opr = pCalcInf->m_opr;
 	int threadId = pCalcInf->m_threadId;
 	int line = pCalcInf->m_line;
 	char *file_name = pCalcInf->m_fileName;
 	char *func_name = pCalcInf->m_funcName;
 	int display_level = pCalcInf->m_displayLevel;
-	const char *content = pCalcInf->m_content.c_str();
+	const char *content = pCalcInf->m_pContent;
 
 	switch (opr)
 	{
-		case CTimeCalcInf::e_createCandy:
+		case TimeCalcInf::e_createCandy:
 			{
 				CTimeCalc *pTimeCalc = new CTimeCalc(line, file_name, func_name, display_level, threadId);
 				if (pTimeCalc == NULL)
@@ -834,7 +877,7 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
 				}
 				break;
 			}
-		case CTimeCalcInf::e_destroyCandy:
+		case TimeCalcInf::e_destroyCandy:
 			{
 				FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf(threadId);
 				if (TraceInfo == NULL || TraceInfo->calc_list.size() == 0)
@@ -846,30 +889,30 @@ void CTimeCalcInfManager::dealRecvData(CTimeCalcInf *pCalcInf)
 				delete pTimeCalc;
 				break;
 			}
-		case CTimeCalcInf::e_insertTrace:
+		case TimeCalcInf::e_insertTrace:
 			{
 				CTimeCalcManager::instance()->InsertTrace(line, file_name, threadId, content);
 				break;
 
 			}
-		case CTimeCalcInf::e_dispAll:
+		case TimeCalcInf::e_dispAll:
 			{
 				CTimeCalcManager::instance()->DispAll();
 				break;
 
 			}
-		case CTimeCalcInf::e_insertTag:
+		case TimeCalcInf::e_insertTag:
 			{
 				CTimeCalcManager::instance()->InsertTag(line, file_name, content);
 				break;
 
 			}
-		case CTimeCalcInf::e_InsertStrOnly:
+		case TimeCalcInf::e_InsertStrOnly:
 			{
 				CTimeCalcManager::instance()->InsertStrOnly(threadId, content);
 				break;
 			}
-		case CTimeCalcInf::e_printfMemInfMap:
+		case TimeCalcInf::e_printfMemInfMap:
 			{
 				CTimeCalcManager::instance()->printfMemInfMap(threadId);
 				break;

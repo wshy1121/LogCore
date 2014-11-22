@@ -156,11 +156,8 @@ private:
 };
 
 #include "link_tool.h"
-class CTimeCalcInf
+typedef struct TimeCalcInf
 {
-public:
-	CTimeCalcInf();
-public:
 	typedef enum
 	{
 		e_none,
@@ -181,12 +178,12 @@ public:
 	char * m_fileName;
 	char * m_funcName;
 	int m_displayLevel;
-	std::string m_content;
-};
+	char *m_pContent;
+}TimeCalcInf;
 
 typedef struct RECV_DATA
 {
-	CTimeCalcInf calcInf;
+	TimeCalcInf calcInf;
 	struct node node;
 }RECV_DATA;	
 #define recvDataContain(ptr)  container_of(ptr, RECV_DATA, node)
@@ -195,8 +192,12 @@ class CTimeCalcInfManager
 {
 public:
 	static CTimeCalcInfManager *instance();
+	RECV_DATA *createRecvData(int contentLen = 0);
+	void destroyRecvData(RECV_DATA *pRecvData);
+	void *calcMalloc(int size);
+	void calcFree(void *pMem);
 	void pushRecvData(RECV_DATA *pRecvData);	
-	void dealRecvData(CTimeCalcInf *pCalcInf);
+	void dealRecvData(TimeCalcInf *pCalcInf);
 private:
 	CTimeCalcInfManager();
 	static void* threadFunc(void *pArg);
