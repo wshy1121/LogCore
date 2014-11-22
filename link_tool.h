@@ -81,7 +81,7 @@ public:
 	static bool getEnable();
 	static void start();
 	static void stop();
-	void wrapMalloc(size_t c, void* addr);
+	void wrapMalloc(void* addr, size_t c, char *pBackTrace);
 	void wrapFree(void* addr);
 	ThreadNode *getQueueNode(pthread_t thread_id);
 	static ThreadQueue *instance();
@@ -139,6 +139,7 @@ typedef struct CalcMemInf
 	pthread_t m_threadId;
  	void *m_memAddr;
 	size_t m_memSize;
+	char *m_backTrace;
  }CalcMemInf;
 
 typedef struct MEM_DATA
@@ -152,7 +153,9 @@ class  CalcMemManager
 {
 public:
 	static CalcMemManager *instance();
-	void wrapMalloc(void* addr, size_t c, pthread_t threadId);
+	MEM_DATA *createMemData(int backTraceLen = 0);
+	void destroyMemData(MEM_DATA *pMemData);
+	void wrapMalloc(void* addr, size_t c, char *pBackTrace, pthread_t threadId);
 	void wrapFree(void* addr, pthread_t threadId);
 	void printfMemInfMap(pthread_t threadId);
 	void pushMemData(MEM_DATA *pCalcInf);

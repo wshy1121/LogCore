@@ -787,7 +787,7 @@ void *CTimeCalcInfManager::calcMalloc(int size)
 	
 	void *pMem = NULL;
 #ifdef WRAP
-	pMem = __real_malloc(size);
+	pMem = __real_malloc(size + 1);
 #else
 	pMem = malloc(size);
 #endif
@@ -813,7 +813,7 @@ RECV_DATA *CTimeCalcInfManager::createRecvData(int contentLen)
 {
 	RECV_DATA *pRecvData = (RECV_DATA *)calcMalloc(sizeof(RECV_DATA));
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
-	pCalcInf->m_pContent = (char *)calcMalloc(contentLen+1);
+	pCalcInf->m_pContent = (char *)calcMalloc(contentLen);
 	
 	pCalcInf->m_opr = TimeCalcInf::e_none;
 	pCalcInf->m_threadId = -1;

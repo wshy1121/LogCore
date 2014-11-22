@@ -40,6 +40,10 @@ char *__getBackTrace()
 }
 void __realaseBackTrace(char *backTrace)
 {
+	if (backTrace == NULL)
+	{
+		return ;
+	}
 	__real_free(backTrace);
 }
 
@@ -49,7 +53,9 @@ extern "C" void *__wrap_malloc(size_t c)
 
 	if (p && ThreadQueue::getEnable())
 	{
-		ThreadQueue::instance()->wrapMalloc(c, p);
+		char *pBackTrace = __getBackTrace();
+		ThreadQueue::instance()->wrapMalloc(p, c, pBackTrace);
+		__realaseBackTrace(pBackTrace);
 	}
 
 	return p; 
@@ -59,7 +65,9 @@ extern "C" void* __wrap_realloc(void *p, size_t c)
 	p = __real_realloc(p, c);
 	if (p && ThreadQueue::getEnable())
 	{
-		ThreadQueue::instance()->wrapMalloc(c, p);
+		char *pBackTrace = __getBackTrace();
+		ThreadQueue::instance()->wrapMalloc(p, c, pBackTrace);
+		__realaseBackTrace(pBackTrace);
 	}
 	
 	return p;
@@ -69,7 +77,8 @@ extern "C" void* __wrap_calloc(size_t c)
 	void *p = __real_calloc(c); 
 	if (p && ThreadQueue::getEnable())
 	{
-		ThreadQueue::instance()->wrapMalloc(c, p);
+		char *pBackTrace = __getBackTrace();
+		ThreadQueue::instance()->wrapMalloc(p, c, pBackTrace);
 	}	
 	return p;
 }
