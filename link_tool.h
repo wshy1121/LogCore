@@ -127,6 +127,30 @@ private:
 	int node_num;
 };
 
+class CalcMemInf
+{
+public:
+	CalcMemInf();
+public:
+	typedef enum
+	{
+		e_none,
+		e_wrapMalloc, 
+		e_wrapFree, 			
+	}CalcMemOpr;
+	CalcMemOpr m_opr;
+	pthread_t m_threadId;
+	void *memAddr;
+	size_t memSize;
+};
+
+typedef struct MEM_DATA
+{
+	CalcMemInf calcMemInf;
+	struct node node;
+}MEM_DATA;	
+#define memDataContain(ptr)  container_of(ptr, MEM_DATA, node)
+
 class  CalcMemManager
 {
 public:
@@ -140,6 +164,7 @@ private:
 private:
 	static void* threadFunc(void *pArg);
 	void threadProc();
+	void dealRecvData(CalcMemInf *pCalcInf);
 	void dealMemInf(const char *mallocPath, int size);
 	inline std::string splitFilename (std::string &path);
 private:

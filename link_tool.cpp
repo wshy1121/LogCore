@@ -350,12 +350,12 @@ void CalcMemManager::threadProc()
 		}
 		m_recvListMutex.Enter();
 		struct node *pNode =  m_recvList.begin();
-		RECV_DATA *pRecvData = recvDataContain(pNode);
+		MEM_DATA *pMemData = memDataContain(pNode);
 		m_recvList.pop_front();	
 		m_recvListMutex.Leave();
 		
-		//dealRecvData(&pRecvData->calcInf);
-		delete pRecvData;
+		dealRecvData(&pMemData->calcMemInf);
+		delete pMemData;
 	}
 }
 
@@ -365,7 +365,10 @@ void* CalcMemManager::threadFunc(void *pArg)
 	return NULL;
 }
 
+void CalcMemManager::dealRecvData(CalcMemInf *pCalcInf)
+{
 
+}
 CalcMemManager *CalcMemManager::instance()
 {
 	if (NULL == _instance)
