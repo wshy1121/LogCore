@@ -127,11 +127,8 @@ private:
 	int node_num;
 };
 
-class CalcMemInf
+typedef struct CalcMemInf
 {
-public:
-	CalcMemInf();
-public:
 	typedef enum
 	{
 		e_none,
@@ -142,7 +139,7 @@ public:
 	pthread_t m_threadId;
 	void *memAddr;
 	size_t memSize;
-};
+}CalcMemInf;
 
 typedef struct MEM_DATA
 {
@@ -165,6 +162,7 @@ private:
 	static void* threadFunc(void *pArg);
 	void threadProc();
 	void dealRecvData(CalcMemInf *pCalcInf);
+	void pushRecvData(MEM_DATA *pCalcInf);
 	void dealMemInf(const char *mallocPath, int size);
 	inline std::string splitFilename (std::string &path);
 private:

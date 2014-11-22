@@ -355,7 +355,7 @@ void CalcMemManager::threadProc()
 		m_recvListMutex.Leave();
 		
 		dealRecvData(&pMemData->calcMemInf);
-		delete pMemData;
+		__real_free(pMemData);
 	}
 }
 
@@ -369,6 +369,20 @@ void CalcMemManager::dealRecvData(CalcMemInf *pCalcInf)
 {
 
 }
+
+void CalcMemManager::pushRecvData(MEM_DATA *pMemData)
+{
+	if (pMemData == NULL)
+	{
+		return ;
+	}
+	
+	m_recvListMutex.Enter();
+	m_recvList.push_back(&pMemData->node);
+	m_recvListMutex.Leave();
+	return ;
+}
+
 CalcMemManager *CalcMemManager::instance()
 {
 	if (NULL == _instance)
