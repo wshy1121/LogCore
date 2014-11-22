@@ -321,14 +321,32 @@ ThreadNode *ThreadQueue::getQueueNode(pthread_t thread_id)
 void ThreadQueue::wrapMalloc(size_t c, void* addr)
 {
 	threadQueueEnable(e_Mem);
-	CalcMemManager::instance()->wrapMalloc(c, addr);
+
+	MEM_DATA *pMemData = (MEM_DATA *)__real_malloc(sizeof(MEM_DATA));
+	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
+
+	pCalcMemInf->m_opr = CalcMemInf::e_wrapMalloc;
+	pCalcMemInf->m_memAddr = addr;
+	pCalcMemInf->m_memSize= c;
+
+	CalcMemManager::instance()->pushMemData(pMemData);
+	//CalcMemManager::instance()->wrapMalloc(c, addr);
 	return ;
 }
 
 void ThreadQueue::wrapFree(void* addr)
 {
 	threadQueueEnable(e_Mem);
-	CalcMemManager::instance()->wrapFree(addr);
+
+	MEM_DATA *pMemData = (MEM_DATA *)__real_malloc(sizeof(MEM_DATA));
+	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
+
+	pCalcMemInf->m_opr = CalcMemInf::e_wrapFree;
+	pCalcMemInf->m_memAddr = addr;
+	pCalcMemInf->m_memSize= 0;
+
+	CalcMemManager::instance()->pushMemData(pMemData);
+	//CalcMemManager::instance()->wrapFree(addr);
 	return ;
 }
 
@@ -365,12 +383,35 @@ void* CalcMemManager::threadFunc(void *pArg)
 	return NULL;
 }
 
-void CalcMemManager::dealRecvData(CalcMemInf *pCalcInf)
+void CalcMemManager::dealRecvData(CalcMemInf *pCalcMemInf)
 {
+	threadQueueEnable(e_Mem);	
+
+	CalcMemInf::CalcMemOpr &opr = pCalcMemInf->m_opr;
+ 
+	void *memAddr = pCalcMemInf->m_memAddr;
+	size_t memSize = pCalcMemInf->m_memSize;
+
+	switch (opr)
+	{
+		case CalcMemInf::e_wrapMalloc:
+			{
+				 wrapMalloc(memSize, memAddr);
+ 				break;
+			}
+		case CalcMemInf::e_wrapFree:
+			{
+				 wrapFree(memAddr);
+ 				break;
+			}
+		default:
+			break;
+	}
+	return ;
 
 }
 
-void CalcMemManager::pushRecvData(MEM_DATA *pMemData)
+void CalcMemManager::pushMemData(MEM_DATA *pMemData)
 {
 	if (pMemData == NULL)
 	{
@@ -472,7 +513,7 @@ void CalcMemManager::printfMemInfMap()
 }
 
 void CalcMemManager::dealMemInf(const char *mallocPath, int size)
-{
+{ 
 	MemInf *memInf = NULL;
 	MemInfMap::iterator memInfMapIter = m_MemInfMap.find(mallocPath);
 	if (memInfMapIter != m_MemInfMap.end())
