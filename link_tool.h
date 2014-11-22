@@ -136,6 +136,7 @@ typedef struct CalcMemInf
 		e_wrapFree, 			
 	}CalcMemOpr;
 	CalcMemOpr m_opr;
+	pthread_t m_threadId;
  	void *m_memAddr;
 	size_t m_memSize;
  }CalcMemInf;
@@ -151,8 +152,8 @@ class  CalcMemManager
 {
 public:
 	static CalcMemManager *instance();
-	void wrapMalloc(size_t c, void* addr);
-	void wrapFree(void* addr);
+	void wrapMalloc(void* addr, size_t c, pthread_t threadId);
+	void wrapFree(void* addr, pthread_t threadId);
 	void printfMemInfMap();
 	std::string& getBackTrace(std::string &backTrace);
 	void pushMemData(MEM_DATA *pCalcInf);
@@ -162,7 +163,7 @@ private:
 	static void* threadFunc(void *pArg);
 	void threadProc();
 	void dealRecvData(CalcMemInf *pCalcMemInf);
-	void dealMemInf(const char *mallocPath, int size);
+	void dealMemInf(const char *mallocPath, int size, pthread_t threadId);
 	inline std::string splitFilename (std::string &path);
 private:
 	static CalcMemManager *_instance;

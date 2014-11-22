@@ -324,6 +324,7 @@ void ThreadQueue::wrapMalloc(size_t c, void* addr)
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapMalloc;
+	pCalcMemInf->m_threadId = pthread_self();
 	pCalcMemInf->m_memAddr = addr;
 	pCalcMemInf->m_memSize= c;
 
@@ -338,6 +339,7 @@ void ThreadQueue::wrapFree(void* addr)
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapFree;
+	pCalcMemInf->m_threadId = pthread_self();
 	pCalcMemInf->m_memAddr = addr;
 	pCalcMemInf->m_memSize= 0;
 
@@ -384,7 +386,8 @@ void CalcMemManager::dealRecvData(CalcMemInf *pCalcMemInf)
 	threadQueueEnable(e_Mem);	
 
 	CalcMemInf::CalcMemOpr &opr = pCalcMemInf->m_opr;
- 
+	int threadId = pCalcMemInf->m_threadId;
+	 
 	void *memAddr = pCalcMemInf->m_memAddr;
 	size_t memSize = pCalcMemInf->m_memSize;
 
@@ -392,13 +395,13 @@ void CalcMemManager::dealRecvData(CalcMemInf *pCalcMemInf)
 	{
 		case CalcMemInf::e_wrapMalloc:
 			{
-				 wrapMalloc(memSize, memAddr);
+				wrapMalloc(memAddr, memSize, threadId);
  				break;
 			}
 		case CalcMemInf::e_wrapFree:
 			{
-				 wrapFree(memAddr);
- 				break;
+				wrapFree(memAddr, threadId);
+				break;
 			}
 		default:
 			break;
@@ -433,7 +436,7 @@ CalcMemManager *CalcMemManager::instance()
 	return _instance;
 }
 
-void CalcMemManager::wrapMalloc(size_t c, void* addr)
+void CalcMemManager::wrapMalloc(void* addr, size_t c, pthread_t threadId)
 {
 	std::string insertTrace;
 	getBackTrace(insertTrace);
@@ -456,7 +459,7 @@ void CalcMemManager::wrapMalloc(size_t c, void* addr)
 		pNodeInf->memSize = c;
 
 		m_memNodeMap.insert( std::make_pair(addr, pNodeInf) );
-		dealMemInf(pNodeInf->path.c_str(), pNodeInf->memSize);
+		dealMemInf(pNodeInf->path.c_str(), pNodeInf->memSize, threadId);
 	}
 	else
 	{
@@ -466,7 +469,7 @@ void CalcMemManager::wrapMalloc(size_t c, void* addr)
 	
 }
 
-void CalcMemManager::wrapFree(void* addr)
+void CalcMemManager::wrapFree(void* addr, pthread_t threadId)
 {
 
 	CGuardMutex guardMutex(m_mutex);
@@ -475,7 +478,7 @@ void CalcMemManager::wrapFree(void* addr)
 	{
 		MemNodeInf *pNodeInf = iter->second;
 
-		dealMemInf(pNodeInf->path.c_str(), -pNodeInf->memSize);
+		dealMemInf(pNodeInf->path.c_str(), -pNodeInf->memSize, threadId);
 		delete pNodeInf;
 		m_memNodeMap.erase(iter);
 	}
@@ -508,7 +511,7 @@ void CalcMemManager::printfMemInfMap()
 	return ;	
 }
 
-void CalcMemManager::dealMemInf(const char *mallocPath, int size)
+void CalcMemManager::dealMemInf(const char *mallocPath, int size, pthread_t threadId)
 { 
 	MemInf *memInf = NULL;
 	MemInfMap::iterator memInfMapIter = m_MemInfMap.find(mallocPath);
