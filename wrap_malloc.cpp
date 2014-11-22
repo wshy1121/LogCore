@@ -79,6 +79,7 @@ extern "C" void* __wrap_calloc(size_t c)
 	{
 		char *pBackTrace = __getBackTrace();
 		ThreadQueue::instance()->wrapMalloc(p, c, pBackTrace);
+		__realaseBackTrace(pBackTrace);	
 	}	
 	return p;
 }
