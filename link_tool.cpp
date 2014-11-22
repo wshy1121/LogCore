@@ -5,6 +5,7 @@
 #include <string.h>
 #include <execinfo.h>
 #include <assert.h>
+#include <unistd.h>
 
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
@@ -334,7 +335,37 @@ void ThreadQueue::wrapFree(void* addr)
 CalcMemManager *CalcMemManager::_instance = NULL;
 CalcMemManager::CalcMemManager()
 {
+	pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
+
+void CalcMemManager::threadProc()
+{	
+	while(1)
+	{
+
+		if(m_recvList.empty())
+		{
+			usleep(10 * 1000);
+			continue;
+		}
+		m_recvListMutex.Enter();
+		struct node *pNode =  m_recvList.begin();
+		RECV_DATA *pRecvData = recvDataContain(pNode);
+		m_recvList.pop_front();	
+		m_recvListMutex.Leave();
+		
+		//dealRecvData(&pRecvData->calcInf);
+		delete pRecvData;
+	}
+}
+
+void* CalcMemManager::threadFunc(void *pArg)
+{
+	CalcMemManager::instance()->threadProc();
+	return NULL;
+}
+
+
 CalcMemManager *CalcMemManager::instance()
 {
 	if (NULL == _instance)

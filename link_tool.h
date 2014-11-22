@@ -110,30 +110,6 @@ typedef struct MemInf
 	int freeCount;
 }MemInf;
 
-class  CalcMemManager
-{
-public:
-	static CalcMemManager *instance();
-	void wrapMalloc(size_t c, void* addr);
-	void wrapFree(void* addr);
-	void printfMemInfMap();
-	std::string& getBackTrace(std::string &backTrace);
-private:
-	CalcMemManager();
-private:
-	void dealMemInf(const char *mallocPath, int size);
-	inline std::string splitFilename (std::string &path);
-private:
-	static CalcMemManager *_instance;
-	CPthreadMutex  m_mutex;
-
-	typedef std::map<void *, MemNodeInf *> MemNodeMap;
-	MemNodeMap m_memNodeMap;
-
-	typedef std::map<std::string, MemInf *> MemInfMap;
-	MemInfMap m_MemInfMap;
-};
-
 class  CList
 {
 public:
@@ -150,6 +126,36 @@ private:
 	node *tail;
 	int node_num;
 };
+
+class  CalcMemManager
+{
+public:
+	static CalcMemManager *instance();
+	void wrapMalloc(size_t c, void* addr);
+	void wrapFree(void* addr);
+	void printfMemInfMap();
+	std::string& getBackTrace(std::string &backTrace);
+private:
+	CalcMemManager();
+private:
+	static void* threadFunc(void *pArg);
+	void threadProc();
+	void dealMemInf(const char *mallocPath, int size);
+	inline std::string splitFilename (std::string &path);
+private:
+	static CalcMemManager *_instance;
+	CList m_recvList;
+	CPthreadMutex m_recvListMutex;
+	pthread_t m_threadId;
+	CPthreadMutex  m_mutex;
+
+	typedef std::map<void *, MemNodeInf *> MemNodeMap;
+	MemNodeMap m_memNodeMap;
+
+	typedef std::map<std::string, MemInf *> MemInfMap;
+	MemInfMap m_MemInfMap;
+};
+
 
 
 
