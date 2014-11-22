@@ -320,8 +320,6 @@ ThreadNode *ThreadQueue::getQueueNode(pthread_t thread_id)
 }
 void ThreadQueue::wrapMalloc(size_t c, void* addr)
 {
-	threadQueueEnable(e_Mem);
-
 	MEM_DATA *pMemData = (MEM_DATA *)__real_malloc(sizeof(MEM_DATA));
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
@@ -336,8 +334,6 @@ void ThreadQueue::wrapMalloc(size_t c, void* addr)
 
 void ThreadQueue::wrapFree(void* addr)
 {
-	threadQueueEnable(e_Mem);
-
 	MEM_DATA *pMemData = (MEM_DATA *)__real_malloc(sizeof(MEM_DATA));
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
