@@ -373,7 +373,7 @@ void CTimeCalcManager::printfMemInfMap()
 {
 #ifdef WRAP
 	threadQueueEnable(e_Mem);
-	CalcMem::instance()->printfMemInfMap();
+	CalcMemManager::instance()->printfMemInfMap();
 #endif
 }
 void CTimeCalcManager::getStackInfo(std::string &stackInf)
@@ -621,7 +621,7 @@ void CTimeCalcManager::DispAll()
 
 	std::string backTrace;
 #ifdef WRAP	
-	CalcMem::instance()->getBackTrace(backTrace);
+	CalcMemManager::instance()->getBackTrace(backTrace);
 #endif
 	//printf("backTrace  %s\n", backTrace.c_str());
 

@@ -151,7 +151,7 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 std::string& CBugKiller::getBackTrace(std::string &backTrace)
 {
 #ifdef WRAP
-	CalcMem::instance()->getBackTrace(backTrace);
+	CalcMemManager::instance()->getBackTrace(backTrace);
 #endif
 	return backTrace;
 }
@@ -166,7 +166,7 @@ void CBugKiller::printfStackInfo(int line, char *file_name)
 {
 	std::string backTrace;
 #ifdef WRAP	
-	CalcMem::instance()->getBackTrace(backTrace);
+	CalcMemManager::instance()->getBackTrace(backTrace);
 #endif
 	InsertTrace(line, file_name, backTrace.c_str());
 }
@@ -180,7 +180,7 @@ void CBugKiller::getStackInfo(std::string &stackInf)
 
 void CBugKiller::start()
 {
-	CalcMem::instance();	
+	CalcMemManager::instance();	
 	ThreadQueue::instance();
 	CTimeCalcInfManager::instance();
 	CTimeCalcManager::instance()->start();

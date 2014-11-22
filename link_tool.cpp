@@ -320,35 +320,35 @@ ThreadNode *ThreadQueue::getQueueNode(pthread_t thread_id)
 void ThreadQueue::wrapMalloc(size_t c, void* addr)
 {
 	threadQueueEnable(e_Mem);
-	CalcMem::instance()->wrapMalloc(c, addr);
+	CalcMemManager::instance()->wrapMalloc(c, addr);
 	return ;
 }
 
 void ThreadQueue::wrapFree(void* addr)
 {
 	threadQueueEnable(e_Mem);
-	CalcMem::instance()->wrapFree(addr);
+	CalcMemManager::instance()->wrapFree(addr);
 	return ;
 }
 
-CalcMem *CalcMem::_instance = NULL;
-CalcMem::CalcMem()
+CalcMemManager *CalcMemManager::_instance = NULL;
+CalcMemManager::CalcMemManager()
 {
 }
-CalcMem *CalcMem::instance()
+CalcMemManager *CalcMemManager::instance()
 {
 	if (NULL == _instance)
 	{
 		CGuardMutex guardMutex(g_insMutexCalc);
 		if (NULL == _instance)
 		{
-			_instance = new CalcMem;
+			_instance = new CalcMemManager;
 		}
 	}
 	return _instance;
 }
 
-void CalcMem::wrapMalloc(size_t c, void* addr)
+void CalcMemManager::wrapMalloc(size_t c, void* addr)
 {
 	std::string insertTrace;
 	getBackTrace(insertTrace);
@@ -381,7 +381,7 @@ void CalcMem::wrapMalloc(size_t c, void* addr)
 	
 }
 
-void CalcMem::wrapFree(void* addr)
+void CalcMemManager::wrapFree(void* addr)
 {
 
 	CGuardMutex guardMutex(m_mutex);
@@ -401,7 +401,7 @@ void CalcMem::wrapFree(void* addr)
 	
 
 }
-void CalcMem::printfMemInfMap()
+void CalcMemManager::printfMemInfMap()
 {
 	std::string path;
 	CGuardMutex guardMutex(m_mutex);
@@ -423,7 +423,7 @@ void CalcMem::printfMemInfMap()
 	return ;	
 }
 
-void CalcMem::dealMemInf(const char *mallocPath, int size)
+void CalcMemManager::dealMemInf(const char *mallocPath, int size)
 {
 	MemInf *memInf = NULL;
 	MemInfMap::iterator memInfMapIter = m_MemInfMap.find(mallocPath);
@@ -463,7 +463,7 @@ void CalcMem::dealMemInf(const char *mallocPath, int size)
 	return ;
 }
 
-std::string& CalcMem::getBackTrace(std::string &backTrace)
+std::string& CalcMemManager::getBackTrace(std::string &backTrace)
 {
 #ifdef WRAP
 	const int stackNum = 24;
@@ -482,7 +482,7 @@ std::string& CalcMem::getBackTrace(std::string &backTrace)
 #endif	
 	return backTrace;
 }
-std::string CalcMem::splitFilename (std::string &path)
+std::string CalcMemManager::splitFilename (std::string &path)
 {
 	size_t found;
 	found=path.find_last_of("/\\");

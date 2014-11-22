@@ -110,21 +110,21 @@ typedef struct MemInf
 	int freeCount;
 }MemInf;
 
-class  CalcMem
+class  CalcMemManager
 {
 public:
-	static CalcMem *instance();
+	static CalcMemManager *instance();
 	void wrapMalloc(size_t c, void* addr);
 	void wrapFree(void* addr);
 	void printfMemInfMap();
 	std::string& getBackTrace(std::string &backTrace);
 private:
-	CalcMem();
+	CalcMemManager();
 private:
 	void dealMemInf(const char *mallocPath, int size);
 	inline std::string splitFilename (std::string &path);
 private:
-	static CalcMem *_instance;
+	static CalcMemManager *_instance;
 	CPthreadMutex  m_mutex;
 
 	typedef std::map<void *, MemNodeInf *> MemNodeMap;
