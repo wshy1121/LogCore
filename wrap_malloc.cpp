@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <execinfo.h>
 #include "time_calc.h"
 #include "link_tool.h"
 extern "C" void* __real_malloc(size_t);
@@ -54,6 +55,24 @@ extern "C" void __wrap_free(void*p)
 	}
 	__real_free(p);
 
+}
+
+std::string& getBackTrace(std::string &backTrace)
+{
+	const int stackNum = 24;
+       void *stack_addr[stackNum];
+       int layer;
+       int i;
+	backTrace = "addr2line -e ./Challenge_Debug -f -C  ";
+	char tmp[256];
+	
+	layer = backtrace(stack_addr, stackNum);
+	for(i = 3; i < layer; i++)
+	{
+		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
+		backTrace += tmp;
+	}
+	return backTrace;
 }
 
 

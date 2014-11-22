@@ -439,7 +439,7 @@ CalcMemManager *CalcMemManager::instance()
 void CalcMemManager::wrapMalloc(void* addr, size_t c, pthread_t threadId)
 {
 	std::string insertTrace;
-	getBackTrace(insertTrace);
+	//getBackTrace(insertTrace);
 	if (!insertTrace.size())
 	{
 		return ;
@@ -551,25 +551,6 @@ void CalcMemManager::dealMemInf(const char *mallocPath, int size, pthread_t thre
 	return ;
 }
 
-std::string& CalcMemManager::getBackTrace(std::string &backTrace)
-{
-#ifdef WRAP
-	const int stackNum = 24;
-       void *stack_addr[stackNum];
-       int layer;
-       int i;
-	backTrace = "addr2line -e ./Challenge_Debug -f -C  ";
-	char tmp[256];
-	
-	layer = backtrace(stack_addr, stackNum);
-	for(i = 3; i < layer; i++)
-	{
-		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
-		backTrace += tmp;
-	}
-#endif	
-	return backTrace;
-}
 std::string CalcMemManager::splitFilename (std::string &path)
 {
 	size_t found;
