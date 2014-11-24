@@ -50,6 +50,9 @@ void my_bt(int *list, int size)
 #endif
 char *__getBackTrace(char *pBackTrace, int backTraceLen)
 {
+	strcpy(pBackTrace, "123");
+	return pBackTrace;
+	
        void *stack_addr[stackNum];
        int layer;
        int i;
