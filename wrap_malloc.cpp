@@ -8,7 +8,7 @@
 #include "link_tool.h"
 const int stackNum = 24;
 const char *pTraceHead = "addr2line -e ./Challenge_Debug -f -C  ";
-int maxBackTraceLen = strlen(pTraceHead) + stackNum * 8;
+int maxBackTraceLen = strlen(pTraceHead) + stackNum * 16;
 static ThreadQueue threadQueue;
 extern "C" void* __real_malloc(size_t);
 extern "C" void *__real_realloc(void* c, int size);
@@ -28,6 +28,7 @@ char *__getBackTrace(char *pBackTrace, int backTraceLen)
        int layer;
        int i;
 	char tmp[256];
+	strcpy(pBackTrace, "");
 	if (backTraceLen < maxBackTraceLen)
 	{
 		pBackTrace[0] = '\0';
@@ -51,9 +52,7 @@ extern "C" void *__wrap_malloc(size_t c)
 
 	if (p && ThreadQueue::getEnable())
 	{
-		char backtrace[maxBackTraceLen];
-		__getBackTrace(backtrace, sizeof(backtrace));
-		ThreadQueue::instance()->wrapMalloc(p, c, backtrace);
+		ThreadQueue::instance()->wrapMalloc(p, c);
 	}
 
 	return p; 
@@ -63,9 +62,7 @@ extern "C" void* __wrap_realloc(void *p, size_t c)
 	p = __real_realloc(p, c);
 	if (p && ThreadQueue::getEnable())
 	{
-		char backtrace[maxBackTraceLen];
-		__getBackTrace(backtrace, sizeof(backtrace));
-		ThreadQueue::instance()->wrapMalloc(p, c, backtrace);
+		ThreadQueue::instance()->wrapMalloc(p, c);
 	}
 	
 	return p;
@@ -75,9 +72,7 @@ extern "C" void* __wrap_calloc(size_t c)
 	void *p = __real_calloc(c); 
 	if (p && ThreadQueue::getEnable())
 	{
-		char backtrace[maxBackTraceLen];
-		__getBackTrace(backtrace, sizeof(backtrace));
-		ThreadQueue::instance()->wrapMalloc(p, c, backtrace);
+		ThreadQueue::instance()->wrapMalloc(p, c);
 	}	
 	return p;
 }

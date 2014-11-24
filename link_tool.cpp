@@ -7,6 +7,8 @@
 #include <assert.h>
 #include <unistd.h>
 
+extern const int maxBackTraceLen;
+extern char *__getBackTrace(char *pBackTrace, int backTraceLen);
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
 extern char *__getBackTrace();
@@ -318,24 +320,28 @@ ThreadNode *ThreadQueue::getQueueNode(pthread_t thread_id)
 	}
 	return queue_node;
 }
-void ThreadQueue::wrapMalloc(void* addr, size_t c, char *pBackTrace)
+void ThreadQueue::wrapMalloc(void* addr, size_t c)
 {
-	MEM_DATA *pMemData =  CalcMemManager::instance()->createMemData(strlen(pBackTrace));
-	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
+	threadQueueEnable(e_Mem);
+	char backtrace[maxBackTraceLen];
+	__getBackTrace(backtrace, sizeof(backtrace));
 
+	MEM_DATA *pMemData =  CalcMemManager::instance()->createMemData(strlen(backtrace));
+	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
+		
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapMalloc;
 	pCalcMemInf->m_threadId = pthread_self();
 	pCalcMemInf->m_memAddr = addr;
 	pCalcMemInf->m_memSize= c;
-	strcpy(pCalcMemInf->m_backTrace, pBackTrace);
+	strcpy(pCalcMemInf->m_backTrace, backtrace);
 
 	CalcMemManager::instance()->pushMemData(pMemData);
-	//CalcMemManager::instance()->wrapMalloc(c, addr);
 	return ;
 }
 
 void ThreadQueue::wrapFree(void* addr)
 {
+	threadQueueEnable(e_Mem);
 	MEM_DATA *pMemData =  CalcMemManager::instance()->createMemData();
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
@@ -344,7 +350,6 @@ void ThreadQueue::wrapFree(void* addr)
 	pCalcMemInf->m_memAddr = addr;
 	
 	CalcMemManager::instance()->pushMemData(pMemData);
-	//CalcMemManager::instance()->wrapFree(addr);
 	return ;
 }
 

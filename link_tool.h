@@ -81,7 +81,7 @@ public:
 	static bool getEnable();
 	static void start();
 	static void stop();
-	void wrapMalloc(void* addr, size_t c, char *pBackTrace);
+	void wrapMalloc(void* addr, size_t c);
 	void wrapFree(void* addr);
 	ThreadNode *getQueueNode(pthread_t thread_id);
 	static ThreadQueue *instance();
