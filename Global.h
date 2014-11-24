@@ -44,7 +44,7 @@ private:
 #define time_trace()   time_trace_level(100)
 
 #else
-#define time_trace_level()    
+#define time_trace_level(level)    
 #define time_printf(format, ...)      
 #define time_all()    
 #define time_tag(format, ...)   

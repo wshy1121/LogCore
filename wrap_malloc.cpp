@@ -4,7 +4,7 @@
 #include <sys/syscall.h>
 #include <execinfo.h>
 #include <string.h>
-#include "unwind/include/libunwind.h"
+
 #include "time_calc.h"
 #include "link_tool.h"
 const int stackNum = 24;
@@ -22,7 +22,8 @@ pid_t gettid()
 	return syscall(SYS_gettid);
 }
 
-
+#ifdef UNW_LOCAL_ONLY
+#include "unwind/include/libunwind.h"
 void my_bt(int *list, int size)
 {
 	int i = 0;
@@ -46,7 +47,7 @@ void my_bt(int *list, int size)
 	}
 	printf("\n");
 }
-
+#endif
 char *__getBackTrace(char *pBackTrace, int backTraceLen)
 {
        void *stack_addr[stackNum];
