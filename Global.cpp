@@ -6,9 +6,9 @@
 #include "Global.h"
 #include "time_calc.h"
 #include "link_tool.h"
+extern const int maxBackTraceLen;
+extern char *__getBackTrace(char *pBackTrace, int backTraceLen);
 
-extern char *__getBackTrace();
-extern void __realaseBackTrace(char *backTrace);
 
 CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 {
@@ -154,9 +154,9 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 std::string& CBugKiller::getBackTrace(std::string &backTrace)
 {
 #ifdef WRAP
-	char *pBackTrace = __getBackTrace();
-	backTrace = pBackTrace;
-	__realaseBackTrace(pBackTrace);
+	char backtrace[maxBackTraceLen];
+	__getBackTrace(backtrace, sizeof(backtrace));
+	backTrace = backtrace;
 #endif
 	return backTrace;
 }
@@ -178,9 +178,9 @@ void CBugKiller::printfStackInfo(int line, char *file_name)
 {
 	std::string backTrace;
 #ifdef WRAP	
-	char *pBackTrace = __getBackTrace();
-	backTrace = pBackTrace;
-	__realaseBackTrace(pBackTrace);
+	char backtrace[maxBackTraceLen];
+	__getBackTrace(backtrace, sizeof(backtrace));
+	backTrace = backtrace;
 #endif
 	InsertTrace(line, file_name, backTrace.c_str());
 }

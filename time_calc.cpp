@@ -42,9 +42,10 @@
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
 
 CPthreadMutex g_insMutexCalc;
+extern const int maxBackTraceLen;
 extern "C" void* __real_malloc(size_t);
 extern "C" void __real_free(void* p);
-extern char *__getBackTrace();
+extern char *__getBackTrace(char *pBackTrace, int backTraceLen);
 extern void __realaseBackTrace(char *backTrace);
 
 void NextStep(const char *function, const char *fileName, int line)
@@ -624,9 +625,9 @@ void CTimeCalcManager::DispAll()
 
 	
 #ifdef WRAP	
-	char *pBackTrace = __getBackTrace();
-	printf("backTrace  %s\n", pBackTrace);
-	__realaseBackTrace(pBackTrace);
+	char backtrace[maxBackTraceLen];
+	__getBackTrace(backtrace, sizeof(backtrace));
+	printf("backTrace  %s\n", backtrace);
 #endif
 
 	printLog((char *)"%s", "#if 0");
