@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "time_calc.h"
-#include "link_tool.h"
+#include "mem_calc.h"
 const int stackNum = 24;
 const char *pTraceHead = "addr2line -e ./Challenge_Debug -f -C  ";
 int maxBackTraceLen = strlen(pTraceHead) + stackNum * 16;

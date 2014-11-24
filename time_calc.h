@@ -8,6 +8,7 @@
 #include <signal.h>
 #include <sys/timeb.h>
 #include <stdlib.h>
+#include "link_tool.h"
 
 
 void NextStep(const char *function, const char *fileName, int line);
@@ -25,60 +26,10 @@ typedef struct FuncTraceInfo_t
 } FuncTraceInfo_t;
 
 class CTimeCalcManager;
-class CPthreadMutex
-{
-public:
-	///\brief 构造函数，默认为互斥锁
-	CPthreadMutex()
-	{
-		m_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-		pthread_mutex_init(m_mutex, NULL);
-	}
-
-	///\brief 析构函数
-	~CPthreadMutex()
-	{
-		free(m_mutex);
-	}
-
-	///\brief 占用锁
-	bool Enter()
-	{
-		pthread_mutex_lock(m_mutex);
-		return true;
-	}
-
-	///\brief 释放锁
-	bool Leave()
-	{
-		pthread_mutex_unlock(m_mutex);
-		return true;
-	}
-
-private:
-	pthread_mutex_t  *m_mutex;
-};
 
 
 
-class CGuardMutex
-{
-public:
-	///\brief 构造函数
-	inline CGuardMutex(CPthreadMutex& mutex)
-		:m_mutex(mutex)
-	{
-		m_mutex.Enter();
-	};
 
-	///\brief 析构函数
-	inline ~CGuardMutex()
-	{
-		m_mutex.Leave();
-	};
-private:
-	CPthreadMutex &m_mutex;
-};
 
 
 
@@ -155,7 +106,7 @@ private:
 	static CTimeCalcManager *_instance;
 };
 
-#include "link_tool.h"
+
 typedef struct TimeCalcInf
 {
 	typedef enum

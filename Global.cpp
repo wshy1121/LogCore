@@ -4,8 +4,9 @@
 #include <string.h>
 
 #include "Global.h"
+#include "log_opr.h"
 #include "time_calc.h"
-#include "link_tool.h"
+#include "mem_calc.h"
 extern const int maxBackTraceLen;
 extern char *__getBackTrace(char *pBackTrace, int backTraceLen);
 
@@ -199,7 +200,8 @@ void CBugKiller::start()
 {
 	CalcMem::instance();	
 	ThreadQueue::instance();
-	CalcMemManager::instance();	
+	CalcMemManager::instance();
+	CLogOprManager::instance();
 	CTimeCalcInfManager::instance();
 	CTimeCalcManager::instance()->start();
 }

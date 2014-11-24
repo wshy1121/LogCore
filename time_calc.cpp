@@ -10,7 +10,7 @@
 #include <stdarg.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "link_tool.h"
+#include "mem_calc.h"
 #ifdef WRAP
 #include <execinfo.h>
 #endif
