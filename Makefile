@@ -18,6 +18,13 @@ else
 OPT_CFLAGS +=  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc -static
 endif
 
+
+ifeq ($(CROSS),arm-linux-gnueabihf-)
+OPT_CFLAGS += -L unwind/libs/arm -lunwind
+CFLAGS += -D__arm__ -DUNW_LOCAL_ONLY 
+endif
+
+
 CPP	=	@echo " g++ $@"; $(CROSS)g++
 CC	=	@echo " gcc $@"; $(CROSS)gcc
 LD	=	@echo " ld  $@"; $(CROSS)ld

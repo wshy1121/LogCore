@@ -11,7 +11,6 @@ extern const int maxBackTraceLen;
 extern char *__getBackTrace(char *pBackTrace, int backTraceLen);
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
-extern char *__getBackTrace();
 /******************************************************/
 void init_node(struct node *node)
 {

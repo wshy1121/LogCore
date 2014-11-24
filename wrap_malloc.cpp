@@ -4,6 +4,7 @@
 #include <sys/syscall.h>
 #include <execinfo.h>
 #include <string.h>
+#include "unwind/include/libunwind.h"
 #include "time_calc.h"
 #include "link_tool.h"
 const int stackNum = 24;
@@ -21,6 +22,30 @@ pid_t gettid()
 	return syscall(SYS_gettid);
 }
 
+
+void my_bt(int *list, int size)
+{
+	int i = 0;
+
+	unw_cursor_t    cursor;
+	unw_context_t   uc;
+	unw_proc_info_t pip;
+	unw_word_t      ip, sp;
+	unw_word_t      off;
+
+	unw_getcontext(&uc);
+	unw_init_local(&cursor, &uc);
+
+	while (unw_step(&cursor) > 0 && i < size) 
+	{	tracepoint1();
+		unw_get_reg(&cursor, UNW_REG_IP, &ip);
+
+		//list[i++] = (int)ip;
+		printf("%p  ", (void *)ip);
+
+	}
+	printf("\n");
+}
 
 char *__getBackTrace(char *pBackTrace, int backTraceLen)
 {
