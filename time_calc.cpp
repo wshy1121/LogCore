@@ -46,7 +46,6 @@ extern const int maxBackTraceLen;
 extern "C" void* __real_malloc(size_t);
 extern "C" void __real_free(void* p);
 extern char *__getBackTrace(char *pBackTrace, int backTraceLen);
-extern void __realaseBackTrace(char *backTrace);
 
 void NextStep(const char *function, const char *fileName, int line)
 {

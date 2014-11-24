@@ -10,7 +10,6 @@
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
 extern char *__getBackTrace();
-extern void __realaseBackTrace(char *backTrace);
 /******************************************************/
 void init_node(struct node *node)
 {
