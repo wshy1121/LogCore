@@ -154,6 +154,11 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 std::string& CBugKiller::getBackTrace(std::string &backTrace)
 {
 #ifdef WRAP
+	CGuardEnable guard(e_Mem);
+	if (guard.needReturn())
+	{
+		return backTrace;
+	}
 	char backtrace[maxBackTraceLen];
 	__getBackTrace(backtrace, sizeof(backtrace));
 	backTrace = backtrace;
@@ -178,9 +183,7 @@ void CBugKiller::printfStackInfo(int line, char *file_name)
 {
 	std::string backTrace;
 #ifdef WRAP	
-	char backtrace[maxBackTraceLen];
-	__getBackTrace(backtrace, sizeof(backtrace));
-	backTrace = backtrace;
+	getBackTrace(backTrace);
 #endif
 	InsertTrace(line, file_name, backTrace.c_str());
 }
