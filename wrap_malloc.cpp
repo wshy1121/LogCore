@@ -30,9 +30,10 @@ void my_bt(int *list, int size)
 
 	unw_cursor_t    cursor;
 	unw_context_t   uc;
-	unw_proc_info_t pip;
-	unw_word_t      ip, sp;
-	unw_word_t      off;
+	//unw_proc_info_t pip;
+	unw_word_t      ip;
+	//unw_word_t      sp;
+	//unw_word_t      off;
 
 	unw_getcontext(&uc);
 	unw_init_local(&cursor, &uc);

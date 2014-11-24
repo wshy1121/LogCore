@@ -325,7 +325,7 @@ void ThreadQueue::wrapMalloc(void* addr, size_t c)
 	char backtrace[maxBackTraceLen];
 	__getBackTrace(backtrace, sizeof(backtrace));
 
-	MEM_DATA *pMemData =  CalcMemManager::instance()->createMemData(strlen(backtrace));
+	MEM_DATA *pMemData =  CalcMem::instance()->createMemData(strlen(backtrace));
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 		
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapMalloc;
@@ -341,7 +341,7 @@ void ThreadQueue::wrapMalloc(void* addr, size_t c)
 void ThreadQueue::wrapFree(void* addr)
 {
 	threadQueueEnable(e_Mem);
-	MEM_DATA *pMemData =  CalcMemManager::instance()->createMemData();
+	MEM_DATA *pMemData =  CalcMem::instance()->createMemData();
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapFree;
@@ -351,25 +351,24 @@ void ThreadQueue::wrapFree(void* addr)
 	CalcMemManager::instance()->pushMemData(pMemData);
 	return ;
 }
-
-CalcMemManager *CalcMemManager::_instance = NULL;
-CalcMemManager::CalcMemManager()
-{
-	pthread_create(&m_threadId, NULL,threadFunc,NULL);
-}
-CalcMemManager *CalcMemManager::instance()
+CalcMem *CalcMem::_instance = NULL;
+CalcMem::CalcMem()
+{}
+CalcMem *CalcMem::instance()
 {
 	if (NULL == _instance)
 	{
 		CGuardMutex guardMutex(g_insMutexCalc);
 		if (NULL == _instance)
 		{
-			_instance = new CalcMemManager;
+			_instance = new CalcMem;
 		}
 	}
 	return _instance;
 }
-MEM_DATA *CalcMemManager::createMemData(int backTraceLen)
+
+
+MEM_DATA *CalcMem::createMemData(int backTraceLen)
 {
 	MEM_DATA *pMemData = (MEM_DATA *)__real_malloc(sizeof(MEM_DATA));
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
@@ -389,83 +388,14 @@ MEM_DATA *CalcMemManager::createMemData(int backTraceLen)
 	return pMemData;
 	
 }
-void CalcMemManager::destroyMemData(MEM_DATA *pMemData)
+void CalcMem::destroyMemData(MEM_DATA *pMemData)
 {
 	__real_free(pMemData->calcMemInf.m_backTrace);
 	__real_free(pMemData);
 }
-void CalcMemManager::threadProc()
-{	
-	while(1)
-	{
-
-		if(m_recvList.empty())
-		{
-			usleep(10 * 1000);
-			continue;
-		}
-		m_recvListMutex.Enter();
-		struct node *pNode =  m_recvList.begin();
-		MEM_DATA *pMemData = memDataContain(pNode);
-		m_recvList.pop_front();	
-		m_recvListMutex.Leave();
-		
-		dealRecvData(&pMemData->calcMemInf);
-		destroyMemData(pMemData);		
-	}
-}
-
-void* CalcMemManager::threadFunc(void *pArg)
-{
-	CalcMemManager::instance()->threadProc();
-	return NULL;
-}
-
-void CalcMemManager::dealRecvData(CalcMemInf *pCalcMemInf)
-{
-	threadQueueEnable(e_Mem);	
-
-	CalcMemInf::CalcMemOpr &opr = pCalcMemInf->m_opr;
-	int threadId = pCalcMemInf->m_threadId;
-	 
-	void *memAddr = pCalcMemInf->m_memAddr;
-	size_t memSize = pCalcMemInf->m_memSize;
-	char *pBackTrace = pCalcMemInf->m_backTrace;
-	
-	switch (opr)
-	{
-		case CalcMemInf::e_wrapMalloc:
-			{
-				wrapMalloc(memAddr, memSize, pBackTrace, threadId);
- 				break;
-			}
-		case CalcMemInf::e_wrapFree:
-			{
-				wrapFree(memAddr, threadId);
-				break;
-			}
-		default:
-			break;
-	}
-	return ;
-
-}
-
-void CalcMemManager::pushMemData(MEM_DATA *pMemData)
-{
-	if (pMemData == NULL)
-	{
-		return ;
-	}
-	
-	m_recvListMutex.Enter();
-	m_recvList.push_back(&pMemData->node);
-	m_recvListMutex.Leave();
-	return ;
-}
 
 
-void CalcMemManager::wrapMalloc(void* addr, size_t c, char *pBackTrace, pthread_t threadId)
+void CalcMem::wrapMalloc(void* addr, size_t c, char *pBackTrace, pthread_t threadId)
 {
 	if (strlen(pBackTrace) <= 0)
 	{
@@ -496,7 +426,7 @@ void CalcMemManager::wrapMalloc(void* addr, size_t c, char *pBackTrace, pthread_
 	
 }
 
-void CalcMemManager::wrapFree(void* addr, pthread_t threadId)
+void CalcMem::wrapFree(void* addr, pthread_t threadId)
 {
 
 	CGuardMutex guardMutex(m_mutex);
@@ -516,7 +446,7 @@ void CalcMemManager::wrapFree(void* addr, pthread_t threadId)
 	
 
 }
-void CalcMemManager::printfMemInfMap(pthread_t threadId)
+void CalcMem::printfMemInfMap(pthread_t threadId)
 {
 	std::string path;
 	CGuardMutex guardMutex(m_mutex);
@@ -538,7 +468,7 @@ void CalcMemManager::printfMemInfMap(pthread_t threadId)
 	return ;	
 }
 
-void CalcMemManager::dealMemInf(const char *mallocPath, int size, pthread_t threadId)
+void CalcMem::dealMemInf(const char *mallocPath, int size, pthread_t threadId)
 { 
 	MemInf *memInf = NULL;
 	MemInfMap::iterator memInfMapIter = m_MemInfMap.find(mallocPath);
@@ -578,12 +508,103 @@ void CalcMemManager::dealMemInf(const char *mallocPath, int size, pthread_t thre
 	return ;
 }
 
-std::string CalcMemManager::splitFilename (std::string &path)
+std::string CalcMem::splitFilename (std::string &path)
 {
 	size_t found;
 	found=path.find_last_of("/\\");
 	return path.substr(found+1);
 }
+
+
+CalcMemManager *CalcMemManager::_instance = NULL;
+CalcMemManager::CalcMemManager()
+{
+	pthread_create(&m_threadId, NULL,threadFunc,NULL);
+}
+CalcMemManager *CalcMemManager::instance()
+{
+	if (NULL == _instance)
+	{
+		CGuardMutex guardMutex(g_insMutexCalc);
+		if (NULL == _instance)
+		{
+			_instance = new CalcMemManager;
+		}
+	}
+	return _instance;
+}
+
+void CalcMemManager::threadProc()
+{	
+	while(1)
+	{
+
+		if(m_recvList.empty())
+		{
+			usleep(10 * 1000);
+			continue;
+		}
+		m_recvListMutex.Enter();
+		struct node *pNode =  m_recvList.begin();
+		MEM_DATA *pMemData = memDataContain(pNode);
+		m_recvList.pop_front();	
+		m_recvListMutex.Leave();
+		
+		dealRecvData(&pMemData->calcMemInf);
+		CalcMem::instance()->destroyMemData(pMemData);		
+	}
+}
+
+void* CalcMemManager::threadFunc(void *pArg)
+{
+	CalcMemManager::instance()->threadProc();
+	return NULL;
+}
+
+void CalcMemManager::dealRecvData(CalcMemInf *pCalcMemInf)
+{
+	threadQueueEnable(e_Mem);	
+
+	CalcMemInf::CalcMemOpr &opr = pCalcMemInf->m_opr;
+	int threadId = pCalcMemInf->m_threadId;
+	 
+	void *memAddr = pCalcMemInf->m_memAddr;
+	size_t memSize = pCalcMemInf->m_memSize;
+	char *pBackTrace = pCalcMemInf->m_backTrace;
+	
+	switch (opr)
+	{
+		case CalcMemInf::e_wrapMalloc:
+			{
+				CalcMem::instance()->wrapMalloc(memAddr, memSize, pBackTrace, threadId);
+ 				break;
+			}
+		case CalcMemInf::e_wrapFree:
+			{
+				CalcMem::instance()->wrapFree(memAddr, threadId);
+				break;
+			}
+		default:
+			break;
+	}
+	return ;
+
+}
+
+void CalcMemManager::pushMemData(MEM_DATA *pMemData)
+{
+	if (pMemData == NULL)
+	{
+		return ;
+	}
+	
+	m_recvListMutex.Enter();
+	m_recvList.push_back(&pMemData->node);
+	m_recvListMutex.Leave();
+	return ;
+}
+
+
 
 CList::CList()
 {

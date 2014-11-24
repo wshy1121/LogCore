@@ -376,7 +376,7 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 void CTimeCalcManager::printfMemInfMap(pthread_t threadId)
 {
 #ifdef WRAP
-	CalcMemManager::instance()->printfMemInfMap(threadId);
+	CalcMem::instance()->printfMemInfMap(threadId);
 #endif
 }
 void CTimeCalcManager::getStackInfo(std::string &stackInf)
@@ -717,7 +717,7 @@ FILE *CTimeCalcManager::openLog(const char *sLogName)
 }
 void CTimeCalcManager::printLog(char *sFmt, ...)
 {
-
+	return ;
 	va_list	ap;
 
 	FILE *fp = NULL;

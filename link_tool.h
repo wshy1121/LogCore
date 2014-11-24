@@ -149,15 +149,36 @@ typedef struct MEM_DATA
 }MEM_DATA;	
 #define memDataContain(ptr)  container_of(ptr, MEM_DATA, node)
 
-class  CalcMemManager
+class  CalcMem
 {
 public:
-	static CalcMemManager *instance();
+	static CalcMem *instance();
 	MEM_DATA *createMemData(int backTraceLen = 0);
 	void destroyMemData(MEM_DATA *pMemData);
 	void wrapMalloc(void* addr, size_t c, char *pBackTrace, pthread_t threadId);
 	void wrapFree(void* addr, pthread_t threadId);
 	void printfMemInfMap(pthread_t threadId);
+private:
+	CalcMem();
+private:
+	void dealMemInf(const char *mallocPath, int size, pthread_t threadId);
+	inline std::string splitFilename (std::string &path);
+private:
+	static CalcMem *_instance;
+	CPthreadMutex  m_mutex;
+
+	typedef std::map<void *, MemNodeInf *> MemNodeMap;
+	MemNodeMap m_memNodeMap;
+
+	typedef std::map<std::string, MemInf *> MemInfMap;
+	MemInfMap m_MemInfMap;
+};
+
+
+class  CalcMemManager
+{
+public:
+	static CalcMemManager *instance();
 	void pushMemData(MEM_DATA *pCalcInf);
 private:
 	CalcMemManager();
@@ -165,8 +186,6 @@ private:
 	static void* threadFunc(void *pArg);
 	void threadProc();
 	void dealRecvData(CalcMemInf *pCalcMemInf);
-	void dealMemInf(const char *mallocPath, int size, pthread_t threadId);
-	inline std::string splitFilename (std::string &path);
 private:
 	static CalcMemManager *_instance;
 	CList m_recvList;
