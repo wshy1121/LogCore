@@ -126,7 +126,34 @@ private:
 	pthread_t m_threadId;
 };
 
+class CGuardEnable
+{
+public:
+	///\brief 构造函数
+	CGuardEnable(E_ENABLE_TYPE type);
 
+	///\brief 析构函数
+	~CGuardEnable();
+
+	bool needReturn();
+private:
+	E_ENABLE_TYPE m_type;
+	ThreadNode *m_queueNode;
+	bool m_needReturn;
+};
+
+#ifdef WRAP
+//防止嵌套调用处理
+#define threadQueueEnable(type)  \
+	CGuardEnable guard(type);  \
+	if (guard.needReturn())  \
+	{  \
+		return ;  \
+	}
+
+#else
+#define threadQueueEnable(type)    
+#endif
 
 
 #endif

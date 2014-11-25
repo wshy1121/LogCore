@@ -1,4 +1,5 @@
 #include "log_opr.h"
+#include "mem_calc.h"
 #include <unistd.h>
 
 extern CPthreadMutex g_insMutexCalc;
