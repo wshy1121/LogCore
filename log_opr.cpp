@@ -34,11 +34,17 @@ void CLogOprManager::threadProc()
 	time_t diff = 0;
 	while(1)
 	{
-		diff =  time(NULL) - startTime;
-		if(m_fileDataLen == 0 && diff < 2)
+		if(m_fileDataLen == 0)
 		{
 			usleep(10 * 1000);
 			continue;
+		}
+		
+		diff =  time(NULL) - startTime;
+		if (diff < 3)
+		{
+			usleep(10 * 1000);
+			continue;			
 		}
 		startTime = time(NULL);
 		CGuardMutex guardMutex(m_logFileMutex);	
