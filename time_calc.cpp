@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "mem_calc.h"
+#include "log_opr.h"
 #ifdef WRAP
 #include <execinfo.h>
 #endif
@@ -717,7 +718,21 @@ FILE *CTimeCalcManager::openLog(const char *sLogName)
 }
 void CTimeCalcManager::printLog(char *sFmt, ...)
 {
+	tracepoint1();
+	va_list ap;
+	CLogOprManager::instance()->pushLogData(sFmt, ap);
+	va_end(ap);
+	
+	tracepoint1();
+	char time_tmp[128];
+	strcpy(time_tmp, "creat by huang_yuan@dahuatech.com1");
+	time_tmp[strlen(time_tmp)-1] = '\0';
+	CLogOprManager::instance()->pushLogData((char *)"//thread id:%16d   %s\n\n", (int)pthread_self(), time_tmp);
+	CLogOprManager::instance()->pushLogData((char *)"\n");
+
 	return ;
+
+#if 0
 	va_list	ap;
 
 	FILE *fp = NULL;
@@ -751,6 +766,7 @@ void CTimeCalcManager::printLog(char *sFmt, ...)
 
 	/* close file */
 	fclose (fp);
+#endif
 
 
 	return ;

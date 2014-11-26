@@ -1,12 +1,18 @@
 #include "log_opr.h"
 #include "mem_calc.h"
+#include "time_calc.h"
 #include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
+#include <time.h>
 
 extern CPthreadMutex g_insMutexCalc;
 
 CLogOprManager *CLogOprManager::_instance = NULL;
-CLogOprManager::CLogOprManager()
+CLogOprManager::CLogOprManager() : m_maxFileDataLen(1024 *1024), m_logName("./Debug.cpp"), m_fileDataLen(0)
 {
+	m_fileData = (char *)malloc(m_maxFileDataLen + 16);
 	pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
 CLogOprManager *CLogOprManager::instance()
@@ -24,22 +30,19 @@ CLogOprManager *CLogOprManager::instance()
 
 void CLogOprManager::threadProc()
 {	
+	time_t startTime = time(NULL);
+	time_t diff = 0;
 	while(1)
 	{
-
-		if(m_recvList.empty())
+		diff =  time(NULL) - startTime;
+		if(m_fileDataLen == 0 && diff < 2)
 		{
 			usleep(10 * 1000);
 			continue;
 		}
-		m_recvListMutex.Enter();
-		struct node *pNode =  m_recvList.begin();
-		LOG_DATA *pLogData = logDataContain(pNode);
-		m_recvList.pop_front();	
-		m_recvListMutex.Leave();
-		
-		dealRecvData(&pLogData->logDataInf);
-		//CalcMem::instance()->destroyMemData(pMemData);		
+		startTime = time(NULL);
+		writeToFile();
+		//dealRecvData(&pLogData->logDataInf);
 	}
 }
 
@@ -71,18 +74,35 @@ void CLogOprManager::dealRecvData(LogDataInf *pLogDataInf)
 
 }
 
-void CLogOprManager::pushMemData(LOG_DATA *pMemData)
+void CLogOprManager::pushLogData(char *sFmt, ...)
 {
-	if (pMemData == NULL)
-	{
-		return ;
-	}
-	
-	m_recvListMutex.Enter();
-	m_recvList.push_back(&pMemData->node);
-	m_recvListMutex.Leave();
+	//return ;
+	va_list ap;
+
+	CGuardMutex guardMutex(m_logFileMutex);
+
+	//va_start(ap, sFmt);	
+	vsnprintf(m_fileData + m_fileDataLen, m_maxFileDataLen - m_fileDataLen, sFmt, ap);
+	//va_end(ap);
+	printf("m_fileData  %s\n", m_fileData);
+	m_fileDataLen += strlen(m_fileData + m_fileDataLen);
+	//printf("m_fileDataLen  %d\n", m_fileDataLen);
 	return ;
 }
 
 
+void CLogOprManager::writeToFile()
+{
+	FILE *fp = NULL;
+	CGuardMutex guardMutex(m_logFileMutex);
+	fp = fopen (m_logName, "a+");
+	if (fp == NULL)
+	{
+		return ;
+	}
+	fprintf(fp, "%s", m_fileData);
+	fclose (fp);
+	m_fileDataLen = 0;
+	return ;
+}
 

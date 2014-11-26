@@ -28,18 +28,22 @@ class  CLogOprManager
 {
 public:
 	static CLogOprManager *instance();
-	void pushMemData(LOG_DATA *pCalcInf);
+	void pushLogData(char *sFmt, ...);
 private:
 	CLogOprManager();
 private:
 	static void* threadFunc(void *pArg);
 	void threadProc();
 	void dealRecvData(LogDataInf *pCalcMemInf);
+	void writeToFile();
 private:
 	static CLogOprManager *_instance;
-	CList m_recvList;
-	CPthreadMutex m_recvListMutex;
+	CPthreadMutex m_logFileMutex;
 	pthread_t m_threadId;
+	const int m_maxFileDataLen;
+	const char *m_logName;
+	char *m_fileData;
+	int m_fileDataLen;
 };
 
 #endif

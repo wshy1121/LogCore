@@ -80,8 +80,14 @@ void* printfMallocMap(void *pArg)
 }
 int main()
 {
-	time_start();
+	//time_start();
+	{
+		time_trace();
+	}
 
+	usleep(2*1000*1000);
+
+	return 0;
 	pthread_t printfThreadId;
 	pthread_create(&printfThreadId, NULL,printfMallocMap,NULL);
 
