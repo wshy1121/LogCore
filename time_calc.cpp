@@ -423,7 +423,9 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, pthread_t threadId
 	}  
 	else
 	{
-		CTimeCalcManager::instance()->printLog((char *)"trace:/*%s  %d  %s*/", content, line, file_name);
+		char logStr[512];
+		snprintf(logStr, sizeof(logStr), "trace:/*%s  %d  %s*/", content, line, file_name);
+		CTimeCalcManager::instance()->printStrLog(logStr);
 	}
 
 
