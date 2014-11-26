@@ -41,6 +41,7 @@ void CLogOprManager::threadProc()
 			continue;
 		}
 		startTime = time(NULL);
+		CGuardMutex guardMutex(m_logFileMutex);	
 		writeToFile();
 		//dealRecvData(&pLogData->logDataInf);
 	}
@@ -57,14 +58,11 @@ void CLogOprManager::dealRecvData(LogDataInf *pLogDataInf)
 	threadQueueEnable(e_Mem);	
 
 	LogDataInf::LogDataOpr &opr = pLogDataInf->m_opr;
-	//int threadId = pLogDataInf->m_threadId;
-	 
 	
 	switch (opr)
 	{
 		case LogDataInf::e_writeFile:
 			{
-				//CalcMem::instance()->wrapMalloc(memAddr, memSize, pBackTrace, threadId);
  				break;
 			}
 		default:
@@ -77,8 +75,13 @@ void CLogOprManager::dealRecvData(LogDataInf *pLogDataInf)
 void CLogOprManager::pushLogData(const char *logStr)
 {
 	CGuardMutex guardMutex(m_logFileMutex);
-	strcat(m_fileData, logStr);
-	m_fileDataLen += strlen(m_fileData + m_fileDataLen);
+	int logStrLen = strlen(logStr);
+	if ((logStrLen + m_fileDataLen) >= m_maxFileDataLen)
+	{
+		writeToFile();
+	}
+	snprintf(m_fileData + m_fileDataLen, m_maxFileDataLen - m_fileDataLen, "%s", logStr);
+	m_fileDataLen += logStrLen;
 	return ;
 }
 
@@ -86,7 +89,6 @@ void CLogOprManager::pushLogData(const char *logStr)
 void CLogOprManager::writeToFile()
 {
 	FILE *fp = NULL;
-	CGuardMutex guardMutex(m_logFileMutex);
 	fp = fopen (m_logName, "a+");
 	if (fp == NULL)
 	{
