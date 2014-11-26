@@ -85,6 +85,7 @@ public:
 	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo, pthread_t threadId);
 	FuncTraceInfo_t *GetTraceInf(pthread_t threadId);
 	void printLog(char *sFmt, ...);
+	void printStrLog(const char *logStr);
 private:	
 	void getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf);
 	void InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr);

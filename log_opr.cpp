@@ -74,19 +74,11 @@ void CLogOprManager::dealRecvData(LogDataInf *pLogDataInf)
 
 }
 
-void CLogOprManager::pushLogData(char *sFmt, ...)
+void CLogOprManager::pushLogData(const char *logStr)
 {
-	//return ;
-	va_list ap;
-
 	CGuardMutex guardMutex(m_logFileMutex);
-
-	//va_start(ap, sFmt);	
-	vsnprintf(m_fileData + m_fileDataLen, m_maxFileDataLen - m_fileDataLen, sFmt, ap);
-	//va_end(ap);
-	printf("m_fileData  %s\n", m_fileData);
+	strcat(m_fileData, logStr);
 	m_fileDataLen += strlen(m_fileData + m_fileDataLen);
-	//printf("m_fileDataLen  %d\n", m_fileDataLen);
 	return ;
 }
 

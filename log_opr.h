@@ -28,7 +28,7 @@ class  CLogOprManager
 {
 public:
 	static CLogOprManager *instance();
-	void pushLogData(char *sFmt, ...);
+	void pushLogData(const char *logStr);
 private:
 	CLogOprManager();
 private:

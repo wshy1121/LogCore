@@ -209,7 +209,7 @@ void CTimeCalc::DealFuncExit()
 		//-------------------
 		if (TraceInfo->deep < 1)
 		{
-			CTimeCalcManager::instance()->printLog((char *)"%s","//ERRERRERRERRERRERRERRERR");
+			CTimeCalcManager::instance()->printStrLog("//ERRERRERRERRERRERRERRERR");
 			return;
 		}
 	
@@ -219,14 +219,14 @@ void CTimeCalc::DealFuncExit()
 
 		if (TraceInfo->deep == 0)
 		{
-			CTimeCalcManager::instance()->printLog((char *)"%s", TraceInfo->up_string.c_str());
+			CTimeCalcManager::instance()->printStrLog(TraceInfo->up_string.c_str());
 			CTimeCalcManager::instance()->DestroyTraceInf(TraceInfo, m_threadId);
 		}
 
 	}
 	else
 	{
-		CTimeCalcManager::instance()->printLog((char *)"%s","//ERRERRERRERRERRERRERRERR");
+		CTimeCalcManager::instance()->printStrLog("//ERRERRERRERRERRERRERRERR");
 		return;
 	}
 
@@ -630,16 +630,16 @@ void CTimeCalcManager::DispAll()
 	printf("backTrace  %s\n", backtrace);
 #endif
 
-	printLog((char *)"%s", "#if 0");
+	printStrLog("#if 0");
        for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)
 	{
 		TraceInfo = it->second;
 		if (TraceInfo)
 		{
-			printLog((char *)"%s", TraceInfo->up_string.c_str());
+			printStrLog(TraceInfo->up_string.c_str());
 		}
 	}
-	printLog((char *)"%s", "#endif");
+	printStrLog("#endif");
 
 	return ;
 }
@@ -657,7 +657,7 @@ void CTimeCalcManager::DispTraces(int signo)
 	{
 		TraceInfo = it->second;
 		
-		printLog((char *)"%s", TraceInfo->up_string.c_str());
+		printStrLog(TraceInfo->up_string.c_str());
 	}
 	if ((signo == SIGSEGV) || (signo == SIGINT) )
 	{
@@ -718,58 +718,21 @@ FILE *CTimeCalcManager::openLog(const char *sLogName)
 }
 void CTimeCalcManager::printLog(char *sFmt, ...)
 {
-	tracepoint1();
+	char logStr[512];
 	va_list ap;
-	CLogOprManager::instance()->pushLogData(sFmt, ap);
+	vsnprintf(logStr, sizeof(logStr), sFmt, ap);
 	va_end(ap);
+	CLogOprManager::instance()->pushLogData(logStr);
 	
-	tracepoint1();
-	char time_tmp[128];
-	strcpy(time_tmp, "creat by huang_yuan@dahuatech.com1");
-	time_tmp[strlen(time_tmp)-1] = '\0';
-	CLogOprManager::instance()->pushLogData((char *)"//thread id:%16d   %s\n\n", (int)pthread_self(), time_tmp);
-	CLogOprManager::instance()->pushLogData((char *)"\n");
+	snprintf(logStr, sizeof(logStr), "//thread id:%16d  creat by huang_yuan@dahuatech.com\n\n", (int)pthread_self());
+	CLogOprManager::instance()->pushLogData(logStr);
 
 	return ;
+}
 
-#if 0
-	va_list	ap;
-
-	FILE *fp = NULL;
-
-	/* open log file */ 
-
-	CGuardMutex guardMutex(m_logFileMutex);
-	fp = openLog (m_logName);
-	if (fp == NULL)
-		return ;
-
-	/* save log msg in file */
-
-
-	va_start(ap, sFmt);
-	vfprintf(fp, sFmt, ap);
-	va_end(ap);
-
-	//time_t timep;
-	//time(&timep);
-	
-	char time_tmp[128];
-	strcpy(time_tmp, "creat by huang_yuan@dahuatech.com1");
-	time_tmp[strlen(time_tmp)-1] = '\0';
-	
-	fprintf(fp, "//thread id:%16d   %s\n\n", (int)pthread_self(), time_tmp);
-
-
-	fprintf(fp, "\n");
-	fflush(fp);
-
-	/* close file */
-	fclose (fp);
-#endif
-
-
-	return ;
+void CTimeCalcManager::printStrLog(const char *logStr)
+{
+	CLogOprManager::instance()->pushLogData(logStr);
 }
 
 
