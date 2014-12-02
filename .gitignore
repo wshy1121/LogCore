@@ -22,3 +22,4 @@
 *.bak
 
 
+/backtrace/m64-gnueabihf-linux
