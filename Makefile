@@ -20,7 +20,7 @@ endif
 
 
 ifeq ($(CROSS),arm-linux-gnueabihf-)
-OPT_CFLAGS += -L unwind/libs/arm -lunwind
+OPT_CFLAGS +=  -L backtrace -lbacktrace -lunwind
 CFLAGS += -D__arm__ -DUNW_LOCAL_ONLY 
 endif
 
