@@ -8,6 +8,7 @@ extern "C" void *__real_realloc(void* c, int size);
 extern "C" void* __real_calloc(size_t);
 
 CMemCheck *CMemCheck::_instance = NULL;
+void *CMemCheck::m_checkValue = (void *)&CMemCheck::instance;
 
 CMemCheck *CMemCheck::instance()
 {
@@ -51,4 +52,36 @@ void CMemCheck::free(void*p)
 	p = (void *)((char *)p - sizeof(void *) * 2);
 	__real_free(p);
 }
+
+void CMemCheck::initMem(void *addr, int addrLen, std::string &backTrace)
+{
+	addr = (void *)((char *)addr - sizeof(void *) * 2);
+	printf("initMem  addr  %p\n", addr);
+	void *beginAddr = (void *)addr;
+	void *argAddr = (void *)((char *)addr + sizeof(void *));
+	void *endAddr = (void *)((char *)addr + sizeof(void *) * 2 + addrLen);
+	
+	beginAddr = NULL;
+	argAddr = m_checkValue;
+	endAddr = m_checkValue;
+}
+
+void CMemCheck::checkMem(void *addr, const char *errInfo)
+{	
+	addr = (void *)((char *)addr - sizeof(void *) * 2);
+
+	printf("checkMem  addr  %p\n", addr);
+	
+	void *beginAddr = (void *)addr;
+	void *argAddr = (void *)((char *)addr + sizeof(void *));
+	void *endAddr = (void *)((char *)addr + sizeof(void *) * 2 + 123);
+
+	if (beginAddr != NULL)
+	{
+		printf("checkMem  Err  errInfo  %s  %p\n", errInfo, beginAddr);
+	}
+	return ;
+}
+
+
 
