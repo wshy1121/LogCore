@@ -16,6 +16,7 @@ class CBugKiller
 {
 public:
 	static void InsertTrace(int line, char *file_name, const char* fmt, ...);
+	static void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
 	static void DispAll();
 	static void InsertTag(int line, char *file_name, const char* fmt, ...);
 	static void InsertStrOnly(pthread_t threadId, const char* fmt, ...);
@@ -34,6 +35,7 @@ private:
 #define time_printf(format, ...)    CBugKiller::InsertTrace(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
 #define time_all()    CBugKiller::DispAll()
 #define time_tag(format, ...)  CBugKiller::InsertTag(__LINE__, (char *)__FILE__, format, ## __VA_ARGS__)
+#define time_str(str, len)    CBugKiller::InsertHex(__LINE__, (char *)__FILE__, str, len)
 #define time_mem()   CBugKiller::printfMemInfMap()
 #define time_stack()	CBugKiller::printfStackInfo(__LINE__, (char *)__FILE__)
 #define time_start()    CBugKiller::start()

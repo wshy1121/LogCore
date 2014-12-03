@@ -119,6 +119,7 @@ typedef struct TimeCalcInf
 		e_InsertStrOnly, 
 		e_dispAll, 
 		e_insertTag, 
+		e_insertHex, 
 		e_getBackTrace, 
 		e_printfMemInfMap, 
 		e_printfStackInfo, 
@@ -131,6 +132,7 @@ typedef struct TimeCalcInf
 	char * m_funcName;
 	int m_displayLevel;
 	char *m_pContent;
+	int m_contentLen;
 }TimeCalcInf;
 
 typedef struct RECV_DATA

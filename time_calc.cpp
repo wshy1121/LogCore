@@ -502,8 +502,6 @@ void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 
 void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 {
-	threadQueueEnable(e_Mem);
-
 	char time_tmp[128];
 	strcpy(time_tmp, "wshy");
 
@@ -587,7 +585,7 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 	}  
 	else
 	{
-		printLog((char *)"trace:/*%s*/", str);
+		printStrLog(str);
 	}
 	return ;
 
@@ -793,6 +791,7 @@ RECV_DATA *CTimeCalcInfManager::createRecvData(int contentLen)
 	RECV_DATA *pRecvData = (RECV_DATA *)calcMalloc(sizeof(RECV_DATA));
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 	pCalcInf->m_pContent = (char *)calcMalloc(contentLen);
+	pCalcInf->m_contentLen = contentLen;
 	
 	pCalcInf->m_opr = TimeCalcInf::e_none;
 	pCalcInf->m_threadId = -1;
@@ -847,6 +846,7 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 	char *func_name = pCalcInf->m_funcName;
 	int display_level = pCalcInf->m_displayLevel;
 	const char *content = pCalcInf->m_pContent;
+	int contentLen = pCalcInf->m_contentLen;
 
 	switch (opr)
 	{
@@ -897,6 +897,11 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 		case TimeCalcInf::e_printfMemInfMap:
 			{
 				CTimeCalcManager::instance()->printfMemInfMap(threadId);
+				break;
+			}
+		case TimeCalcInf::e_insertHex:
+			{
+				CTimeCalcManager::instance()->InsertHex(line, file_name, (char *)content, contentLen);
 				break;
 			}
 		default:

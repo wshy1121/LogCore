@@ -40,12 +40,6 @@ CCandy::~CCandy()
 	return ;
 }
 
-
-
-
-
-
-
 void CBugKiller::InsertTrace(int line, char *file_name, const char* fmt, ...)
 {
 
@@ -64,6 +58,21 @@ void CBugKiller::InsertTrace(int line, char *file_name, const char* fmt, ...)
 	pCalcInf->m_line = line;
 	pCalcInf->m_fileName = file_name;
 	strcpy(pCalcInf->m_pContent, content);
+
+	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
+	return ;
+}
+
+void CBugKiller::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
+{
+	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData(nBufLen);
+	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
+
+	pCalcInf->m_opr = TimeCalcInf::e_insertHex;
+	pCalcInf->m_threadId = pthread_self();
+	pCalcInf->m_line = line;
+	pCalcInf->m_fileName = file_name;
+	memcpy(pCalcInf->m_pContent, psBuf, nBufLen);
 
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 	return ;

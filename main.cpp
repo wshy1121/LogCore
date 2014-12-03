@@ -11,6 +11,7 @@ void fun1()
 {	time_trace();
 	time_printf("NULL");
 	time_stack();
+	time_str("1234", 4);
 	char *tmp = new char[32];
 
 	strcpy(tmp, "1234567789");
