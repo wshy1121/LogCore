@@ -585,7 +585,7 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 	}  
 	else
 	{
-		printStrLog(str);
+		printLog((char *)"trace:/*%s*/", str);
 	}
 	return ;
 
