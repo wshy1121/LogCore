@@ -291,7 +291,7 @@ void ThreadQueue::wrapMalloc(void* addr, size_t c)
 	threadQueueEnable(e_Mem);
 	std::string backtrace;
 	CalcMem::instance()->getBackTrace(backtrace);
-	CMemCheck::instance()->initMem(addr, c, backtrace);
+	CMemCheck::instance()->addMemInfo(addr, c, backtrace);
 	
 	MEM_DATA *pMemData =  CalcMem::instance()->createMemData(backtrace.size());
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
@@ -309,7 +309,6 @@ void ThreadQueue::wrapMalloc(void* addr, size_t c)
 void ThreadQueue::wrapFree(void* addr)
 {
 	threadQueueEnable(e_Mem);
-	CMemCheck::instance()->checkMem(addr, "1234");
 	MEM_DATA *pMemData =  CalcMem::instance()->createMemData();
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 

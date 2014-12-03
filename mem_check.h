@@ -13,9 +13,11 @@ public:
 	static void* realloc(void *p, size_t c);
 	static void* calloc(size_t c);
 	static void free(void*p);
-	static void checkMem(void *addr, const char *errInfo);
 public:
-	void initMem(void *addr, int addrLen, std::string &backTrace);
+	void addMemInfo(void *addr, int addrLen, std::string &backTrace);
+private:
+	static void initMem(void *addr, int addrLen);
+	static void exitMem(void *addr, const char *errInfo);
 private:
 	CMemCheck(){}	
 private:
