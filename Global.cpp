@@ -149,8 +149,6 @@ std::string& CBugKiller::getBackTrace(std::string &backTrace)
 }
 void CBugKiller::printfMemInfMap()
 {
-	CCandy candy(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, 0);
-
 	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData();
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
@@ -158,7 +156,6 @@ void CBugKiller::printfMemInfMap()
 	pCalcInf->m_threadId = pthread_self();
 
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
-	//CTimeCalcManager::instance()->printfMemInfMap();
 }
 
 void CBugKiller::printfStackInfo(int line, char *file_name)

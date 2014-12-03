@@ -20,8 +20,8 @@ endif
 
 
 ifeq ($(CROSS),arm-linux-gnueabihf-)
-OPT_CFLAGS += -L backtrace/m64-gnueabihf-linux -lunwind -lbacktrace 
-CFLAGS += -D__arm__ -DUNW_LOCAL_ONLY 
+#OPT_CFLAGS += -L backtrace/m64-gnueabihf-linux -lunwind -lbacktrace 
+#CFLAGS += -D__arm__ -DUNW_LOCAL_ONLY 
 endif
 
 

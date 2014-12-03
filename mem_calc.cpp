@@ -418,6 +418,9 @@ void CalcMem::wrapFree(void* addr, pthread_t threadId)
 }
 void CalcMem::printfMemInfMap(pthread_t threadId)
 {
+	threadId = pthread_self();
+	CCandy candy(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, 0);
+
 	std::string path;
 	CGuardMutex guardMutex(m_mutex);
 	for (MemInfMap::iterator iter = m_MemInfMap.begin(); iter != m_MemInfMap.end(); ++iter)
