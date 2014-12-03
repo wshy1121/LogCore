@@ -7,9 +7,6 @@
 
 #include "time_calc.h"
 #include "mem_calc.h"
-const int stackNum = 24;
-const char *pTraceHead = "addr2line -e ./Challenge_Debug -f -C  ";
-int maxBackTraceLen = strlen(pTraceHead) + stackNum * 16;
 static ThreadQueue threadQueue;
 extern "C" void* __real_malloc(size_t);
 extern "C" void *__real_realloc(void* c, int size);
@@ -17,32 +14,7 @@ extern "C" void* __real_calloc(size_t);
 extern "C" void __real_free(void* p);
 
 
-char *__getBackTrace(char *pBackTrace, int backTraceLen)
-{
-	strcpy(pBackTrace, "123");
-	return pBackTrace;
-	
-       void *stack_addr[stackNum];
-       int layer;
-       int i;
-	char tmp[256];
-	strcpy(pBackTrace, "");
-	if (backTraceLen < maxBackTraceLen)
-	{
-		pBackTrace[0] = '\0';
-		return NULL;
-	}
-	
-	strcpy(pBackTrace, pTraceHead);
-	
-	layer = backtrace(stack_addr, stackNum);
-	for(i = 3; i < layer; i++)
-	{
-		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
-		strcat(pBackTrace, tmp);
-	}
-	return pBackTrace;
-}
+
 
 extern "C" void *__wrap_malloc(size_t c)
 {

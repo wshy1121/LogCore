@@ -6,8 +6,6 @@
 #include <assert.h>
 #include <unistd.h>
 extern CPthreadMutex g_insMutexCalc;
-extern const int maxBackTraceLen;
-extern char *__getBackTrace(char *pBackTrace, int backTraceLen);
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
 /******************************************************/
@@ -289,17 +287,17 @@ ThreadNode *ThreadQueue::getQueueNode(pthread_t thread_id)
 void ThreadQueue::wrapMalloc(void* addr, size_t c)
 {
 	threadQueueEnable(e_Mem);
-	char backtrace[maxBackTraceLen];
-	__getBackTrace(backtrace, sizeof(backtrace));
+	std::string backtrace;
+	CalcMem::instance()->getBackTrace(backtrace);
 
-	MEM_DATA *pMemData =  CalcMem::instance()->createMemData(strlen(backtrace));
+	MEM_DATA *pMemData =  CalcMem::instance()->createMemData(backtrace.size());
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 		
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapMalloc;
 	pCalcMemInf->m_threadId = pthread_self();
 	pCalcMemInf->m_memAddr = addr;
 	pCalcMemInf->m_memSize= c;
-	strcpy(pCalcMemInf->m_backTrace, backtrace);
+	strcpy(pCalcMemInf->m_backTrace, backtrace.c_str());
 
 	CalcMemManager::instance()->pushMemData(pMemData);
 	return ;

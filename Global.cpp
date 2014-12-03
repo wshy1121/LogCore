@@ -7,8 +7,6 @@
 #include "log_opr.h"
 #include "time_calc.h"
 #include "mem_calc.h"
-extern const int maxBackTraceLen;
-extern char *__getBackTrace(char *pBackTrace, int backTraceLen);
 
 
 CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
@@ -134,9 +132,8 @@ std::string& CBugKiller::getBackTrace(std::string &backTrace)
 	{
 		return backTrace;
 	}
-	char backtrace[maxBackTraceLen];
-	__getBackTrace(backtrace, sizeof(backtrace));
-	backTrace = backtrace;
+
+	CalcMem::instance()->getBackTrace(backTrace);
 #endif
 	return backTrace;
 }
