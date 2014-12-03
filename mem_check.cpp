@@ -90,7 +90,7 @@ void CMemCheck::exitMem(void *addr, const char *errInfo)
 	__real_free(pNodeInf);	
 	if (*beginAddr != m_checkValue || *endAddr != m_checkValue)
 	{
-		//printf("checkMem  Err  errInfo  %s  %p\n", errInfo, beginAddr);
+		printf("checkMem  Err  errInfo  %s  %p\n", errInfo, beginAddr);
 	}
 	return ;
 }
