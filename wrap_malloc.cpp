@@ -7,6 +7,7 @@
 
 #include "time_calc.h"
 #include "mem_calc.h"
+#include "mem_check.h"
 
 extern "C" void *__wrap_malloc(size_t c)
 {

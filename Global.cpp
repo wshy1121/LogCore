@@ -7,6 +7,7 @@
 #include "log_opr.h"
 #include "time_calc.h"
 #include "mem_calc.h"
+#include "mem_check.h"
 
 
 CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
