@@ -7,28 +7,21 @@
 
 #include "time_calc.h"
 #include "mem_calc.h"
-extern "C" void* __real_malloc(size_t);
-extern "C" void *__real_realloc(void* c, int size);
-extern "C" void* __real_calloc(size_t);
-extern "C" void __real_free(void* p);
-
-
-
 
 extern "C" void *__wrap_malloc(size_t c)
 {
-	void* p = __real_malloc(c);
+	void* p = CMemCheck::malloc(c);
 
 	if (p && ThreadQueue::getEnable())
 	{
 		ThreadQueue::instance()->wrapMalloc(p, c);
 	}
 
-	return p; 
+	return p;
 }
 extern "C" void* __wrap_realloc(void *p, size_t c)
 {
-	p = __real_realloc(p, c);
+	p = CMemCheck::realloc(p, c);
 	if (p && ThreadQueue::getEnable())
 	{
 		ThreadQueue::instance()->wrapMalloc(p, c);
@@ -38,7 +31,7 @@ extern "C" void* __wrap_realloc(void *p, size_t c)
 }
 extern "C" void* __wrap_calloc(size_t c)
 {
-	void *p = __real_calloc(c); 
+	void *p = CMemCheck::calloc(c); 
 	if (p && ThreadQueue::getEnable())
 	{
 		ThreadQueue::instance()->wrapMalloc(p, c);
@@ -51,7 +44,7 @@ extern "C" void __wrap_free(void*p)
 	{
 		ThreadQueue::instance()->wrapFree(p);
 	}
-	__real_free(p);
+	CMemCheck::free(p);
 
 }
 
