@@ -718,6 +718,7 @@ void CTimeCalcManager::printLog(char *sFmt, ...)
 {
 	char logStr[512];
 	va_list ap;
+	va_start(ap,sFmt);
 	vsnprintf(logStr, sizeof(logStr), sFmt, ap);
 	va_end(ap);
 	CLogOprManager::instance()->pushLogData(logStr);
