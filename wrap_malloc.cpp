@@ -7,7 +7,6 @@
 
 #include "time_calc.h"
 #include "mem_calc.h"
-static ThreadQueue threadQueue;
 extern "C" void* __real_malloc(size_t);
 extern "C" void *__real_realloc(void* c, int size);
 extern "C" void* __real_calloc(size_t);
