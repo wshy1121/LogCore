@@ -91,6 +91,7 @@ public:
 	void wrapMalloc(void* addr, size_t c, char *pBackTrace, pthread_t threadId);
 	void wrapFree(void* addr, pthread_t threadId);
 	void printfMemInfMap(pthread_t threadId);
+	std::string &getBackTrace(std::string &backTrace);
 private:
 	CalcMem();
 private:
@@ -105,6 +106,8 @@ private:
 
 	typedef std::map<std::string, MemInf *> MemInfMap;
 	MemInfMap m_MemInfMap;
+	const int m_stackNum;
+	const char *m_traceHead;
 };
 
 

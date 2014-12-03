@@ -319,8 +319,10 @@ void ThreadQueue::wrapFree(void* addr)
 	return ;
 }
 CalcMem *CalcMem::_instance = NULL;
-CalcMem::CalcMem()
-{}
+CalcMem::CalcMem() : 	m_stackNum(32)					
+{
+	m_traceHead = "addr2line -e ./Challenge_Debug -f -C  ";
+}
 CalcMem *CalcMem::instance()
 {
 	if (NULL == _instance)
@@ -480,6 +482,25 @@ std::string CalcMem::splitFilename (std::string &path)
 	size_t found;
 	found=path.find_last_of("/\\");
 	return path.substr(found+1);
+}
+
+std::string &CalcMem::getBackTrace(std::string &backTrace)
+{
+       void *stack_addr[m_stackNum];
+       int layer;
+       int i;
+	char tmp[256];
+	backTrace = m_traceHead;
+
+	m_mutex.Enter();
+	layer = backtrace(stack_addr, m_stackNum);
+	m_mutex.Leave();
+	for(i = 3; i < layer; i++)
+	{
+		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
+		backTrace += tmp;
+	}
+	return backTrace;
 }
 
 
