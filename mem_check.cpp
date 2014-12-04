@@ -83,15 +83,20 @@ void CMemCheck::exitMem(void *addr, const char *errInfo)
 	void **beginAddr = (void **)addr;
 	void **endAddr = (void **)((char *)addr + sizeof(void *) * 2 + pNodeInf->memSize);
 
+	if (*beginAddr != m_checkValue || *endAddr != m_checkValue)
+	{
+		printf("checkMem  Err  errInfo  %s  (%p || %p)  != %p\n", errInfo, *beginAddr, *endAddr, m_checkValue);
+		if (pNodeInf->path)
+		{
+			printf("mem path  %s\n", pNodeInf->path);
+		}
+	}
+
 	if (pNodeInf->path)
 	{
 		__real_free(pNodeInf->path);	
 	}
-	__real_free(pNodeInf);	
-	if (*beginAddr != m_checkValue || *endAddr != m_checkValue)
-	{
-		printf("checkMem  Err  errInfo  %s  %p\n", errInfo, beginAddr);
-	}
+	__real_free(pNodeInf);		
 	return ;
 }
 
@@ -104,7 +109,7 @@ void CMemCheck::addMemInfo(void *addr, int addrLen, std::string &backTrace)
 
 	if (addrLen != (int)pNodeInf->memSize)
 	{
-		printf("addMemInfo  failed  addrLen != memSize  %d  %d\n", addrLen, pNodeInf->memSize);
+		printf("addMemInfo  failed  addrLen != memSize  %d  %d\n", addrLen, (int)pNodeInf->memSize);
 	}
 	pNodeInf->path = (char *)__real_malloc(backTrace.size() + 1);
 	strcpy(pNodeInf->path, backTrace.c_str());
