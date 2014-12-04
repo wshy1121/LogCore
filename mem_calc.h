@@ -42,13 +42,6 @@ private:
 	int node_num;
 	CPthreadMutex  m_mutex;
 };
-typedef struct MemNodeInf
-{
-	void *addr;
-	std::string path;
-	size_t memSize;
-	//char memTest[16*1024];
-}MemNodeInf;
 
 typedef struct MemInf
 {
@@ -89,7 +82,7 @@ public:
 	MEM_DATA *createMemData(int backTraceLen = 0);
 	void destroyMemData(MEM_DATA *pMemData);
 	void wrapMalloc(void* addr, size_t c, char *pBackTrace, pthread_t threadId);
-	void wrapFree(void* addr, pthread_t threadId);
+	void wrapFree(void* addr, size_t c, char *pBackTrace, pthread_t threadId);
 	void printfMemInfMap(pthread_t threadId);
 	std::string &getBackTrace(std::string &backTrace);
 private:
@@ -100,9 +93,6 @@ private:
 private:
 	static CalcMem *_instance;
 	CPthreadMutex  m_mutex;
-
-	typedef std::map<void *, MemNodeInf *> MemNodeMap;
-	MemNodeMap m_memNodeMap;
 
 	typedef std::map<std::string, MemInf *> MemInfMap;
 	MemInfMap m_MemInfMap;

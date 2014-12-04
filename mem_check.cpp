@@ -1,11 +1,8 @@
 #include "mem_check.h"
 #include "link_tool.h"
+#include "time_calc.h"
 
-typedef struct MemNodeInf
-{
-	char *path;
-	size_t memSize;
-}MemNodeInf;
+#include <string.h>
 
 extern CPthreadMutex g_insMutexCalc;
 extern "C" void __real_free(void* p);
@@ -86,7 +83,10 @@ void CMemCheck::exitMem(void *addr, const char *errInfo)
 	void **beginAddr = (void **)addr;
 	void **endAddr = (void **)((char *)addr + sizeof(void *) * 2 + pNodeInf->memSize);
 
-	
+	if (pNodeInf->path)
+	{
+		__real_free(pNodeInf->path);	
+	}
 	__real_free(pNodeInf);	
 	if (*beginAddr != m_checkValue || *endAddr != m_checkValue)
 	{
@@ -97,6 +97,32 @@ void CMemCheck::exitMem(void *addr, const char *errInfo)
 
 void CMemCheck::addMemInfo(void *addr, int addrLen, std::string &backTrace)
 {
+	addr = (void *)((char *)addr - sizeof(void *) * 2);
 
+	void **argAddr = (void **)((char *)addr + sizeof(void *));
+	MemNodeInf *pNodeInf = (MemNodeInf *)*argAddr;
+
+	if (addrLen != (int)pNodeInf->memSize)
+	{
+		printf("addMemInfo  failed  addrLen != memSize  %d  %d\n", addrLen, pNodeInf->memSize);
+	}
+	pNodeInf->path = (char *)__real_malloc(backTrace.size() + 1);
+	strcpy(pNodeInf->path, backTrace.c_str());
+}
+
+MemNodeInf *CMemCheck::getMemNodeInf(void *addr)
+{	
+	addr = (void *)((char *)addr - sizeof(void *) * 2);
+	void **argAddr = (void **)((char *)addr + sizeof(void *));
+	MemNodeInf *pNodeInf = (MemNodeInf *)*argAddr;
+	return pNodeInf;
+}
+
+
+bool CMemCheck::isMemCheck(void *addr)
+{
+	addr = (void *)((char *)addr - sizeof(void *) * 2);
+	void **beginAddr = (void **)addr;
+	return *beginAddr == m_checkValue;
 }
 

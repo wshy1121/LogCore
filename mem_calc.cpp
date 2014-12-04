@@ -309,12 +309,20 @@ void ThreadQueue::wrapMalloc(void* addr, size_t c)
 void ThreadQueue::wrapFree(void* addr)
 {
 	threadQueueEnable(e_Mem);
-	MEM_DATA *pMemData =  CalcMem::instance()->createMemData();
+	MemNodeInf *pNodeInf = CMemCheck::instance()->getMemNodeInf(addr);
+	if (pNodeInf->path == NULL)
+	{
+		return ;
+	}
+	
+	MEM_DATA *pMemData =  CalcMem::instance()->createMemData(strlen(pNodeInf->path));
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapFree;
 	pCalcMemInf->m_threadId = pthread_self();
 	pCalcMemInf->m_memAddr = addr;
+	pCalcMemInf->m_memSize= pNodeInf->memSize;
+	strcpy(pCalcMemInf->m_backTrace, pNodeInf->path);
 	
 	CalcMemManager::instance()->pushMemData(pMemData);
 	return ;
@@ -371,50 +379,14 @@ void CalcMem::wrapMalloc(void* addr, size_t c, char *pBackTrace, pthread_t threa
 	{
 		return ;
 	}
-	
 	CGuardMutex guardMutex(m_mutex);
-	MemNodeMap::iterator iter = m_memNodeMap.find(addr);
-	if (iter == m_memNodeMap.end())
-	{
-		MemNodeInf *pNodeInf = new MemNodeInf;
-		if (pNodeInf == NULL)
-		{
-			printf("pNodeInf new failed\n");
-		}
-		pNodeInf->addr = addr;
-		pNodeInf->path = pBackTrace;
-		pNodeInf->memSize = c;
-
-		m_memNodeMap.insert( std::make_pair(addr, pNodeInf) );
-		dealMemInf(pNodeInf->path.c_str(), pNodeInf->memSize, threadId);
-	}
-	else
-	{
-		//printf("traceInf  %s\n", traceInf);
-	}
-	
-	
+	dealMemInf(pBackTrace, c, threadId);	
 }
 
-void CalcMem::wrapFree(void* addr, pthread_t threadId)
+void CalcMem::wrapFree(void* addr, size_t c, char *pBackTrace, pthread_t threadId)
 {
-
 	CGuardMutex guardMutex(m_mutex);
-	MemNodeMap::iterator iter = m_memNodeMap.find(addr);
-	if (iter != m_memNodeMap.end())
-	{
-		MemNodeInf *pNodeInf = iter->second;
-
-		dealMemInf(pNodeInf->path.c_str(), -pNodeInf->memSize, threadId);
-		delete pNodeInf;
-		m_memNodeMap.erase(iter);
-	}
-	else
-	{
-		//printf("traceInf  %s\n", traceInf);
-	}
-	
-
+	dealMemInf(pBackTrace, -c, threadId);
 }
 void CalcMem::printfMemInfMap(pthread_t threadId)
 {
@@ -573,7 +545,7 @@ void CalcMemManager::dealRecvData(CalcMemInf *pCalcMemInf)
 			}
 		case CalcMemInf::e_wrapFree:
 			{
-				CalcMem::instance()->wrapFree(memAddr, threadId);
+				CalcMem::instance()->wrapFree(memAddr, memSize, pBackTrace, threadId);
 				break;
 			}
 		default:
