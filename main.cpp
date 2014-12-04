@@ -12,14 +12,16 @@ void fun1()
 	time_printf("NULL");
 	time_stack();
 	time_str((char *)"1234", 4);
-	char *tmp = new char[32];
-
+	char *tmp = (char *)malloc(32);
 	strcpy(tmp, "1234567789");
 	time_printf("NULL");
 	tmp = (char *)realloc(tmp, 33);
 	strcpy(tmp, "1234567789");
-	delete tmp;
+	free(tmp);
 	tmp = (char *)calloc(1, 16);
+	strcpy(tmp, "1234567789");
+	free(tmp);
+	tmp = new char[32];
 	strcpy(tmp, "1234567789");
 	delete tmp;
 	time_printf("NULL");	
