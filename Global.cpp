@@ -102,11 +102,15 @@ void CBugKiller::InsertStrOnly(pthread_t threadId, const char* fmt, ...)
 
 void CBugKiller::DispAll()
 {
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData();
+	std::string backtrace;
+	CalcMem::instance()->getBackTrace(backtrace);
+
+	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData(backtrace.size());
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = TimeCalcInf::e_dispAll;
 	pCalcInf->m_threadId = pthread_self();
+	strcpy(pCalcInf->m_pContent, backtrace.c_str());
 
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 	//CTimeCalcManager::instance()->DispAll();

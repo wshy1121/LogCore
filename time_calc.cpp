@@ -605,7 +605,7 @@ void CTimeCalcManager::InsertTag(int line, char *file_name, const char* content)
 	return ;
 }
 
-void CTimeCalcManager::DispAll()
+void CTimeCalcManager::DispAll(const char* content)
 {
 
 	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it;
@@ -617,15 +617,14 @@ void CTimeCalcManager::DispAll()
 		TraceInfo = it->second;
 		if (TraceInfo)
 		{
-			//printf("%s\n", TraceInfo->up_string.c_str());
+			printf("%s\n", TraceInfo->up_string.c_str());
 		}
 	}
 
 	
 #ifdef WRAP	
-	std::string backtrace;
-	CalcMem::instance()->getBackTrace(backtrace);
-	printf("backTrace  %s\n", backtrace.c_str());
+	printf("backTrace  %s\n", content);
+	printStrLog(content);
 #endif
 
 	printStrLog("#if 0");
@@ -880,7 +879,7 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 			}
 		case TimeCalcInf::e_dispAll:
 			{
-				CTimeCalcManager::instance()->DispAll();
+				CTimeCalcManager::instance()->DispAll(content);
 				break;
 
 			}

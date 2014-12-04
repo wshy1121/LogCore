@@ -76,7 +76,7 @@ public:
 	void InsertTrace(int line, char *file_name, pthread_t threadId, const char* content);
 	void InsertStrOnly(pthread_t threadId, const char* fmt, ...);
 	void InsertTag(int line, char *file_name, const char* content);
-	void DispAll();
+	void DispAll(const char* content);
 	void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
 	void start();
 	void stop();
