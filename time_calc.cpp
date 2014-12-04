@@ -627,7 +627,7 @@ void CTimeCalcManager::DispAll(const char* content)
 	printStrLog(content);
 #endif
 
-	printStrLog("#if 0");
+	printStrLog("\n#if 0");
        for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)
 	{
 		TraceInfo = it->second;
