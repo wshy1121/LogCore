@@ -35,7 +35,10 @@ void *CMemCheck::malloc(size_t c)
 
 void* CMemCheck::realloc(void *p, size_t c)
 {
-	p = (void *)((char *)p - sizeof(void *) * 2);
+	if (p != NULL)
+	{
+		p = (void *)((char *)p - sizeof(void *) * 2);
+	}
 	p = __real_realloc(p, c + sizeof(void *) * 3);
 	initMem(p, c);
 	return (void *)((char *)p + sizeof(void *) * 2);

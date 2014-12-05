@@ -20,9 +20,13 @@ void fun1()
 	free(tmp);
 	tmp = (char *)calloc(1, 16);
 	strcpy(tmp, "1234567789");
+	tmp = (char *)realloc(tmp, 33);
+	strcpy(tmp, "1234567789");	
 	free(tmp);
 	tmp = new char[32];
 	strcpy(tmp, "1234567789");
+	tmp = (char *)realloc(tmp, 33);
+	strcpy(tmp, "1234567789");		
 	delete tmp;
 	time_printf("NULL");	
 	std::string stack;
