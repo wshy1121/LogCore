@@ -64,12 +64,24 @@ void CMemCheck::addMemInfo(void *addr, int addrLen, std::string &backTrace)
 {
 	MemNodeInf nodeInf;
 	nodeInf.path = backTrace;
+	nodeInf.memSize = addrLen;
+
+	CGuardMutex guardMutex(m_memNodeInfMapMutex);
+	m_memNodeInfMap.insert((std::make_pair(addr, nodeInf)));
 }
 
-void CMemCheck::getMemNodeInf(void *addr, MemNodeInf &nodeInf)
-{	
+bool CMemCheck::getMemNodeInf(void *addr, MemNodeInf &nodeInf)
+{
 	nodeInf.memSize = 0;
-	nodeInf.path = "123";
+	CGuardMutex guardMutex(m_memNodeInfMapMutex);
+
+	MemNodeInfMap::iterator iter = m_memNodeInfMap.find(addr);
+	if (iter == m_memNodeInfMap.end())
+	{
+		return false;
+	}
+	nodeInf = iter->second;
+	return true;	
 }
 
 

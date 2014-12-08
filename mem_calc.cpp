@@ -310,8 +310,7 @@ void ThreadQueue::wrapFree(void* addr)
 {
 	threadQueueEnable(e_Mem);
 	MemNodeInf nodeInf;
-	CMemCheck::instance()->getMemNodeInf(addr, nodeInf);
-	if (nodeInf.path.size() == 0)
+	if (CMemCheck::instance()->getMemNodeInf(addr, nodeInf) == false)
 	{
 		return ;
 	}

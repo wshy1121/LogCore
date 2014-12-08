@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string>
 #include <map>
+#include "link_tool.h"
 
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
@@ -28,7 +29,7 @@ public:
 	static bool isMemCheck(void *addr);
 public:
 	void addMemInfo(void *addr, int addrLen, std::string &backTrace);
-	void getMemNodeInf(void *addr, MemNodeInf &nodeInf);
+	bool getMemNodeInf(void *addr, MemNodeInf &nodeInf);
 private:
 	static void setFlag(void *addr, size_t size);
 private:
@@ -37,7 +38,9 @@ private:
 	static void *m_checkValue;
 	static CMemCheck *_instance;
 	static const size_t m_flagSize;
-	std::map<void *, MemNodeInf> m_memNodeInfMap;
+	typedef std::map<void *, MemNodeInf> MemNodeInfMap;
+	MemNodeInfMap m_memNodeInfMap;
+	CPthreadMutex  m_memNodeInfMapMutex;
 };
 
 
