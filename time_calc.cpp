@@ -451,7 +451,7 @@ void CTimeCalcManager::InsertStrOnly(pthread_t threadId, const char* fmt, ...)
 	}  
 	else
 	{
-		//CTimeCalcManager::instance()->printLog((char *)"trace:/*%s*/", str);
+		CTimeCalcManager::instance()->printLog((char *)"trace:/*%s*/", str);
 	}
 
 
@@ -836,9 +836,7 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 }
 
 void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
-{	
-	threadQueueEnable(e_Mem);	
-
+{
 	TimeCalcInf::TimeCalcOpr &opr = pCalcInf->m_opr;
 	int threadId = pCalcInf->m_threadId;
 	int line = pCalcInf->m_line;
