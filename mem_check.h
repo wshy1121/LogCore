@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <string>
 
+extern "C" void __real_free(void* p);
+extern "C" void* __real_malloc(size_t);
+extern "C" void *__real_realloc(void* c, int size);
+extern "C" void* __real_calloc(size_t);
+
 typedef struct MemNodeInf
 {
 	char *path;

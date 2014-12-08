@@ -5,10 +5,6 @@
 #include <string.h>
 
 extern CPthreadMutex g_insMutexCalc;
-extern "C" void __real_free(void* p);
-extern "C" void* __real_malloc(size_t);
-extern "C" void *__real_realloc(void* c, int size);
-extern "C" void* __real_calloc(size_t);
 
 CMemCheck *CMemCheck::_instance = NULL;
 void *CMemCheck::m_checkValue = (void *)&CMemCheck::instance;
