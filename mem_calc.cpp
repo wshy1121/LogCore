@@ -2,14 +2,13 @@
 #include "Global.h"
 #include <stdio.h>
 #include <string.h>
-#include <execinfo.h>
 #include <assert.h>
 #include <unistd.h>
 #include "mem_check.h"
 extern CPthreadMutex g_insMutexCalc;
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
-
+extern "C" int backtrace(void **buffer, int size);
 /******************************************************/
 
 

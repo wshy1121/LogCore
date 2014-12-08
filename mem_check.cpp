@@ -81,6 +81,7 @@ bool CMemCheck::getMemNodeInf(void *addr, MemNodeInf &nodeInf)
 		return false;
 	}
 	nodeInf = iter->second;
+	m_memNodeInfMap.erase(iter);
 	return true;	
 }
 
