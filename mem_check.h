@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <map>
 
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
@@ -11,7 +12,7 @@ extern "C" void* __real_calloc(size_t nmemb, size_t size);
 
 typedef struct MemNodeInf
 {
-	char *path;
+	std::string path;
 	size_t memSize;
 }MemNodeInf;
 
@@ -27,7 +28,7 @@ public:
 	static bool isMemCheck(void *addr);
 public:
 	void addMemInfo(void *addr, int addrLen, std::string &backTrace);
-	MemNodeInf *getMemNodeInf(void *addr);
+	void getMemNodeInf(void *addr, MemNodeInf &nodeInf);
 private:
 	static void setFlag(void *addr, size_t size);
 private:
@@ -36,6 +37,7 @@ private:
 	static void *m_checkValue;
 	static CMemCheck *_instance;
 	static const size_t m_flagSize;
+	std::map<void *, MemNodeInf> m_memNodeInfMap;
 };
 
 

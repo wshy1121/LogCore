@@ -309,20 +309,21 @@ void ThreadQueue::wrapMalloc(void* addr, size_t c)
 void ThreadQueue::wrapFree(void* addr)
 {
 	threadQueueEnable(e_Mem);
-	MemNodeInf *pNodeInf = CMemCheck::instance()->getMemNodeInf(addr);
-	if (pNodeInf->path == NULL)
+	MemNodeInf nodeInf;
+	CMemCheck::instance()->getMemNodeInf(addr, nodeInf);
+	if (nodeInf.path.size() == 0)
 	{
 		return ;
 	}
 	
-	MEM_DATA *pMemData =  CalcMem::instance()->createMemData(strlen(pNodeInf->path));
+	MEM_DATA *pMemData =  CalcMem::instance()->createMemData(nodeInf.path.size());
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapFree;
 	pCalcMemInf->m_threadId = pthread_self();
 	pCalcMemInf->m_memAddr = addr;
-	pCalcMemInf->m_memSize= pNodeInf->memSize;
-	strcpy(pCalcMemInf->m_backTrace, pNodeInf->path);
+	pCalcMemInf->m_memSize= nodeInf.memSize;
+	strcpy(pCalcMemInf->m_backTrace, nodeInf.path.c_str());
 	
 	CalcMemManager::instance()->pushMemData(pMemData);
 	return ;

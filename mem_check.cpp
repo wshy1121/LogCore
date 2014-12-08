@@ -50,7 +50,7 @@ void* CMemCheck::calloc(size_t nmemb, size_t size)
 	}
 	void* p = __real_calloc(memNum, size);
 
-	setFlag(p, memNum * size);
+	setFlag(p, nmemb * size);
 	return p;
 }
 
@@ -62,25 +62,14 @@ void CMemCheck::free(void*p)
 
 void CMemCheck::addMemInfo(void *addr, int addrLen, std::string &backTrace)
 {
-	addr = (void *)((char *)addr - m_flagSize * 2);
-
-	void **argAddr = (void **)((char *)addr + m_flagSize);
-	MemNodeInf *pNodeInf = (MemNodeInf *)*argAddr;
-
-	if (addrLen != (int)pNodeInf->memSize)
-	{
-		printf("addMemInfo  failed  addrLen != memSize  %d  %d\n", addrLen, (int)pNodeInf->memSize);
-	}
-	pNodeInf->path = (char *)__real_malloc(backTrace.size() + 1);
-	strcpy(pNodeInf->path, backTrace.c_str());
+	MemNodeInf nodeInf;
+	nodeInf.path = backTrace;
 }
 
-MemNodeInf *CMemCheck::getMemNodeInf(void *addr)
+void CMemCheck::getMemNodeInf(void *addr, MemNodeInf &nodeInf)
 {	
-	addr = (void *)((char *)addr - m_flagSize * 2);
-	void **argAddr = (void **)((char *)addr + m_flagSize);
-	MemNodeInf *pNodeInf = (MemNodeInf *)*argAddr;
-	return pNodeInf;
+	nodeInf.memSize = 0;
+	nodeInf.path = "123";
 }
 
 
