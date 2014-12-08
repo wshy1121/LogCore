@@ -33,15 +33,14 @@ extern "C" void* __wrap_realloc(void *p, size_t c)
 }
 extern "C" void* __wrap_calloc(size_t nmemb, size_t size)
 {
-	size_t c = nmemb * size;
 	if (ThreadQueue::getEnable())
 	{
-		void *p = CMemCheck::calloc(c); 
-		ThreadQueue::instance()->wrapMalloc(p, c);
+		void *p = CMemCheck::calloc(nmemb, size); 
+		ThreadQueue::instance()->wrapMalloc(p, nmemb * size);
 		return p;
 	}
 
-	return __real_calloc(c);
+	return __real_calloc(nmemb, size);
 }
 extern "C" void __wrap_free(void*p)
 {

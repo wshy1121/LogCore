@@ -41,10 +41,16 @@ void* CMemCheck::realloc(void *p, size_t c)
 }
 
 
-void* CMemCheck::calloc(size_t c)
+void* CMemCheck::calloc(size_t nmemb, size_t size)
 {
-	void* p = __real_calloc(c + sizeof(void *) * 3);
-	initMem(p, c);
+	size_t memNum = nmemb + 1;
+	if (sizeof(void *) * 3 > size)
+	{
+		memNum = nmemb + sizeof(void *) * 3 / size + 1;
+	}
+	
+	void* p = __real_calloc(memNum, size);
+	initMem(p, nmemb * size);
 	return (void *)((char *)p + sizeof(void *) * 2);
 }
 
