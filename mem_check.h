@@ -29,13 +29,13 @@ public:
 	void addMemInfo(void *addr, int addrLen, std::string &backTrace);
 	MemNodeInf *getMemNodeInf(void *addr);
 private:
-	static void initMem(void *addr, int addrLen);
-	static void exitMem(void *addr, const char *errInfo);
+	static void setFlag(void *addr, size_t size);
 private:
 	CMemCheck(){}	
 private:
 	static void *m_checkValue;
 	static CMemCheck *_instance;
+	static const size_t m_flagSize;
 };
 
 
