@@ -837,6 +837,7 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 
 void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 {
+	threadQueueEnable(e_Mem);	
 	TimeCalcInf::TimeCalcOpr &opr = pCalcInf->m_opr;
 	int threadId = pCalcInf->m_threadId;
 	int line = pCalcInf->m_line;
