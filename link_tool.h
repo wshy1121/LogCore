@@ -36,6 +36,7 @@ public:
 	bool empty();
 	void clear();
 	int size();
+	node *getHead();
 private:
 	void init();
 	void exit();
@@ -43,6 +44,23 @@ private:
 	node head_node;
 	node *tail;
 	int node_num;
+};
+
+struct CString
+{
+public:
+	static CString* createCString();
+	static void  destroyCString(CString *pCString);
+public:	
+	void append(char *str);
+	char *c_str();
+	int size();
+private:
+	void init();
+	void exit();	
+private:
+	CList *m_pStrList;
+	int m_strLen;
 };
 
 class CPthreadMutex
