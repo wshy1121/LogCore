@@ -54,15 +54,18 @@ void NextStep(const char *function, const char *fileName, int line)
 	return ;
 }
 
-
-CTimeCalc::CTimeCalc(int line, char *file_name, char *func_name, int display_level, pthread_t threadId) : 	m_displayFlag(true), 
-																				m_DisplayLevel(display_level), 
-																				m_noDisplayLevel(display_level), 
-																				m_Line(line), 
-																				m_FileName(file_name), 
-																				m_FuncName(func_name)
+void CTimeCalc::createCTimeCalc(int line, char *file_name, char *func_name, int display_level, pthread_t threadId) 
 {
-	
+	m_displayFlag = true;
+	m_DisplayLevel = display_level;
+	m_noDisplayLevel = display_level;		
+	m_Line = line;
+
+	m_FileName = (char *)__real_malloc(strlen(file_name) + 1);
+	strcpy(m_FileName, file_name);
+	m_FuncName = (char *)__real_malloc(strlen(func_name) + 1);
+	strcpy(m_FuncName, func_name);
+
 	ftime(&m_StartTime);
 	m_threadId = threadId;
 	DealFuncEnter();
@@ -130,7 +133,7 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 	struct timeb cur_time; 
 	ftime(&cur_time);
 
-	snprintf(tmp, sizeof(tmp), "        //func  cost second: %4ld  %4d  %16ld  %4d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName.c_str(), time_tmp);
+	snprintf(tmp, sizeof(tmp), "        //func  cost second: %4ld  %4d  %16ld  %4d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName, time_tmp);
 
 	TraceInfo->up_string += tmp;			
 
@@ -229,10 +232,14 @@ void CTimeCalc::DealFuncExit()
 	}
 
 }
-CTimeCalc::~CTimeCalc()
+void CTimeCalc::destroyCTimeCalc()
 {
-
 	DealFuncExit();
+
+	__real_free(m_FileName);
+	__real_free(m_FuncName);
+	m_FileName = NULL;
+	m_FuncName = NULL;
 }
 
 CTimeCalcManager *CTimeCalcManager::_instance = NULL;
@@ -399,7 +406,7 @@ void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &sta
 	for ( it=TraceInfo->calc_list.begin() ; it != TraceInfo->calc_list.end(); it++ )
 	{
 		timeCalc = *it;
-		snprintf(tmp, sizeof(tmp), "%s%d_", timeCalc->m_FuncName.c_str(), timeCalc->m_Line);
+		snprintf(tmp, sizeof(tmp), "%s%d_", timeCalc->m_FuncName, timeCalc->m_Line);
 		stackInf += tmp;
 	}
 	return ;
@@ -851,11 +858,13 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 	{
 		case TimeCalcInf::e_createCandy:
 			{
-				CTimeCalc *pTimeCalc = new CTimeCalc(line, file_name, func_name, display_level, threadId);
+				
+				CTimeCalc *pTimeCalc = (CTimeCalc *)__real_malloc(sizeof(CTimeCalc));
 				if (pTimeCalc == NULL)
 				{
 					break;
 				}
+				pTimeCalc->createCTimeCalc(line, file_name, func_name, display_level, threadId);
 				break;
 			}
 		case TimeCalcInf::e_destroyCandy:
@@ -867,7 +876,8 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 				}
 
 				CTimeCalc *pTimeCalc = TraceInfo->calc_list.back();
-				delete pTimeCalc;
+				pTimeCalc->destroyCTimeCalc();
+				__real_free(pTimeCalc);
 				break;
 			}
 		case TimeCalcInf::e_insertTrace:

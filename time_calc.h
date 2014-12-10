@@ -33,7 +33,7 @@ class CTimeCalcManager;
 
 
 
-class CTimeCalc
+struct CTimeCalc
 {
 	friend class CTimeCalcManager;
 private:
@@ -42,8 +42,8 @@ private:
 	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
 	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 public:
-	CTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100, pthread_t threadId = pthread_self());
-	~CTimeCalc();
+	void createCTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100, pthread_t threadId = pthread_self());
+	void destroyCTimeCalc();
 private:
 	void initTimeCalc(CTimeCalcList &calc_list);
 	void exitTimeCalc(CTimeCalcList &calc_list);
@@ -57,9 +57,8 @@ private:
 	int m_noDisplayLevel;  
 
 	int m_Line;
-	std::string m_FileName;
-	std::string m_FuncName;
-
+	char *m_FileName;
+	char *m_FuncName;
 	struct timeb m_StartTime;
 	
 };
