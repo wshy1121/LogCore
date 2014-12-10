@@ -447,7 +447,7 @@ void CalcMem::dealMemInf(const char *mallocPath, int size, pthread_t threadId)
 		memInf->maxSize = memInf->memSize;
 
 		int count = memInf->mallocCount - memInf->freeCount;
-		CBugKiller::InsertStrOnly(threadId, "%s  malloc size  %06d  %d", mallocPath, count, memInf->memSize);
+		CBugKiller::InsertStrOnly(threadId, "%s  malloc size  %06d  %d  %d  %s", mallocPath, count, memInf->memSize, __LINE__, __FILE__);
 	}
 	return ;
 }

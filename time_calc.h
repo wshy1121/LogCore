@@ -42,8 +42,10 @@ private:
 	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
 	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 public:
-	void createCTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100, pthread_t threadId = pthread_self());
-	void destroyCTimeCalc();
+	static CTimeCalc * createCTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100, pthread_t threadId = pthread_self());
+	static void destroyCTimeCalc(CTimeCalc *pTimeCalc);
+	void init(int line, char *file_name, char *func_name, int display_level, pthread_t threadId);
+	void exit();
 private:
 	void initTimeCalc(CTimeCalcList &calc_list);
 	void exitTimeCalc(CTimeCalcList &calc_list);

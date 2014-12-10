@@ -54,7 +54,18 @@ void NextStep(const char *function, const char *fileName, int line)
 	return ;
 }
 
-void CTimeCalc::createCTimeCalc(int line, char *file_name, char *func_name, int display_level, pthread_t threadId) 
+
+void CTimeCalc::exit()
+{
+	DealFuncExit();
+
+	__real_free(m_FileName);
+	__real_free(m_FuncName);
+	m_FileName = NULL;
+	m_FuncName = NULL;
+}
+
+void CTimeCalc::init(int line, char *file_name, char *func_name, int display_level, pthread_t threadId)
 {
 	m_displayFlag = true;
 	m_DisplayLevel = display_level;
@@ -69,10 +80,25 @@ void CTimeCalc::createCTimeCalc(int line, char *file_name, char *func_name, int 
 	ftime(&m_StartTime);
 	m_threadId = threadId;
 	DealFuncEnter();
+}
+
+CTimeCalc * CTimeCalc::createCTimeCalc(int line, char *file_name, char *func_name, int display_level, pthread_t threadId) 
+{
+	CTimeCalc *pTimeCalc = (CTimeCalc *)__real_malloc(sizeof(CTimeCalc));
+	if (pTimeCalc)
+	{
+		pTimeCalc->init(line, file_name, func_name, display_level, threadId);
+	}
+	return pTimeCalc;
 
 }
 
+void CTimeCalc::destroyCTimeCalc(CTimeCalc *pTimeCalc)
+{
+	pTimeCalc->exit();
+	__real_free(pTimeCalc);
 
+}
 void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 {
 	char tmp[64];
@@ -232,15 +258,7 @@ void CTimeCalc::DealFuncExit()
 	}
 
 }
-void CTimeCalc::destroyCTimeCalc()
-{
-	DealFuncExit();
 
-	__real_free(m_FileName);
-	__real_free(m_FuncName);
-	m_FileName = NULL;
-	m_FuncName = NULL;
-}
 
 CTimeCalcManager *CTimeCalcManager::_instance = NULL;
 CTimeCalcManager::CTimeCalcManager():m_fp(NULL), 
@@ -859,12 +877,11 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 		case TimeCalcInf::e_createCandy:
 			{
 				
-				CTimeCalc *pTimeCalc = (CTimeCalc *)__real_malloc(sizeof(CTimeCalc));
+				CTimeCalc *pTimeCalc = CTimeCalc::createCTimeCalc(line, file_name, func_name, display_level, threadId);
 				if (pTimeCalc == NULL)
 				{
 					break;
 				}
-				pTimeCalc->createCTimeCalc(line, file_name, func_name, display_level, threadId);
 				break;
 			}
 		case TimeCalcInf::e_destroyCandy:
@@ -876,8 +893,7 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 				}
 
 				CTimeCalc *pTimeCalc = TraceInfo->calc_list.back();
-				pTimeCalc->destroyCTimeCalc();
-				__real_free(pTimeCalc);
+				CTimeCalc::destroyCTimeCalc(pTimeCalc);
 				break;
 			}
 		case TimeCalcInf::e_insertTrace:
