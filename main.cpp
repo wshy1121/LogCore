@@ -87,7 +87,7 @@ void* printfMallocMap(void *pArg)
 }
 int main()
 {
-	time_start();
+	//time_start();
 
 	pthread_t printfThreadId;
 	pthread_create(&printfThreadId, NULL,printfMallocMap,NULL);

@@ -21,7 +21,7 @@ typedef struct FuncTraceInfo_t
 {
 	struct timeb EndTime;
 	int deep;
-	std::string up_string;
+	CString *pUpString;
 	CTimeCalcList calc_list;
 } FuncTraceInfo_t;
 

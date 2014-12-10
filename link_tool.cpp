@@ -165,6 +165,8 @@ void CStrNode::init(char *str)
 void CStrNode::exit()
 {
 	__real_free(m_str);
+	m_str = NULL;
+	m_strLen = 0;
 }
 CStrNode *CStrNode::createCStrNode(char *str)
 {
@@ -241,6 +243,11 @@ void CString::exit()
  
 void CString::destroyCString(CString *pCString)
 {
+	if (pCString == NULL)
+	{
+		return ;
+	}
+
 	pCString->exit();
 	__real_free(pCString);
 }
@@ -251,18 +258,26 @@ void CString::destroyCString(CString *pCString)
  
 void CString::append(char *str)
 {
+	if (str == NULL)
+	{
+		return ;
+	}
 	CStrNode *pStrNode = CStrNode::createCStrNode(str);
 	m_strLen += pStrNode->size();
 	m_pStrList->push_back(pStrNode->getNode());
 }
 
+void CString::append(const char *str)
+{
+	append((char *)str);
+}
 char *CString::c_str()
 {
 	CStrNode *pStrNode = NULL; 
 	struct node *pNode = NULL;
 	char *pStr = (char *)__real_malloc(m_strLen + 1);
 	pStr[m_strLen] = '\0';
-
+	
 	int strLen = 0;
 	while (m_pStrList->size())
 	{

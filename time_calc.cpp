@@ -110,34 +110,34 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 
 	if (this->m_DisplayLevel == 0)
 	{
-		TraceInfo->up_string += "#if 0 \n";
+		TraceInfo->pUpString->append("#if 0 \n");
 	}
 	
 	for (int i=0; i<TraceInfo->deep; ++i)
 	{
-		TraceInfo->up_string += "\t";
+		TraceInfo->pUpString->append("\t");
 	}
-	TraceInfo->up_string += m_FuncName;
-	TraceInfo->up_string += "()";
+	TraceInfo->pUpString->append(m_FuncName);
+	TraceInfo->pUpString->append("()");
 
-	TraceInfo->up_string += tmp;
-	TraceInfo->up_string += m_FileName;
+	TraceInfo->pUpString->append(tmp);
+	TraceInfo->pUpString->append(m_FileName);
 
-	
-	TraceInfo->up_string += "\n";
+
+	TraceInfo->pUpString->append("\n");
 	for (int i=0; i<TraceInfo->deep; ++i)
 	{
-		TraceInfo->up_string += "\t";
+		TraceInfo->pUpString->append("\t");
 	}
-	TraceInfo->up_string += "{";
+	TraceInfo->pUpString->append("{");
 
 	struct timeb cur_time;
 	ftime(&cur_time);
 
 	
 	snprintf(time_tmp, sizeof(time_tmp), "       //    cost second: %4ld  %4d  %16ld  %4d  route", cur_time.time - TraceInfo->EndTime.time, cur_time.millitm - TraceInfo->EndTime.millitm, cur_time.time, cur_time.millitm);
-	TraceInfo->up_string += time_tmp;
-	TraceInfo->up_string += "\n";
+	TraceInfo->pUpString->append(time_tmp);
+	TraceInfo->pUpString->append("\n");
 
 	return ;
 }
@@ -146,10 +146,10 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 {
 	for (int i=1; i<TraceInfo->deep; ++i)
 	{
-		TraceInfo->up_string += "\t";
+		TraceInfo->pUpString->append("\t");
 	}
-	
-	TraceInfo->up_string += "}";
+
+	TraceInfo->pUpString->append("}");
 	char tmp[128];
 
 
@@ -161,12 +161,12 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 
 	snprintf(tmp, sizeof(tmp), "        //func  cost second: %4ld  %4d  %16ld  %4d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName, time_tmp);
 
-	TraceInfo->up_string += tmp;			
-
-	TraceInfo->up_string += "\n";
+	TraceInfo->pUpString->append(tmp);
+	TraceInfo->pUpString->append("\n");
+		
 	if (this->m_DisplayLevel == 0)
 	{
-		TraceInfo->up_string += "#endif\n";
+		TraceInfo->pUpString->append("#endif\n");
 	}
 
 	return ;
@@ -246,7 +246,7 @@ void CTimeCalc::DealFuncExit()
 
 		if (TraceInfo->deep == 0)
 		{
-			CTimeCalcManager::instance()->printStrLog(TraceInfo->up_string.c_str());
+			CTimeCalcManager::instance()->printStrLog(TraceInfo->pUpString->c_str());
 			CTimeCalcManager::instance()->DestroyTraceInf(TraceInfo, m_threadId);
 		}
 
@@ -300,8 +300,8 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(pthread_t threadId)
 		
 		TraceInfo->deep = 0;
 
-
-		TraceInfo->up_string += "//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n";
+		TraceInfo->pUpString = CString::createCString();
+		TraceInfo->pUpString->append("//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n");
 
 		std::pair<pthread_t, FuncTraceInfo_t *> thread_map_pair(threadId, TraceInfo);
 
@@ -317,6 +317,7 @@ void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo, pthread_t thr
 
 	CGuardMutex guardMutex(m_thread_map_mutex);
 	m_thread_map.erase(threadId);
+	CString::destroyCString(TraceInfo->pUpString);
 	delete TraceInfo;
 }
 
@@ -364,12 +365,12 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
 	{
-		TraceInfo->up_string += "\t";
+		TraceInfo->pUpString->append("\t");
 	}
-	TraceInfo->up_string += "/*tag:";
+	TraceInfo->pUpString->append("/*tag:");
 
-	TraceInfo->up_string += pStr;
-	TraceInfo->up_string += " ";
+	TraceInfo->pUpString->append(pStr);
+	TraceInfo->pUpString->append(" ");
 
 	std::string stackInf;
 	getStackInfo(TraceInfo, stackInf);
@@ -387,12 +388,13 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	}
 
 	snprintf(tmp, sizeof(tmp), "count %8d ", count);
-	TraceInfo->up_string += tmp;
-	TraceInfo->up_string += stackInf;
+	TraceInfo->pUpString->append(tmp);
+	TraceInfo->pUpString->append(stackInf.c_str());
+
 
 	snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
-	TraceInfo->up_string += tmp;
-	TraceInfo->up_string += "*/\n";
+	TraceInfo->pUpString->append(tmp);
+	TraceInfo->pUpString->append("*/\n");
 
 	return ;
 }
@@ -492,12 +494,13 @@ void CTimeCalcManager::InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr)
 	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
 	{
-		TraceInfo->up_string += "\t";
+		TraceInfo->pUpString->append("\t");
 	}
-	TraceInfo->up_string += "/*tag:";
+	TraceInfo->pUpString->append("/*tag:");
 
-	TraceInfo->up_string += pStr;
-	TraceInfo->up_string += "*/\n";
+	TraceInfo->pUpString->append(pStr);
+	TraceInfo->pUpString->append("*/\n");
+
 
 	return ;
 }
@@ -514,13 +517,13 @@ void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
 	{
-		TraceInfo->up_string += "\t";
+		TraceInfo->pUpString->append("\t");
 	}
-	TraceInfo->up_string += "/*tag:";
+	TraceInfo->pUpString->append("/*tag:");
 
-	TraceInfo->up_string += pStr;
-	TraceInfo->up_string += tmp;
-	TraceInfo->up_string += "*/\n";
+	TraceInfo->pUpString->append(pStr);
+	TraceInfo->pUpString->append(tmp);
+	TraceInfo->pUpString->append("*/\n");
 
 	return ;
 }
@@ -600,12 +603,12 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 		//-------------------
 		for (int i=0; i<TraceInfo->deep; ++i)
 		{
-			TraceInfo->up_string += "\t";
+			TraceInfo->pUpString->append("\t");
 		}
-		TraceInfo->up_string += "/*tag:";
-		TraceInfo->up_string += str;
-		TraceInfo->up_string += "*/\n";
-		
+		TraceInfo->pUpString->append("/*tag:");
+		TraceInfo->pUpString->append(str);
+		TraceInfo->pUpString->append("*/\n");
+
 		
 	}  
 	else
@@ -642,7 +645,7 @@ void CTimeCalcManager::DispAll(const char* content)
 		TraceInfo = it->second;
 		if (TraceInfo)
 		{
-			printf("%s\n", TraceInfo->up_string.c_str());
+			printf("%s\n", TraceInfo->pUpString->c_str());
 		}
 	}
 
@@ -658,7 +661,7 @@ void CTimeCalcManager::DispAll(const char* content)
 		TraceInfo = it->second;
 		if (TraceInfo)
 		{
-			printStrLog(TraceInfo->up_string.c_str());
+			printStrLog(TraceInfo->pUpString->c_str());
 		}
 	}
 	printStrLog("#endif");
@@ -679,7 +682,7 @@ void CTimeCalcManager::DispTraces(int signo)
 	{
 		TraceInfo = it->second;
 		
-		printStrLog(TraceInfo->up_string.c_str());
+		printStrLog(TraceInfo->pUpString->c_str());
 	}
 	if ((signo == SIGSEGV) || (signo == SIGINT) )
 	{

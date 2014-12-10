@@ -53,6 +53,7 @@ public:
 	static void  destroyCString(CString *pCString);
 public:	
 	void append(char *str);
+	void append(const char *str);
 	char *c_str();
 	int size();
 private:
