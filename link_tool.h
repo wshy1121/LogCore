@@ -24,10 +24,11 @@ void init_node(struct node *node);
 void insert_node(struct node *node, struct node *inser_node);
 void remov_node(struct node *node);
 
-class  CList
+struct  CList
 {
 public:
-	CList();
+	static CList *createCList();
+	static void destroyClist(CList *pCList);
 public:
 	int push_back(node *pNode);
 	node *begin();
@@ -35,6 +36,9 @@ public:
 	bool empty();
 	void clear();
 	int size();
+private:
+	void init();
+	void exit();
 private:
 	node head_node;
 	node *tail;

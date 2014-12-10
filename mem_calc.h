@@ -116,7 +116,7 @@ private:
 	void dealRecvData(CalcMemInf *pCalcMemInf);
 private:
 	static CalcMemManager *_instance;
-	CList m_recvList;
+	CList *m_recvList;
 	CPthreadMutex m_recvListMutex;
 	pthread_t m_threadId;
 };

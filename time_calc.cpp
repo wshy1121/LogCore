@@ -764,6 +764,7 @@ CTimeCalcInfManager *CTimeCalcInfManager::_instance = NULL;
 
 CTimeCalcInfManager::CTimeCalcInfManager() : m_maxListSize(4), m_isLocked(false)
 {
+	m_recvList = CList::createCList();
 	pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
 
@@ -837,15 +838,15 @@ void CTimeCalcInfManager::threadProc()
 	while(1)
 	{
 
-		if(m_recvList.empty())
+		if(m_recvList->empty())
 		{
 			usleep(10 * 1000);
 			continue;
 		}
 		m_recvListMutex.Enter();
-		struct node *pNode =  m_recvList.begin();
+		struct node *pNode =  m_recvList->begin();
 		RECV_DATA *pRecvData = recvDataContain(pNode);
-		m_recvList.pop_front();	
+		m_recvList->pop_front();	
 		m_recvListMutex.Leave();
 		
 		dealRecvData(&pRecvData->calcInf);
@@ -943,7 +944,7 @@ void CTimeCalcInfManager::pushRecvData(RECV_DATA *pRecvData)
 	}
 	
 	m_recvListMutex.Enter();
-	m_recvList.push_back(&pRecvData->node);
+	m_recvList->push_back(&pRecvData->node);
 	m_recvListMutex.Leave();
 	return ;
 }

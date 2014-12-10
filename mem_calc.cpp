@@ -482,6 +482,7 @@ std::string &CalcMem::getBackTrace(std::string &backTrace)
 CalcMemManager *CalcMemManager::_instance = NULL;
 CalcMemManager::CalcMemManager()
 {
+	m_recvList = CList::createCList();
 	pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
 CalcMemManager *CalcMemManager::instance()
@@ -502,15 +503,15 @@ void CalcMemManager::threadProc()
 	while(1)
 	{
 
-		if(m_recvList.empty())
+		if(m_recvList->empty())
 		{
 			usleep(10 * 1000);
 			continue;
 		}
 		m_recvListMutex.Enter();
-		struct node *pNode =  m_recvList.begin();
+		struct node *pNode =  m_recvList->begin();
 		MEM_DATA *pMemData = memDataContain(pNode);
-		m_recvList.pop_front();	
+		m_recvList->pop_front();	
 		m_recvListMutex.Leave();
 		
 		dealRecvData(&pMemData->calcMemInf);
@@ -562,7 +563,7 @@ void CalcMemManager::pushMemData(MEM_DATA *pMemData)
 	}
 	
 	m_recvListMutex.Enter();
-	m_recvList.push_back(&pMemData->node);
+	m_recvList->push_back(&pMemData->node);
 	m_recvListMutex.Leave();
 	return ;
 }

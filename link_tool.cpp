@@ -41,14 +41,32 @@ void remov_node(struct node *node)
 	return ;
 }
 
+CList *CList::createCList()
+{
+	CList *pCList = (CList *)__real_malloc(sizeof(CList));
+	if (pCList)
+	{
+		pCList->init();
+	}
+	return pCList;
+}
+
+void CList::destroyClist(CList *pCList)
+{
+	pCList->exit();
+	__real_free(pCList);
+}
 
 
 
-CList::CList()
+void CList::init()
 {
 	init_node(&head_node);
 	tail = &head_node;
 	node_num = 0;
+}
+void CList::exit()
+{
 }
 
 
