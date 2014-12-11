@@ -46,6 +46,29 @@ private:
 	int node_num;
 };
 
+
+typedef struct CStrNode
+{
+public:
+	static CStrNode *createCStrNode(int maxStrLen);
+	static void destroyCStrNode(CStrNode *pNode);
+public:
+	node *getNode();
+	int size();
+	void setStr(char *str, int strLen = -1);
+	char *getStr();
+	int writeStr(char *str);
+private:
+	void init(int maxStrLen);
+	void exit();
+public:
+	struct node m_node;
+	char *m_str;
+	int m_strLen;
+	int m_remainMem;
+}CStrNode;
+#define TStrNodeContain(x) container_of((x), CStrNode, m_node)
+
 struct CString
 {
 public:
@@ -58,10 +81,12 @@ public:
 	int size();
 private:
 	void init();
-	void exit();	
+	void exit();
 private:
 	CList *m_pStrList;
+	CStrNode *m_lastStrNode;
 	int m_strLen;
+	int m_maxStrNodeLen;
 };
 
 class CPthreadMutex

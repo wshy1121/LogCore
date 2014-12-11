@@ -5,28 +5,6 @@
 #include <assert.h>
 #include <unistd.h>
 
-typedef struct CStrNode
-{
-public:
-	static CStrNode *createCStrNode(int maxStrLen);
-	static void destroyCStrNode(CStrNode *pNode);
-public:
-	node *getNode();
-	int size();
-	void setStr(char *str, int strLen = -1);
-	char *getStr();
-	int writeStr(char *str);
-private:
-	void init(int maxStrLen);
-	void exit();
-public:
-	struct node m_node;
-	char *m_str;
-	int m_strLen;
-	int m_remainMem;
-}CStrNode;
-#define TStrNodeContain(x) container_of((x), CStrNode, m_node)
-
 extern "C" void __real_free(void* p);
 extern "C" void* __real_malloc(size_t);
 /******************************************************/
@@ -179,16 +157,7 @@ CStrNode *CStrNode::createCStrNode(int maxStrLen)
 	return pNode;
 }
 
-int CStrNode::writeStr(char *str)
-{
-	int strLen = strlen(str);
-	int writeLen = m_remainMem > strLen ? strLen:m_remainMem;
 
-	memcpy(m_str + m_strLen, str, strLen + 1);
-	m_strLen += strLen;
-	m_remainMem -= writeLen;
-	return writeLen;
-}
 
 void CStrNode::destroyCStrNode(CStrNode *pNode)
 {
@@ -198,6 +167,18 @@ void CStrNode::destroyCStrNode(CStrNode *pNode)
 	}
 	pNode->exit();
 	__real_free(pNode);
+}
+
+int CStrNode::writeStr(char *str)
+{
+	int strLen = strlen(str);
+	int writeLen = m_remainMem > strLen ? strLen:m_remainMem;
+
+	memcpy(m_str + m_strLen, str, writeLen);
+	m_strLen += writeLen;
+	m_remainMem -= writeLen;
+	m_str[m_strLen] = '\0';
+	return writeLen;
 }
 
 node *CStrNode::getNode()
@@ -229,6 +210,8 @@ void CString::init()
 {
 	m_pStrList = CList::createCList();
 	m_strLen = 0;
+	m_lastStrNode = NULL;
+	m_maxStrNodeLen = 32 * 1024;
 }
 
 void CString::exit()
@@ -279,10 +262,33 @@ void CString::append(char *str)
 	{
 		return ;
 	}
-	CStrNode *pStrNode = CStrNode::createCStrNode(strlen(str));
-	pStrNode->writeStr(str);
-	m_strLen += pStrNode->size();
-	m_pStrList->push_back(pStrNode->getNode());
+	if (!m_lastStrNode)
+	{
+		m_lastStrNode = CStrNode::createCStrNode(m_maxStrNodeLen);
+		m_pStrList->push_back(m_lastStrNode->getNode());
+	}
+	
+	int remainLen = strlen(str);
+	int pos = 0;
+	int writeLen = 0;
+
+	m_strLen += remainLen;
+
+	while (1)
+	{
+		writeLen = m_lastStrNode->writeStr(str + pos);
+		pos += writeLen;
+		remainLen -= writeLen;
+		if (remainLen == 0)
+		{
+			break;
+		}
+		else
+		{
+			m_lastStrNode = CStrNode::createCStrNode(m_maxStrNodeLen);
+			m_pStrList->push_back(m_lastStrNode->getNode());
+		}
+	}
 }
 
 void CString::append(const char *str)
@@ -294,7 +300,9 @@ char *CString::c_str()
 	CStrNode *pStrNode = NULL;
 	CStrNode *newStrNode = NULL;
 	struct node *pNode = NULL;
-	newStrNode = CStrNode::createCStrNode(m_strLen);
+
+	int newStrLen = m_maxStrNodeLen > m_strLen ? m_maxStrNodeLen : m_strLen;
+	newStrNode = CStrNode::createCStrNode(newStrLen);
 	
 	while (m_pStrList->size())
 	{
@@ -309,6 +317,7 @@ char *CString::c_str()
 
 
 	m_pStrList->push_back(newStrNode->getNode());
+	m_lastStrNode = pStrNode;
 	return newStrNode->getStr();
 }
 
