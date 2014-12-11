@@ -8,20 +8,22 @@
 typedef struct CStrNode
 {
 public:
-	static CStrNode *createCStrNode(char *str = NULL);
+	static CStrNode *createCStrNode(int maxStrLen);
 	static void destroyCStrNode(CStrNode *pNode);
 public:
 	node *getNode();
 	int size();
 	void setStr(char *str, int strLen = -1);
 	char *getStr();
+	int writeStr(char *str);
 private:
-	void init(char *str);
+	void init(int maxStrLen);
 	void exit();
 public:
 	struct node m_node;
 	char *m_str;
 	int m_strLen;
+	int m_remainMem;
 }CStrNode;
 #define TStrNodeContain(x) container_of((x), CStrNode, m_node)
 
@@ -146,19 +148,18 @@ node *CList::getHead()
 	return &head_node;
 }
 
-void CStrNode::init(char *str)
+void CStrNode::init(int maxStrLen)
 {
-	m_str = NULL;
-	
-	if (str == NULL)
+	m_strLen = 0;
+	m_remainMem = 0;
+	if (maxStrLen < 1)
 	{
+		m_str = NULL;
 		return ;
 	}
 	init_node(&m_node);
-	m_strLen = strlen(str);
-	
-	m_str = (char *)__real_malloc(m_strLen + 1);
-	strcpy(m_str, str);
+	m_str = (char *)__real_malloc(maxStrLen + 1);
+	m_remainMem = maxStrLen;
 	return ;
 }
 
@@ -168,17 +169,33 @@ void CStrNode::exit()
 	m_str = NULL;
 	m_strLen = 0;
 }
-CStrNode *CStrNode::createCStrNode(char *str)
+CStrNode *CStrNode::createCStrNode(int maxStrLen)
 {
 	CStrNode *pNode = (CStrNode *)__real_malloc(sizeof(CStrNode));
 	if (pNode)
 	{
-		pNode->init(str);
+		pNode->init(maxStrLen);
 	}
 	return pNode;
 }
+
+int CStrNode::writeStr(char *str)
+{
+	int strLen = strlen(str);
+	int writeLen = m_remainMem > strLen ? strLen:m_remainMem;
+
+	memcpy(m_str + m_strLen, str, strLen + 1);
+	m_strLen += strLen;
+	m_remainMem -= writeLen;
+	return writeLen;
+}
+
 void CStrNode::destroyCStrNode(CStrNode *pNode)
 {
+	if (!pNode)
+	{
+		return ;
+	}
 	pNode->exit();
 	__real_free(pNode);
 }
@@ -262,7 +279,8 @@ void CString::append(char *str)
 	{
 		return ;
 	}
-	CStrNode *pStrNode = CStrNode::createCStrNode(str);
+	CStrNode *pStrNode = CStrNode::createCStrNode(strlen(str));
+	pStrNode->writeStr(str);
 	m_strLen += pStrNode->size();
 	m_pStrList->push_back(pStrNode->getNode());
 }
@@ -273,27 +291,24 @@ void CString::append(const char *str)
 }
 char *CString::c_str()
 {
-	CStrNode *pStrNode = NULL; 
+	CStrNode *pStrNode = NULL;
+	CStrNode *newStrNode = NULL;
 	struct node *pNode = NULL;
-	char *pStr = (char *)__real_malloc(m_strLen + 1);
-	pStr[m_strLen] = '\0';
+	newStrNode = CStrNode::createCStrNode(m_strLen);
 	
-	int strLen = 0;
 	while (m_pStrList->size())
 	{
 		pNode =  m_pStrList->begin();
 		pStrNode = TStrNodeContain(pNode);
 		m_pStrList->pop_front();
-	
-		memcpy(pStr + strLen, pStrNode->getStr(), pStrNode->size());
-		strLen += pStrNode->size();
+
+		newStrNode->writeStr(pStrNode->getStr());
+		
 		CStrNode::destroyCStrNode(pStrNode);
 	}
 
-	pStrNode = CStrNode::createCStrNode();
-	pStrNode->setStr(pStr, m_strLen);
 
-	m_pStrList->push_back(pStrNode->getNode());
-	return pStr;
+	m_pStrList->push_back(newStrNode->getNode());
+	return newStrNode->getStr();
 }
 
