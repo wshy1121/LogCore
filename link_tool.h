@@ -32,7 +32,9 @@ public:
 public:
 	int push_back(node *pNode);
 	node *begin();
+	node *back();
 	void pop_front();
+	void pop_back();
 	bool empty();
 	void clear();
 	int size();

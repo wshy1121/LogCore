@@ -178,7 +178,7 @@ void CTimeCalc::DealFuncEnter()
 	
 	FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->CreatTraceInf(m_threadId);
 	
-	initTimeCalc(TraceInfo->calc_list);
+	initTimeCalc(TraceInfo->pCalcList);
 	if (!this->m_displayFlag)
 	{
 		return ;
@@ -189,23 +189,23 @@ void CTimeCalc::DealFuncEnter()
 }
 
 
-void CTimeCalc::initTimeCalc(CTimeCalcList &calc_list)
+void CTimeCalc::initTimeCalc(CList *pCalcList)
 {
-	CTimeCalc *timeCalc = getLastTimeCalc(calc_list);
+	CTimeCalc *timeCalc = getLastTimeCalc(pCalcList);
 	setDisplayFlag(timeCalc);
-	calc_list.push_back(this);
+	pCalcList->push_back(&this->m_node);
 
 }
-void CTimeCalc::exitTimeCalc(CTimeCalcList &calc_list)
+void CTimeCalc::exitTimeCalc(CList *pCalcList)
 {
-	calc_list.pop_back();
+	pCalcList->pop_back();
 }
-CTimeCalc *CTimeCalc::getLastTimeCalc(CTimeCalcList &calc_list)
+CTimeCalc *CTimeCalc::getLastTimeCalc(CList *pCalcList)
 {
 	CTimeCalc *timeCalc = this;
-	if (calc_list.size())
+	if (pCalcList->size())
 	{
-		timeCalc = (calc_list.back());
+		timeCalc = CTimeCalcContain(pCalcList->back());
 	}
 	return timeCalc;
 }
@@ -227,7 +227,7 @@ void CTimeCalc::DealFuncExit()
 
 	if(TraceInfo)//如果查找到
 	{
-		exitTimeCalc(TraceInfo->calc_list);
+		exitTimeCalc(TraceInfo->pCalcList);
 		if (!this->m_displayFlag)
 		{
 			return ;
@@ -303,6 +303,7 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(pthread_t threadId)
 		TraceInfo->pUpString = CString::createCString();
 		TraceInfo->pUpString->append("//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n");
 
+		TraceInfo->pCalcList = CList::createCList();
 		std::pair<pthread_t, FuncTraceInfo_t *> thread_map_pair(threadId, TraceInfo);
 
 		m_thread_map.insert(thread_map_pair);
@@ -318,6 +319,7 @@ void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo, pthread_t thr
 	CGuardMutex guardMutex(m_thread_map_mutex);
 	m_thread_map.erase(threadId);
 	CString::destroyCString(TraceInfo->pUpString);
+	CList::destroyClist(TraceInfo->pCalcList);
 	delete TraceInfo;
 }
 
@@ -410,7 +412,7 @@ void CTimeCalcManager::getStackInfo(std::string &stackInf)
 	threadQueueEnable(e_Mem);
 		
 	FuncTraceInfo_t *TraceInfo = GetTraceInf(pthread_self());
-	if (!TraceInfo || !TraceInfo->calc_list.size())
+	if (!TraceInfo || !TraceInfo->pCalcList->size())
 	{
 		return ;
 	}
@@ -422,10 +424,15 @@ void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &sta
 {
 	char tmp[64];
 	CTimeCalc *timeCalc = NULL;
-	CTimeCalcList::iterator it;
-	for ( it=TraceInfo->calc_list.begin() ; it != TraceInfo->calc_list.end(); it++ )
+	struct node *pNode = NULL;
+	CList *pCalcList = TraceInfo->pCalcList;
+
+	while (pCalcList->size())
 	{
-		timeCalc = *it;
+		pNode =  pCalcList->begin();
+		timeCalc = CTimeCalcContain(pNode);
+		pCalcList->pop_front();
+		
 		snprintf(tmp, sizeof(tmp), "%s%d_", timeCalc->m_FuncName, timeCalc->m_Line);
 		stackInf += tmp;
 	}
@@ -437,7 +444,7 @@ void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &sta
 void CTimeCalcManager::InsertTrace(int line, char *file_name, pthread_t threadId, const char* content)
 {
 	FuncTraceInfo_t *TraceInfo = GetTraceInf(threadId);
-	if (TraceInfo && !needPrint(TraceInfo->calc_list))
+	if (TraceInfo && !needPrint(TraceInfo->pCalcList))
 	{
 		return ;
 	}
@@ -461,7 +468,7 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, pthread_t threadId
 void CTimeCalcManager::InsertStrOnly(pthread_t threadId, const char* fmt, ...)
 {
 	FuncTraceInfo_t *TraceInfo = GetTraceInf(threadId);
-	if (TraceInfo && !needPrint(TraceInfo->calc_list))
+	if (TraceInfo && !needPrint(TraceInfo->pCalcList))
 	{
 		return ;
 	}
@@ -706,12 +713,12 @@ void CTimeCalcManager::DispTraces(int signo)
 	return ;
 }
 
-bool CTimeCalcManager::needPrint(CTimeCalcList &calc_list)
+bool CTimeCalcManager::needPrint(CList *pCalcList)
 {
 	CTimeCalc *timeCalc = NULL;
-	if (calc_list.size())
+	if (pCalcList->size())
 	{	
-		timeCalc = (calc_list.back());
+		timeCalc = CTimeCalcContain(pCalcList->back());
 	}
 	if (timeCalc && timeCalc->m_displayFlag)
 	{
@@ -891,12 +898,12 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 		case TimeCalcInf::e_destroyCandy:
 			{
 				FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf(threadId);
-				if (TraceInfo == NULL || TraceInfo->calc_list.size() == 0)
+				if (TraceInfo == NULL || TraceInfo->pCalcList->size() == 0)
 				{
 					break ;
 				}
 
-				CTimeCalc *pTimeCalc = TraceInfo->calc_list.back();
+				CTimeCalc *pTimeCalc = CTimeCalcContain(TraceInfo->pCalcList->back());
 				CTimeCalc::destroyCTimeCalc(pTimeCalc);
 				break;
 			}

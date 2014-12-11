@@ -85,6 +85,11 @@ node *CList::begin()
 	return head_node.next;
 }
 
+node *CList::back()
+{
+	return head_node.pre;
+}
+
 void CList::pop_front()
 {
 	node *pNode = head_node.next;
@@ -93,6 +98,13 @@ void CList::pop_front()
 	--(node_num);
 }
 
+void CList::pop_back()
+{
+	node *pNode = head_node.pre;
+	remov_node(pNode);
+	tail = head_node.pre;
+	--(node_num);
+}
 
 bool CList::empty()
 {

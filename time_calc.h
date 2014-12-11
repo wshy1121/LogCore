@@ -14,28 +14,23 @@
 void NextStep(const char *function, const char *fileName, int line);
 #define nextStep()  NextStep(__FUNCTION__, __FILE__, __LINE__)
 #define tracepoint1()  printf("%d  %s  \t\t%ld\n", __LINE__, __FILE__, pthread_self());
-class CTimeCalc;
 
-typedef std::list<CTimeCalc *> CTimeCalcList;
 typedef struct FuncTraceInfo_t
 {
 	struct timeb EndTime;
 	int deep;
 	CString *pUpString;
-	CTimeCalcList calc_list;
+	CList *pCalcList;
 } FuncTraceInfo_t;
 
 class CTimeCalcManager;
 
 
 
-
-
-
-
-struct CTimeCalc
+typedef struct CTimeCalc
 {
 	friend class CTimeCalcManager;
+	friend class CTimeCalcInfManager;
 private:
 	void DealFuncEnter();
 	void DealFuncExit();
@@ -47,9 +42,9 @@ public:
 	void init(int line, char *file_name, char *func_name, int display_level, pthread_t threadId);
 	void exit();
 private:
-	void initTimeCalc(CTimeCalcList &calc_list);
-	void exitTimeCalc(CTimeCalcList &calc_list);
-	CTimeCalc *getLastTimeCalc(CTimeCalcList &calc_list);
+	void initTimeCalc(CList *pCalcList);
+	void exitTimeCalc(CList *pCalcList);
+	CTimeCalc *getLastTimeCalc(CList *pCalcList);
 	void setDisplayFlag(CTimeCalc *timeCalc);
 private:
 	bool m_displayFlag;
@@ -62,8 +57,10 @@ private:
 	char *m_FileName;
 	char *m_FuncName;
 	struct timeb m_StartTime;
+	struct node m_node;
 	
-};
+}CTimeCalc;
+#define CTimeCalcContain(x) container_of((x), CTimeCalc, m_node)
 
 
 class CTimeCalcManager
@@ -92,7 +89,7 @@ private:
 	void InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr);
 	void insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
 	void DispTraces(int signo);
-	bool needPrint(CTimeCalcList &calc_list);
+	bool needPrint(CList *pCalcList);
 	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, pthread_t threadId, const char *pStr);
 	FILE *openLog(const char *sLogName);
 private:
