@@ -293,7 +293,7 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(pthread_t threadId)
 	}
 	else  
 	{
-		TraceInfo = new FuncTraceInfo_t;
+		TraceInfo = (FuncTraceInfo_t *)__real_malloc(sizeof(FuncTraceInfo_t));
 		assert(TraceInfo != NULL);
 
 		ftime(&TraceInfo->EndTime);
@@ -320,7 +320,7 @@ void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo, pthread_t thr
 	m_thread_map.erase(threadId);
 	CString::destroyCString(TraceInfo->pUpString);
 	CList::destroyClist(TraceInfo->pCalcList);
-	delete TraceInfo;
+	__real_free(TraceInfo);
 }
 
 FuncTraceInfo_t * CTimeCalcManager::GetTraceInf(pthread_t threadI)
