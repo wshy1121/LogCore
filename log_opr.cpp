@@ -6,14 +6,14 @@
 #include <string.h>
 #include <stdarg.h>
 #include <time.h>
-
+#include "thread_base.h"
 extern CPthreadMutex g_insMutexCalc;
 
 CLogOprManager *CLogOprManager::_instance = NULL;
 CLogOprManager::CLogOprManager() : m_maxFileDataLen(1024 *1024), m_logName("./Debug.cpp"), m_fileDataLen(0)
 {
-	m_fileData = (char *)malloc(m_maxFileDataLen + 16);
-	pthread_create(&m_threadId, NULL,threadFunc,NULL);
+	m_fileData = (char *)base::malloc(m_maxFileDataLen + 16);
+	base::pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
 CLogOprManager *CLogOprManager::instance()
 {

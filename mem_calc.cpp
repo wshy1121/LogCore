@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include "mem_check.h"
 #include "mem_base.h"
+#include "thread_base.h"
+
 extern CPthreadMutex g_insMutexCalc;
 extern "C" int backtrace(void **buffer, int size);
 /******************************************************/
@@ -482,7 +484,7 @@ CalcMemManager *CalcMemManager::_instance = NULL;
 CalcMemManager::CalcMemManager()
 {
 	m_recvList = CList::createCList();
-	pthread_create(&m_threadId, NULL,threadFunc,NULL);
+	base::pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
 CalcMemManager *CalcMemManager::instance()
 {

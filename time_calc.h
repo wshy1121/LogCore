@@ -4,7 +4,6 @@
 #include <string>
 #include <map>
 #include <list>
-#include <pthread.h>
 #include <signal.h>
 #include <sys/timeb.h>
 #include <stdlib.h>

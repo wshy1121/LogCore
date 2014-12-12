@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include <pthread.h>
 #include <assert.h>
 #include <string.h>
 #include "time_calc.h"
@@ -13,6 +12,8 @@
 #include "mem_calc.h"
 #include "mem_base.h"
 #include "log_opr.h"
+#include "thread_base.h"
+
 #ifdef WRAP
 #include <execinfo.h>
 #endif
@@ -774,7 +775,7 @@ CTimeCalcInfManager *CTimeCalcInfManager::_instance = NULL;
 CTimeCalcInfManager::CTimeCalcInfManager() : m_maxListSize(4), m_isLocked(false)
 {
 	m_recvList = CList::createCList();
-	pthread_create(&m_threadId, NULL,threadFunc,NULL);
+	base::pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
 
 CTimeCalcInfManager *CTimeCalcInfManager::instance()
@@ -798,11 +799,7 @@ void *CTimeCalcInfManager::calcMalloc(int size)
 	}
 	
 	void *pMem = NULL;
-#ifdef WRAP
 	pMem = base::malloc(size + 1);
-#else
-	pMem = malloc(size);
-#endif
 	((char *)pMem)[0] = '\0';
 	return pMem;
 }

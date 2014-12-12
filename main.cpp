@@ -3,6 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 #include "Global.h"
+#include "thread_base.h"
+#include "mem_base.h"
 
 //≤‚ ‘CTimeCalc π”√
 
@@ -11,7 +13,7 @@ void fun1()
 	time_printf("NULL");
 	time_stack();
 	time_str((char *)"1234", 4);
-	char *tmp = (char *)malloc(32);
+	char *tmp = (char *)base::malloc(32);
 	strcpy(tmp, "1234567789");
 	time_printf("NULL");
 	tmp = (char *)realloc(tmp, 33);
@@ -89,7 +91,7 @@ int main()
 	time_start();
 
 	pthread_t printfThreadId;
-	pthread_create(&printfThreadId, NULL,printfMallocMap,NULL);
+	base::pthread_create(&printfThreadId, NULL,printfMallocMap,NULL);
 
 	const int threadNum = 50;
 	pthread_t thread_id[threadNum];	
@@ -97,7 +99,7 @@ int main()
 	{
 		for (int i=0; i<threadNum; ++i)
 		{
-			pthread_create(&thread_id[i], NULL,test1,NULL);
+			base::pthread_create(&thread_id[i], NULL,test1,NULL);
 		}
 		//-------------------------------------------------------------
 		for (int i=0; i<threadNum; ++i)

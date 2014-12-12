@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <string>
 #include <stdlib.h>
-#include <pthread.h>
+#include "mem_base.h"
 
 #define container_of(ptr, type, member) ({  \
 const typeof( ((type *)0)->member ) *__mptr = (ptr);   \
@@ -97,7 +97,7 @@ public:
 	///\brief 构造函数，默认为互斥锁
 	CPthreadMutex()
 	{
-		m_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+		m_mutex = (pthread_mutex_t *)base::malloc(sizeof(pthread_mutex_t));
 		pthread_mutex_init(m_mutex, NULL);
 	}
 
