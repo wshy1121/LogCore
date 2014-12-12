@@ -8,6 +8,7 @@
 #include "time_calc.h"
 #include "mem_calc.h"
 #include "mem_check.h"
+#include "mem_base.h"
 
 extern "C" void *__wrap_malloc(size_t c)
 {
@@ -18,7 +19,7 @@ extern "C" void *__wrap_malloc(size_t c)
 		return p;
 	}
 
-	return __real_malloc(c);
+	return base::malloc(c);
 }
 extern "C" void* __wrap_realloc(void *p, size_t c)
 {
@@ -29,7 +30,7 @@ extern "C" void* __wrap_realloc(void *p, size_t c)
 		return p;
 	}
 
-	return __real_realloc(p, c);
+	return base::realloc(p, c);
 }
 extern "C" void* __wrap_calloc(size_t nmemb, size_t size)
 {
@@ -40,7 +41,7 @@ extern "C" void* __wrap_calloc(size_t nmemb, size_t size)
 		return p;
 	}
 
-	return __real_calloc(nmemb, size);
+	return base::calloc(nmemb, size);
 }
 extern "C" void __wrap_free(void*p)
 {
@@ -51,7 +52,7 @@ extern "C" void __wrap_free(void*p)
 		return ;
 	}
 
-	__real_free(p);
+	base::free(p);
 }
 
 

@@ -30,7 +30,6 @@ class CTimeCalcManager;
 typedef struct CTimeCalc
 {
 	friend class CTimeCalcManager;
-	friend class CTimeCalcInfManager;
 private:
 	void DealFuncEnter();
 	void DealFuncExit();
@@ -46,7 +45,7 @@ private:
 	void exitTimeCalc(CList *pCalcList);
 	CTimeCalc *getLastTimeCalc(CList *pCalcList);
 	void setDisplayFlag(CTimeCalc *timeCalc);
-private:
+public:
 	bool m_displayFlag;
 	int m_DisplayLevel;
 	pthread_t m_threadId;

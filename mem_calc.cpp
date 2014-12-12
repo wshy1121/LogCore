@@ -5,9 +5,8 @@
 #include <assert.h>
 #include <unistd.h>
 #include "mem_check.h"
+#include "mem_base.h"
 extern CPthreadMutex g_insMutexCalc;
-extern "C" void __real_free(void* p);
-extern "C" void* __real_malloc(size_t);
 extern "C" int backtrace(void **buffer, int size);
 /******************************************************/
 
@@ -143,7 +142,7 @@ int ThreadQueue::removeNode(ThreadNode *queueNode, E_ENABLE_TYPE type)
 		remov_node(&queueNode->node);
 		tail = TQueueContain(head_node.node.pre);
 		--(node_num);
-		__real_free(queueNode);
+		base::free(queueNode);
 		return 0;	
 	}
 
@@ -236,7 +235,7 @@ void ThreadQueue::clearQueue()
 		(node)=(node)->next;
 		//printf("queue_node->thread_id  %ld\n", queue_node->thread_id);
 
-		__real_free(queue_node);
+		base::free(queue_node);
 
 	}
 
@@ -279,7 +278,7 @@ ThreadNode *ThreadQueue::getQueueNode(pthread_t thread_id)
 	getQueue(pthread_self(), &queue_node);
 	if (!queue_node)
 	{
-		queue_node = (ThreadNode *)__real_malloc(sizeof(ThreadNode));
+		queue_node = (ThreadNode *)base::malloc(sizeof(ThreadNode));
 		initThreadNode(queue_node);
 		insertQueue(queue_node);
 	}
@@ -347,7 +346,7 @@ CalcMem *CalcMem::instance()
 
 MEM_DATA *CalcMem::createMemData(int backTraceLen)
 {
-	MEM_DATA *pMemData = (MEM_DATA *)__real_malloc(sizeof(MEM_DATA));
+	MEM_DATA *pMemData = (MEM_DATA *)base::malloc(sizeof(MEM_DATA));
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapMalloc;
@@ -358,7 +357,7 @@ MEM_DATA *CalcMem::createMemData(int backTraceLen)
 	pCalcMemInf->m_backTrace = NULL;
 	if (backTraceLen > 0)
 	{
-		pCalcMemInf->m_backTrace = (char *)__real_malloc(backTraceLen+1);
+		pCalcMemInf->m_backTrace = (char *)base::malloc(backTraceLen+1);
 		((char *)pCalcMemInf->m_backTrace)[0] = '\0';
 	}
 	
@@ -367,8 +366,8 @@ MEM_DATA *CalcMem::createMemData(int backTraceLen)
 }
 void CalcMem::destroyMemData(MEM_DATA *pMemData)
 {
-	__real_free(pMemData->calcMemInf.m_backTrace);
-	__real_free(pMemData);
+	base::free(pMemData->calcMemInf.m_backTrace);
+	base::free(pMemData);
 }
 
 

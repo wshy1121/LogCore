@@ -4,9 +4,8 @@
 #include <execinfo.h>
 #include <assert.h>
 #include <unistd.h>
+#include "mem_base.h"
 
-extern "C" void __real_free(void* p);
-extern "C" void* __real_malloc(size_t);
 /******************************************************/
 void init_node(struct node *node)
 {
@@ -43,7 +42,7 @@ void remov_node(struct node *node)
 
 CList *CList::createCList()
 {
-	CList *pCList = (CList *)__real_malloc(sizeof(CList));
+	CList *pCList = (CList *)base::malloc(sizeof(CList));
 	if (pCList)
 	{
 		pCList->init();
@@ -54,7 +53,7 @@ CList *CList::createCList()
 void CList::destroyClist(CList *pCList)
 {
 	pCList->exit();
-	__real_free(pCList);
+	base::free(pCList);
 }
 
 
@@ -148,20 +147,20 @@ void CStrNode::init(int maxStrLen)
 		return ;
 	}
 	init_node(&m_node);
-	m_str = (char *)__real_malloc(maxStrLen + 1);
+	m_str = (char *)base::malloc(maxStrLen + 1);
 	m_remainMem = maxStrLen;
 	return ;
 }
 
 void CStrNode::exit()
 {
-	__real_free(m_str);
+	base::free(m_str);
 	m_str = NULL;
 	m_strLen = 0;
 }
 CStrNode *CStrNode::createCStrNode(int maxStrLen)
 {
-	CStrNode *pNode = (CStrNode *)__real_malloc(sizeof(CStrNode));
+	CStrNode *pNode = (CStrNode *)base::malloc(sizeof(CStrNode));
 	if (pNode)
 	{
 		pNode->init(maxStrLen);
@@ -178,7 +177,7 @@ void CStrNode::destroyCStrNode(CStrNode *pNode)
 		return ;
 	}
 	pNode->exit();
-	__real_free(pNode);
+	base::free(pNode);
 }
 
 int CStrNode::writeStr(char *str)
@@ -245,7 +244,7 @@ void CString::exit()
 
  CString* CString::createCString()
 {
-	CString *pCString = (CString *)__real_malloc(sizeof(CString));
+	CString *pCString = (CString *)base::malloc(sizeof(CString));
 	if (pCString)
 	{
 		pCString->init();
@@ -261,7 +260,7 @@ void CString::destroyCString(CString *pCString)
 	}
 
 	pCString->exit();
-	__real_free(pCString);
+	base::free(pCString);
 }
  int CString::size()
 {

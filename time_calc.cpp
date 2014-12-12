@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "mem_calc.h"
+#include "mem_base.h"
 #include "log_opr.h"
 #ifdef WRAP
 #include <execinfo.h>
@@ -43,8 +44,6 @@
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
 
 CPthreadMutex g_insMutexCalc;
-extern "C" void* __real_malloc(size_t);
-extern "C" void __real_free(void* p);
 
 void NextStep(const char *function, const char *fileName, int line)
 {
@@ -59,8 +58,8 @@ void CTimeCalc::exit()
 {
 	DealFuncExit();
 
-	__real_free(m_FileName);
-	__real_free(m_FuncName);
+	base::free(m_FileName);
+	base::free(m_FuncName);
 	m_FileName = NULL;
 	m_FuncName = NULL;
 }
@@ -72,9 +71,9 @@ void CTimeCalc::init(int line, char *file_name, char *func_name, int display_lev
 	m_noDisplayLevel = display_level;		
 	m_Line = line;
 
-	m_FileName = (char *)__real_malloc(strlen(file_name) + 1);
+	m_FileName = (char *)base::malloc(strlen(file_name) + 1);
 	strcpy(m_FileName, file_name);
-	m_FuncName = (char *)__real_malloc(strlen(func_name) + 1);
+	m_FuncName = (char *)base::malloc(strlen(func_name) + 1);
 	strcpy(m_FuncName, func_name);
 
 	ftime(&m_StartTime);
@@ -84,7 +83,7 @@ void CTimeCalc::init(int line, char *file_name, char *func_name, int display_lev
 
 CTimeCalc * CTimeCalc::createCTimeCalc(int line, char *file_name, char *func_name, int display_level, pthread_t threadId) 
 {
-	CTimeCalc *pTimeCalc = (CTimeCalc *)__real_malloc(sizeof(CTimeCalc));
+	CTimeCalc *pTimeCalc = (CTimeCalc *)base::malloc(sizeof(CTimeCalc));
 	if (pTimeCalc)
 	{
 		pTimeCalc->init(line, file_name, func_name, display_level, threadId);
@@ -96,7 +95,7 @@ CTimeCalc * CTimeCalc::createCTimeCalc(int line, char *file_name, char *func_nam
 void CTimeCalc::destroyCTimeCalc(CTimeCalc *pTimeCalc)
 {
 	pTimeCalc->exit();
-	__real_free(pTimeCalc);
+	base::free(pTimeCalc);
 
 }
 void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
@@ -293,7 +292,7 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(pthread_t threadId)
 	}
 	else  
 	{
-		TraceInfo = (FuncTraceInfo_t *)__real_malloc(sizeof(FuncTraceInfo_t));
+		TraceInfo = (FuncTraceInfo_t *)base::malloc(sizeof(FuncTraceInfo_t));
 		assert(TraceInfo != NULL);
 
 		ftime(&TraceInfo->EndTime);
@@ -320,7 +319,7 @@ void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo, pthread_t thr
 	m_thread_map.erase(threadId);
 	CString::destroyCString(TraceInfo->pUpString);
 	CList::destroyClist(TraceInfo->pCalcList);
-	__real_free(TraceInfo);
+	base::free(TraceInfo);
 }
 
 FuncTraceInfo_t * CTimeCalcManager::GetTraceInf(pthread_t threadI)
@@ -800,7 +799,7 @@ void *CTimeCalcInfManager::calcMalloc(int size)
 	
 	void *pMem = NULL;
 #ifdef WRAP
-	pMem = __real_malloc(size + 1);
+	pMem = base::malloc(size + 1);
 #else
 	pMem = malloc(size);
 #endif
@@ -815,7 +814,7 @@ void CTimeCalcInfManager::calcFree(void *pMem)
 		return ;
 	}
 #ifdef WRAP
-	 __real_free(pMem);
+	 base::free(pMem);
 #else
 	 free(pMem);
 #endif

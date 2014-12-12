@@ -1,4 +1,5 @@
 #include "mem_check.h"
+#include "mem_base.h"
 #include "link_tool.h"
 #include "time_calc.h"
 
@@ -24,7 +25,7 @@ CMemCheck *CMemCheck::instance()
 }
 void *CMemCheck::malloc(size_t c)
 {	
-	void* p = __real_malloc(c + m_flagSize);
+	void* p = base::malloc(c + m_flagSize);
 	setFlag(p, c);
 	return p;
 }
@@ -32,7 +33,7 @@ void *CMemCheck::malloc(size_t c)
 
 void* CMemCheck::realloc(void *p, size_t c)
 {
-	p = __real_realloc(p, c + m_flagSize);
+	p = base::realloc(p, c + m_flagSize);
 
 	setFlag(p, c);	
 	return p;
@@ -48,7 +49,7 @@ void* CMemCheck::calloc(size_t nmemb, size_t size)
 	{
 		memNum = nmemb + endFlagSize / size + 1;
 	}
-	void* p = __real_calloc(memNum, size);
+	void* p = base::calloc(memNum, size);
 
 	setFlag(p, nmemb * size);
 	return p;
@@ -56,7 +57,7 @@ void* CMemCheck::calloc(size_t nmemb, size_t size)
 
 void CMemCheck::free(void*p)
 {
-	__real_free(p);
+	base::free(p);
 }
 
 

@@ -6,10 +6,6 @@
 #include <map>
 #include "link_tool.h"
 
-extern "C" void __real_free(void* p);
-extern "C" void* __real_malloc(size_t);
-extern "C" void *__real_realloc(void* c, int size);
-extern "C" void* __real_calloc(size_t nmemb, size_t size);
 
 typedef struct MemNodeInf
 {

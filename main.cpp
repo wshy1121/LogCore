@@ -5,7 +5,6 @@
 #include "Global.h"
 
 //≤‚ ‘CTimeCalc π”√
-extern "C" void* __real_malloc(size_t);
 
 void fun1()
 {	time_trace();
@@ -87,7 +86,7 @@ void* printfMallocMap(void *pArg)
 }
 int main()
 {
-	//time_start();
+	time_start();
 
 	pthread_t printfThreadId;
 	pthread_create(&printfThreadId, NULL,printfMallocMap,NULL);
