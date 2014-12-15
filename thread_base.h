@@ -1,8 +1,6 @@
 #ifndef __THREAD_BASE_H
 #define __THREAD_BASE_H
 
-#include "stdafx.h"
-
 
 namespace base
 {

@@ -1,10 +1,10 @@
 #include "stdafx.h"
+#include "string_base.h"
 #include "log_opr.h"
 #include "mem_calc.h"
 #include "time_calc.h"
 #include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
 #include <time.h>
 
 extern CPthreadMutex g_insMutexCalc;
@@ -81,12 +81,12 @@ void CLogOprManager::dealRecvData(LogDataInf *pLogDataInf)
 void CLogOprManager::pushLogData(const char *logStr)
 {
 	CGuardMutex guardMutex(m_logFileMutex);
-	int logStrLen = strlen(logStr);
+	int logStrLen = (int)strlen(logStr);
 	if ((logStrLen + m_fileDataLen) >= m_maxFileDataLen)
 	{
 		writeToFile();
 	}
-	snprintf(m_fileData + m_fileDataLen, m_maxFileDataLen - m_fileDataLen, "%s", logStr);
+	base::snprintf(m_fileData + m_fileDataLen, m_maxFileDataLen - m_fileDataLen, "%s", logStr);
 	m_fileDataLen += logStrLen;
 	return ;
 }

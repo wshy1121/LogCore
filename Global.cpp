@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "string_base.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <assert.h>
@@ -48,18 +49,18 @@ void CBugKiller::InsertTrace(int line, char *file_name, const char* fmt, ...)
 	char content[4096];
 	va_list ap;
 	va_start(ap,fmt);
-	vsnprintf(content,sizeof(content), fmt, ap);
+	base::vsnprintf(content,sizeof(content), fmt, ap);
 	va_end(ap);
 
 
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData(strlen(content));
+	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData((int)strlen(content));
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = TimeCalcInf::e_insertTrace;
 	pCalcInf->m_threadId = base::pthread_self();
 	pCalcInf->m_line = line;
 	pCalcInf->m_fileName = file_name;
-	strcpy(pCalcInf->m_pContent, content);
+	base::strcpy(pCalcInf->m_pContent, content);
 
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 	return ;
@@ -85,16 +86,16 @@ void CBugKiller::InsertStrOnly(base::pthread_t threadId, const char* fmt, ...)
 	char content[4096];
 	va_list ap;
 	va_start(ap,fmt);
-	vsnprintf(content,sizeof(content), fmt, ap);
+	base::vsnprintf(content,sizeof(content), fmt, ap);
 	va_end(ap);
 
 
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData(strlen(content));
+	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData((int)strlen(content));
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = TimeCalcInf::e_InsertStrOnly;
 	pCalcInf->m_threadId = threadId;
-	strcpy(pCalcInf->m_pContent, content);
+	base::strcpy(pCalcInf->m_pContent, content);
 
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 
@@ -106,12 +107,12 @@ void CBugKiller::DispAll()
 	std::string backtrace;
 	CalcMem::instance()->getBackTrace(backtrace);
 
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData(backtrace.size());
+	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData((int)backtrace.size());
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = TimeCalcInf::e_dispAll;
 	pCalcInf->m_threadId = base::pthread_self();
-	strcpy(pCalcInf->m_pContent, backtrace.c_str());
+	base::strcpy(pCalcInf->m_pContent, backtrace.c_str());
 
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 	//CTimeCalcManager::instance()->DispAll();
@@ -123,17 +124,17 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 	char content[1024];
 	va_list ap;
 	va_start(ap,fmt);
-	vsnprintf(content,sizeof(content), fmt, ap);
+	base::vsnprintf(content,sizeof(content), fmt, ap);
 	va_end(ap);
 
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData(strlen(content));
+	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData((int)strlen(content));
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = TimeCalcInf::e_insertTag;
 	pCalcInf->m_threadId = base::pthread_self();
 	pCalcInf->m_line = line;
 	pCalcInf->m_fileName = file_name;
-	strcpy(pCalcInf->m_pContent, content);
+	base::strcpy(pCalcInf->m_pContent, content);
 
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 	return ;	

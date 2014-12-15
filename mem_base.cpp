@@ -20,7 +20,7 @@ void free(void* p)
 	__real_free(p);
 }
 
-void *realloc(void* c, int size)
+void *realloc(void* c, size_t size)
 {
 	return __real_realloc(c, size);
 }

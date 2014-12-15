@@ -12,16 +12,18 @@
 
 #define WIN32_LEAN_AND_MEAN		// 从 Windows 头中排除极少使用的资料
 
-#ifndef WIN32
+#ifdef WIN32
+#include <windows.h>
+#else
 #include <unistd.h>
 #include <pthread.h>
-#else
-#include <windows.h>
 #endif
 
+#include "string_base.h"
 #include "platform_base.h"
 #include "thread_base.h"
 #include "mem_base.h"
+
 
 #endif
 // TODO: 在此处引用程序需要的其他头文件

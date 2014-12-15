@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "string_base.h"
 #include "mem_calc.h"
 #include "Global.h"
 #include <stdio.h>
@@ -291,16 +292,16 @@ void ThreadQueue::wrapMalloc(void* addr, size_t c)
 	threadQueueEnable(e_Mem);
 	std::string backtrace;
 	CalcMem::instance()->getBackTrace(backtrace);
-	CMemCheck::instance()->addMemInfo(addr, c, backtrace);
+	CMemCheck::instance()->addMemInfo(addr, (int)c, backtrace);
 	
-	MEM_DATA *pMemData =  CalcMem::instance()->createMemData(backtrace.size());
+	MEM_DATA *pMemData =  CalcMem::instance()->createMemData((int)backtrace.size());
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 		
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapMalloc;
 	pCalcMemInf->m_threadId = base::pthread_self();
 	pCalcMemInf->m_memAddr = addr;
 	pCalcMemInf->m_memSize= c;
-	strcpy(pCalcMemInf->m_backTrace, backtrace.c_str());
+	base::strcpy(pCalcMemInf->m_backTrace, backtrace.c_str());
 
 	CalcMemManager::instance()->pushMemData(pMemData);
 	return ;
@@ -315,20 +316,20 @@ void ThreadQueue::wrapFree(void* addr)
 		return ;
 	}
 	
-	MEM_DATA *pMemData =  CalcMem::instance()->createMemData(nodeInf.path.size());
+	MEM_DATA *pMemData =  CalcMem::instance()->createMemData((int)nodeInf.path.size());
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapFree;
 	pCalcMemInf->m_threadId = base::pthread_self();
 	pCalcMemInf->m_memAddr = addr;
 	pCalcMemInf->m_memSize= nodeInf.memSize;
-	strcpy(pCalcMemInf->m_backTrace, nodeInf.path.c_str());
+	base::strcpy(pCalcMemInf->m_backTrace, nodeInf.path.c_str());
 	
 	CalcMemManager::instance()->pushMemData(pMemData);
 	return ;
 }
 CalcMem *CalcMem::_instance = NULL;
-CalcMem::CalcMem() : 	m_stackNum(32)					
+CalcMem::CalcMem():m_stackNum(32)
 {
 	m_traceHead = "addr2line -e ./Challenge_Debug -f -C  ";
 }
@@ -380,13 +381,13 @@ void CalcMem::wrapMalloc(void* addr, size_t c, char *pBackTrace, base::pthread_t
 		return ;
 	}
 	CGuardMutex guardMutex(m_mutex);
-	dealMemInf(pBackTrace, c, threadId);	
+	dealMemInf(pBackTrace, (int)c, threadId);	
 }
 
 void CalcMem::wrapFree(void* addr, size_t c, char *pBackTrace, base::pthread_t threadId)
 {
 	CGuardMutex guardMutex(m_mutex);
-	dealMemInf(pBackTrace, -c, threadId);
+	dealMemInf(pBackTrace, -(int)c, threadId);
 }
 void CalcMem::printfMemInfMap(base::pthread_t threadId)
 {
@@ -401,7 +402,7 @@ void CalcMem::printfMemInfMap(base::pthread_t threadId)
 		MemInf *memInf = iter->second;
 
 		size_t diffCount = memInf->mallocCount - memInf->freeCount;
-		int itemSize = 0;
+		size_t itemSize = 0;
 		if (diffCount > 0)
 		{
 			itemSize = memInf->memSize /diffCount;
@@ -462,9 +463,9 @@ std::string CalcMem::splitFilename (std::string &path)
 
 std::string &CalcMem::getBackTrace(std::string &backTrace)
 {
-       void *stack_addr[m_stackNum];
-       int layer;
-       int i;
+	void *stack_addr[m_stackNum];
+	int layer;
+	int i;
 	char tmp[256];
 	backTrace = m_traceHead;
 
@@ -473,7 +474,7 @@ std::string &CalcMem::getBackTrace(std::string &backTrace)
 	m_mutex.Leave();
 	for(i = 3; i < layer; i++)
 	{
-		snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
+		base::snprintf(tmp, sizeof(tmp), "%p  ", stack_addr[i]);
 		backTrace += tmp;
 	}
 	return backTrace;

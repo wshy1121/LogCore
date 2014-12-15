@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "Global.h"
-
+#include "string_base.h"
 
 //≤‚ ‘CTimeCalc π”√
 
@@ -13,20 +13,20 @@ void fun1()
 	time_stack();
 	time_str((char *)"1234", 4);
 	char *tmp = (char *)base::malloc(32);
-	strcpy(tmp, "1234567789");
+	base::strcpy(tmp, "1234567789");
 	time_printf("NULL");
 	tmp = (char *)realloc(tmp, 33);
-	strcpy(tmp, "1234567789");
+	base::strcpy(tmp, "1234567789");
 	free(tmp);
 	tmp = (char *)calloc(1, 16);
-	strcpy(tmp, "1234567789");
+	base::strcpy(tmp, "1234567789");
 	tmp = (char *)realloc(tmp, 33);
-	strcpy(tmp, "1234567789");	
+	base::strcpy(tmp, "1234567789");	
 	free(tmp);
 	tmp = new char[32];
-	strcpy(tmp, "1234567789");
+	base::strcpy(tmp, "1234567789");
 	tmp = (char *)realloc(tmp, 33);
-	strcpy(tmp, "1234567789");		
+	base::strcpy(tmp, "1234567789");		
 	delete tmp;
 	time_printf("NULL");	
 	std::string stack;

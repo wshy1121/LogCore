@@ -1,7 +1,7 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 #include <string>
-#include "stdafx.h"
+
 
 #define debug_printf()  printf("WSHY DEBUG  %d  %s\n", __LINE__, __FILE__);
 

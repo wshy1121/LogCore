@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "string_base.h"
 #include "time_calc.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,7 +8,6 @@
 #include <string.h>
 #include "time_calc.h"
 #include <map>
-#include <stdarg.h>
 #include <sys/stat.h>
 #include "mem_calc.h"
 #include "log_opr.h"
@@ -71,9 +71,9 @@ void CTimeCalc::init(int line, char *file_name, char *func_name, int display_lev
 	m_Line = line;
 
 	m_FileName = (char *)base::malloc(strlen(file_name) + 1);
-	strcpy(m_FileName, file_name);
+	base::strcpy(m_FileName, file_name);
 	m_FuncName = (char *)base::malloc(strlen(func_name) + 1);
-	strcpy(m_FuncName, func_name);
+	base::strcpy(m_FuncName, func_name);
 
 	ftime(&m_StartTime);
 	m_threadId = threadId;
@@ -102,9 +102,9 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 	char tmp[64];
 
 	char time_tmp[128];
-	snprintf(time_tmp, sizeof(time_tmp), "level  %4d ", m_DisplayLevel);
+	base::snprintf(time_tmp, sizeof(time_tmp), "level  %4d ", m_DisplayLevel);
 	
-	snprintf(tmp, sizeof(tmp), ":  %4d  thread id:  %16d  %s", m_Line, (int)m_threadId, time_tmp);
+	base::snprintf(tmp, sizeof(tmp), ":  %4d  thread id:  %16d  %s", m_Line, (int)m_threadId, time_tmp);
 
 	if (this->m_DisplayLevel == 0)
 	{
@@ -133,7 +133,7 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 	ftime(&cur_time);
 
 	
-	snprintf(time_tmp, sizeof(time_tmp), "       //    cost second: %4ld  %4d  %16ld  %4d  route", cur_time.time - TraceInfo->EndTime.time, cur_time.millitm - TraceInfo->EndTime.millitm, cur_time.time, cur_time.millitm);
+	base::snprintf(time_tmp, sizeof(time_tmp), "       //    cost second: %4ld  %4d  %16ld  %4d  route", cur_time.time - TraceInfo->EndTime.time, cur_time.millitm - TraceInfo->EndTime.millitm, cur_time.time, cur_time.millitm);
 	TraceInfo->pUpString->append(time_tmp);
 	TraceInfo->pUpString->append("\n");
 
@@ -152,12 +152,12 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 
 
 	char time_tmp[128];
-	strcpy(time_tmp, "wshy");
+	base::strcpy(time_tmp, "wshy");
 
 	struct timeb cur_time; 
 	ftime(&cur_time);
 
-	snprintf(tmp, sizeof(tmp), "        //func  cost second: %4ld  %4d  %16ld  %4d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName, time_tmp);
+	base::snprintf(tmp, sizeof(tmp), "        //func  cost second: %4ld  %4d  %16ld  %4d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName, time_tmp);
 
 	TraceInfo->pUpString->append(tmp);
 	TraceInfo->pUpString->append("\n");
@@ -347,7 +347,7 @@ void CTimeCalcManager::printStack(int line, char *file_name, const char* fmt, ..
 	char str[4096];
 	va_list ap;
 	va_start(ap,fmt);
-	vsnprintf(str,sizeof(str), fmt, ap);
+	base::vsnprintf(str,sizeof(str), fmt, ap);
 	va_end(ap); 
 	insertStackInfo(TraceInfo, line, file_name, str);
 
@@ -387,12 +387,12 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 		m_stack_inf_map[stackInf] = count;
 	}
 
-	snprintf(tmp, sizeof(tmp), "count %8d ", count);
+	base::snprintf(tmp, sizeof(tmp), "count %8d ", count);
 	TraceInfo->pUpString->append(tmp);
 	TraceInfo->pUpString->append(stackInf.c_str());
 
 
-	snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "wshy", cur_time.time, cur_time.millitm);
+	base::snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "wshy", cur_time.time, cur_time.millitm);
 	TraceInfo->pUpString->append(tmp);
 	TraceInfo->pUpString->append("*/\n");
 
@@ -431,7 +431,7 @@ void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &sta
 		timeCalc = CTimeCalcContain(pNode);
 		pCalcList->pop_front();
 		
-		snprintf(tmp, sizeof(tmp), "%s%d_", timeCalc->m_FuncName, timeCalc->m_Line);
+		base::snprintf(tmp, sizeof(tmp), "%s%d_", timeCalc->m_FuncName, timeCalc->m_Line);
 		stackInf += tmp;
 	}
 	return ;
@@ -454,7 +454,7 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, base::pthread_t th
 	else
 	{
 		char logStr[512];
-		snprintf(logStr, sizeof(logStr), "trace:/*%s  %d  %s*/\n", content, line, file_name);
+		base::snprintf(logStr, sizeof(logStr), "trace:/*%s  %d  %s*/\n", content, line, file_name);
 		CTimeCalcManager::instance()->printStrLog(logStr);
 	}
 
@@ -474,7 +474,7 @@ void CTimeCalcManager::InsertStrOnly(base::pthread_t threadId, const char* fmt, 
 	char str[4096];
 	va_list ap;
 	va_start(ap,fmt);
-	vsnprintf(str,sizeof(str), fmt, ap);
+	base::vsnprintf(str,sizeof(str), fmt, ap);
 	va_end(ap);      
 
 	if(TraceInfo)//如果查找到
@@ -517,7 +517,7 @@ void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	ftime(&cur_time);
 
 	char tmp[128];
-	snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)threadId, "wshy", cur_time.time, cur_time.millitm);
+	base::snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)threadId, "wshy", cur_time.time, cur_time.millitm);
 
 	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
@@ -536,7 +536,7 @@ void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 {
 	char time_tmp[128];
-	strcpy(time_tmp, "wshy");
+	base::strcpy(time_tmp, "wshy");
 
 
 	struct timeb cur_time;
@@ -544,7 +544,7 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 	
 	char str[4096];
 	/* save log msg in file */
-	snprintf(str, sizeof(str), "hex%s:[%s][%4d]len=%4d\n", __FUNCTION__, file_name, line,nBufLen);
+	base::snprintf(str, sizeof(str), "hex%s:[%s][%4d]len=%4d\n", __FUNCTION__, file_name, line,nBufLen);
 
 	/* save log msg in file */
 	int j = 0;
@@ -563,7 +563,7 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 		}
 
 		/* output psBuf value in hex */
-		snprintf(sTemp, sizeof(sTemp), "%02X ", (unsigned	char)psBuf[i]);
+		base::snprintf(sTemp, sizeof(sTemp), "%02X ", (unsigned	char)psBuf[i]);
 		memcpy( &sLine[j*3+5+(j>7)], sTemp, 3);
 
 		/* output psBuf in ascii */
@@ -581,7 +581,7 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 		if (j==16)
 		{
 			sLine[77]=0;
-			snprintf(str+strlen(str), sizeof(str)-strlen(str), "%s\n", sLine);
+			base::snprintf(str+strlen(str), sizeof(str)-strlen(str), "%s\n", sLine);
 			j=0;
 		}
 	}
@@ -590,15 +590,15 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 	if (j)
 	{
 		sLine[77]=0;
-		snprintf(str+strlen(str), sizeof(str)-strlen(str), "%s\n",	sLine);
+		base::snprintf(str+strlen(str), sizeof(str)-strlen(str), "%s\n",	sLine);
 	}
-	snprintf(str+strlen(str), sizeof(str)-strlen(str), "%80.80s\n", SINGLE_LINE);
+	base::snprintf(str+strlen(str), sizeof(str)-strlen(str), "%80.80s\n", SINGLE_LINE);
 	//--------------------------------------
 
 
 
 
-	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
+	base::snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
 	FuncTraceInfo_t *TraceInfo = GetTraceInf(base::pthread_self());
 	
@@ -632,7 +632,7 @@ void CTimeCalcManager::InsertTag(int line, char *file_name, const char* content)
 	ftime(&cur_time);
 
 	char str[256];
-	snprintf(str, sizeof(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "huang_yuan", cur_time.time, cur_time.millitm);
+	base::snprintf(str, sizeof(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "huang_yuan", cur_time.time, cur_time.millitm);
 
 	printLog((char *)"trace:/*%s %s*/", content, str);
 	return ;
@@ -695,10 +695,10 @@ void CTimeCalcManager::DispTraces(int signo)
 		switch(signo) 
 		{
 			case SIGSEGV:
-				strcpy(signo_inf, "SIGSEGV");
+				base::strcpy(signo_inf, "SIGSEGV");
 				break;
 			case SIGINT:
-				strcpy(signo_inf, "SIGINT");
+				base::strcpy(signo_inf, "SIGINT");
 				break;
 			default:
 				break;
@@ -751,11 +751,11 @@ void CTimeCalcManager::printLog(char *sFmt, ...)
 	char logStr[512];
 	va_list ap;
 	va_start(ap,sFmt);
-	vsnprintf(logStr, sizeof(logStr), sFmt, ap);
+	base::vsnprintf(logStr, sizeof(logStr), sFmt, ap);
 	va_end(ap);
 	CLogOprManager::instance()->pushLogData(logStr);
 	
-	snprintf(logStr, sizeof(logStr), "//thread id:%16d  creat by huang_yuan@dahuatech.com\n\n", (int)base::pthread_self());
+	base::snprintf(logStr, sizeof(logStr), "//thread id:%16d  creat by huang_yuan@dahuatech.com\n\n", (int)base::pthread_self());
 	CLogOprManager::instance()->pushLogData(logStr);
 
 	return ;
@@ -844,7 +844,7 @@ void CTimeCalcInfManager::threadProc()
 
 		if(m_recvList->empty())
 		{
-			usleep(10 * 1000);
+			base::usleep(10 * 1000);
 			continue;
 		}
 		m_recvListMutex.Enter();

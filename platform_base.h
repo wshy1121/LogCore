@@ -1,8 +1,6 @@
 #ifndef __PLATFORM_BASE_H
 #define __PLATFORM_BASE_H
 
-#include "stdafx.h"
-
 
 namespace base
 {

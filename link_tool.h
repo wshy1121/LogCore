@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <string>
 #include <stdlib.h>
-#include "stdafx.h"
+
 
 #define TQueueContain(x) container_of((x), ThreadNode, node)
 #define each_link_node(head, node) for ((node)=(head)->next; (head) != (node); (node)=(node)->next)

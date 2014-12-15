@@ -14,7 +14,7 @@ namespace base
 {
 void* malloc(size_t size);
 void free(void* p);
-void *realloc(void* c, int size);
+void *realloc(void* c, size_t size);
 void* calloc(size_t nmemb, size_t size);
 }//base
 
