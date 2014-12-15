@@ -21,7 +21,7 @@ CGuardEnable::CGuardEnable(E_ENABLE_TYPE type)
 	{
 		return ;
 	}
-	m_queueNode = ThreadQueue::instance()->getQueueNode(pthread_self());
+	m_queueNode = ThreadQueue::instance()->getQueueNode(base::pthread_self());
 	m_needReturn = !m_queueNode->enable[m_type];
 }
 
@@ -115,7 +115,7 @@ void ThreadQueue::initThreadNode(ThreadNode *queue_node)
 	{
 		queue_node->enable[i] = true;
 	}
-	queue_node->thread_id = pthread_self();
+	queue_node->thread_id = base::pthread_self();
 	return ;
 }
 
@@ -139,7 +139,7 @@ int ThreadQueue::removeNode(ThreadNode *queueNode, E_ENABLE_TYPE type)
 			return -1;
 		}
 	}
-	if (queueNode->thread_id == pthread_self())
+	if (queueNode->thread_id == base::pthread_self())
 	{
 		remov_node(&queueNode->node);
 		tail = TQueueContain(head_node.node.pre);
@@ -277,7 +277,7 @@ void ThreadQueue::dispQueue()
 ThreadNode *ThreadQueue::getQueueNode(pthread_t thread_id)
 {
 	ThreadNode *queue_node = NULL;
-	getQueue(pthread_self(), &queue_node);
+	getQueue(base::pthread_self(), &queue_node);
 	if (!queue_node)
 	{
 		queue_node = (ThreadNode *)base::malloc(sizeof(ThreadNode));
@@ -297,7 +297,7 @@ void ThreadQueue::wrapMalloc(void* addr, size_t c)
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 		
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapMalloc;
-	pCalcMemInf->m_threadId = pthread_self();
+	pCalcMemInf->m_threadId = base::pthread_self();
 	pCalcMemInf->m_memAddr = addr;
 	pCalcMemInf->m_memSize= c;
 	strcpy(pCalcMemInf->m_backTrace, backtrace.c_str());
@@ -319,7 +319,7 @@ void ThreadQueue::wrapFree(void* addr)
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapFree;
-	pCalcMemInf->m_threadId = pthread_self();
+	pCalcMemInf->m_threadId = base::pthread_self();
 	pCalcMemInf->m_memAddr = addr;
 	pCalcMemInf->m_memSize= nodeInf.memSize;
 	strcpy(pCalcMemInf->m_backTrace, nodeInf.path.c_str());
@@ -390,7 +390,7 @@ void CalcMem::wrapFree(void* addr, size_t c, char *pBackTrace, pthread_t threadI
 }
 void CalcMem::printfMemInfMap(pthread_t threadId)
 {
-	threadId = pthread_self();
+	threadId = base::pthread_self();
 	CCandy candy(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, 0);
 
 	std::string path;

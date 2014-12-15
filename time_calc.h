@@ -8,11 +8,11 @@
 #include <sys/timeb.h>
 #include <stdlib.h>
 #include "link_tool.h"
-
+#include "thread_base.h"
 
 void NextStep(const char *function, const char *fileName, int line);
 #define nextStep()  NextStep(__FUNCTION__, __FILE__, __LINE__)
-#define tracepoint1()  printf("%d  %s  \t\t%ld\n", __LINE__, __FILE__, pthread_self());
+#define tracepoint1()  printf("%d  %s  \t\t%ld\n", __LINE__, __FILE__, base::pthread_self());
 
 typedef struct FuncTraceInfo_t
 {
@@ -35,7 +35,7 @@ private:
 	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
 	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 public:
-	static CTimeCalc * createCTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100, pthread_t threadId = pthread_self());
+	static CTimeCalc * createCTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100, pthread_t threadId = base::pthread_self());
 	static void destroyCTimeCalc(CTimeCalc *pTimeCalc);
 	void init(int line, char *file_name, char *func_name, int display_level, pthread_t threadId);
 	void exit();

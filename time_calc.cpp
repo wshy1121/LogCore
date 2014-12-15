@@ -340,7 +340,7 @@ void CTimeCalcManager::printStack(int line, char *file_name, const char* fmt, ..
 {
 	threadQueueEnable(e_Mem);
 
-	FuncTraceInfo_t *TraceInfo = GetTraceInf(pthread_self());
+	FuncTraceInfo_t *TraceInfo = GetTraceInf(base::pthread_self());
 	if (!TraceInfo)
 	{
 		return ;
@@ -394,7 +394,7 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	TraceInfo->pUpString->append(stackInf.c_str());
 
 
-	snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), "wshy", cur_time.time, cur_time.millitm);
+	snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "wshy", cur_time.time, cur_time.millitm);
 	TraceInfo->pUpString->append(tmp);
 	TraceInfo->pUpString->append("*/\n");
 
@@ -411,7 +411,7 @@ void CTimeCalcManager::getStackInfo(std::string &stackInf)
 {
 	threadQueueEnable(e_Mem);
 		
-	FuncTraceInfo_t *TraceInfo = GetTraceInf(pthread_self());
+	FuncTraceInfo_t *TraceInfo = GetTraceInf(base::pthread_self());
 	if (!TraceInfo || !TraceInfo->pCalcList->size())
 	{
 		return ;
@@ -600,9 +600,9 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 
 
 
-	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
+	snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
-	FuncTraceInfo_t *TraceInfo = GetTraceInf(pthread_self());
+	FuncTraceInfo_t *TraceInfo = GetTraceInf(base::pthread_self());
 	
 	if(TraceInfo)//如果查找到
 	{	
@@ -634,7 +634,7 @@ void CTimeCalcManager::InsertTag(int line, char *file_name, const char* content)
 	ftime(&cur_time);
 
 	char str[256];
-	snprintf(str, sizeof(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)pthread_self(), "huang_yuan", cur_time.time, cur_time.millitm);
+	snprintf(str, sizeof(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "huang_yuan", cur_time.time, cur_time.millitm);
 
 	printLog((char *)"trace:/*%s %s*/", content, str);
 	return ;
@@ -757,7 +757,7 @@ void CTimeCalcManager::printLog(char *sFmt, ...)
 	va_end(ap);
 	CLogOprManager::instance()->pushLogData(logStr);
 	
-	snprintf(logStr, sizeof(logStr), "//thread id:%16d  creat by huang_yuan@dahuatech.com\n\n", (int)pthread_self());
+	snprintf(logStr, sizeof(logStr), "//thread id:%16d  creat by huang_yuan@dahuatech.com\n\n", (int)base::pthread_self());
 	CLogOprManager::instance()->pushLogData(logStr);
 
 	return ;

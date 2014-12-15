@@ -104,7 +104,7 @@ int main()
 		//-------------------------------------------------------------
 		for (int i=0; i<threadNum; ++i)
 		{
-			pthread_join(thread_id[i], NULL);
+			base::pthread_join(thread_id[i], NULL);
 		}
 		usleep(10*1000*1000);
 	}

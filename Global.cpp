@@ -17,7 +17,7 @@ CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = TimeCalcInf::e_createCandy;
-	pCalcInf->m_threadId = pthread_self();
+	pCalcInf->m_threadId = base::pthread_self();
 	pCalcInf->m_line = line;
 	pCalcInf->m_fileName = file_name;
 	pCalcInf->m_funcName = func_name;
@@ -35,7 +35,7 @@ CCandy::~CCandy()
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = TimeCalcInf::e_destroyCandy;
-	pCalcInf->m_threadId = pthread_self();
+	pCalcInf->m_threadId = base::pthread_self();
 	
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 	return ;
@@ -55,7 +55,7 @@ void CBugKiller::InsertTrace(int line, char *file_name, const char* fmt, ...)
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = TimeCalcInf::e_insertTrace;
-	pCalcInf->m_threadId = pthread_self();
+	pCalcInf->m_threadId = base::pthread_self();
 	pCalcInf->m_line = line;
 	pCalcInf->m_fileName = file_name;
 	strcpy(pCalcInf->m_pContent, content);
@@ -70,7 +70,7 @@ void CBugKiller::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = TimeCalcInf::e_insertHex;
-	pCalcInf->m_threadId = pthread_self();
+	pCalcInf->m_threadId = base::pthread_self();
 	pCalcInf->m_line = line;
 	pCalcInf->m_fileName = file_name;
 	memcpy(pCalcInf->m_pContent, psBuf, nBufLen);
@@ -109,7 +109,7 @@ void CBugKiller::DispAll()
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = TimeCalcInf::e_dispAll;
-	pCalcInf->m_threadId = pthread_self();
+	pCalcInf->m_threadId = base::pthread_self();
 	strcpy(pCalcInf->m_pContent, backtrace.c_str());
 
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
@@ -129,7 +129,7 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = TimeCalcInf::e_insertTag;
-	pCalcInf->m_threadId = pthread_self();
+	pCalcInf->m_threadId = base::pthread_self();
 	pCalcInf->m_line = line;
 	pCalcInf->m_fileName = file_name;
 	strcpy(pCalcInf->m_pContent, content);
@@ -157,7 +157,7 @@ void CBugKiller::printfMemInfMap()
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_opr = TimeCalcInf::e_printfMemInfMap;
-	pCalcInf->m_threadId = pthread_self();
+	pCalcInf->m_threadId = base::pthread_self();
 
 	CTimeCalcInfManager::instance()->pushRecvData(pRecvData);
 }
