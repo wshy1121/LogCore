@@ -6,6 +6,8 @@ namespace base
 {
 typedef ::pthread_mutex_t  pthread_mutex_t;
 typedef ::pthread_t  pthread_t;
+typedef ::pthread_attr_t  pthread_attr_t;
+typedef ::pthread_mutexattr_t  pthread_mutexattr_t;
 
 
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
