@@ -151,7 +151,7 @@ int ThreadQueue::removeNode(ThreadNode *queueNode, E_ENABLE_TYPE type)
 	return -1;
 }
 
-int ThreadQueue::removeQueue(pthread_t thread_id)
+int ThreadQueue::removeQueue(base::pthread_t thread_id)
 {
 	CGuardMutex guardMutex(m_mutex);
 	struct node *node = NULL;
@@ -181,7 +181,7 @@ int ThreadQueue::removeQueue(pthread_t thread_id)
 
 	return -1;
 }
-int ThreadQueue::getQueue(pthread_t thread_id, ThreadNode **ret_queue_node)
+int ThreadQueue::getQueue(base::pthread_t thread_id, ThreadNode **ret_queue_node)
 {
 	CGuardMutex guardMutex(m_mutex);
 	struct node *node = NULL;
@@ -274,7 +274,7 @@ void ThreadQueue::dispQueue()
 	return ;
 
 }
-ThreadNode *ThreadQueue::getQueueNode(pthread_t thread_id)
+ThreadNode *ThreadQueue::getQueueNode(base::pthread_t thread_id)
 {
 	ThreadNode *queue_node = NULL;
 	getQueue(base::pthread_self(), &queue_node);
@@ -373,7 +373,7 @@ void CalcMem::destroyMemData(MEM_DATA *pMemData)
 }
 
 
-void CalcMem::wrapMalloc(void* addr, size_t c, char *pBackTrace, pthread_t threadId)
+void CalcMem::wrapMalloc(void* addr, size_t c, char *pBackTrace, base::pthread_t threadId)
 {
 	if (strlen(pBackTrace) <= 0)
 	{
@@ -383,12 +383,12 @@ void CalcMem::wrapMalloc(void* addr, size_t c, char *pBackTrace, pthread_t threa
 	dealMemInf(pBackTrace, c, threadId);	
 }
 
-void CalcMem::wrapFree(void* addr, size_t c, char *pBackTrace, pthread_t threadId)
+void CalcMem::wrapFree(void* addr, size_t c, char *pBackTrace, base::pthread_t threadId)
 {
 	CGuardMutex guardMutex(m_mutex);
 	dealMemInf(pBackTrace, -c, threadId);
 }
-void CalcMem::printfMemInfMap(pthread_t threadId)
+void CalcMem::printfMemInfMap(base::pthread_t threadId)
 {
 	threadId = base::pthread_self();
 	CCandy candy(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, 0);
@@ -413,7 +413,7 @@ void CalcMem::printfMemInfMap(pthread_t threadId)
 	return ;	
 }
 
-void CalcMem::dealMemInf(const char *mallocPath, int size, pthread_t threadId)
+void CalcMem::dealMemInf(const char *mallocPath, int size, base::pthread_t threadId)
 { 
 	MemInf *memInf = NULL;
 	MemInfMap::iterator memInfMapIter = m_MemInfMap.find(mallocPath);

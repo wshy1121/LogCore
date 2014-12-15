@@ -1,6 +1,7 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 #include <string>
+#include "thread_base.h"
 
 #define debug_printf()  printf("WSHY DEBUG  %d  %s\n", __LINE__, __FILE__);
 
@@ -19,7 +20,7 @@ public:
 	static void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
 	static void DispAll();
 	static void InsertTag(int line, char *file_name, const char* fmt, ...);
-	static void InsertStrOnly(pthread_t threadId, const char* fmt, ...);
+	static void InsertStrOnly(base::pthread_t threadId, const char* fmt, ...);
 	static std::string& getBackTrace(std::string &backTrace);	
 	static void printfMemInfMap();
 	static void printfStackInfo(int line, char *file_name);

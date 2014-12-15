@@ -90,11 +90,11 @@ int main()
 {
 	time_start();
 
-	pthread_t printfThreadId;
+	base::pthread_t printfThreadId;
 	base::pthread_create(&printfThreadId, NULL,printfMallocMap,NULL);
 
 	const int threadNum = 50;
-	pthread_t thread_id[threadNum];	
+	base::pthread_t thread_id[threadNum];	
 	while (1)
 	{
 		for (int i=0; i<threadNum; ++i)

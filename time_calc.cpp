@@ -65,7 +65,7 @@ void CTimeCalc::exit()
 	m_FuncName = NULL;
 }
 
-void CTimeCalc::init(int line, char *file_name, char *func_name, int display_level, pthread_t threadId)
+void CTimeCalc::init(int line, char *file_name, char *func_name, int display_level, base::pthread_t threadId)
 {
 	m_displayFlag = true;
 	m_DisplayLevel = display_level;
@@ -82,7 +82,7 @@ void CTimeCalc::init(int line, char *file_name, char *func_name, int display_lev
 	DealFuncEnter();
 }
 
-CTimeCalc * CTimeCalc::createCTimeCalc(int line, char *file_name, char *func_name, int display_level, pthread_t threadId) 
+CTimeCalc * CTimeCalc::createCTimeCalc(int line, char *file_name, char *func_name, int display_level, base::pthread_t threadId) 
 {
 	CTimeCalc *pTimeCalc = (CTimeCalc *)base::malloc(sizeof(CTimeCalc));
 	if (pTimeCalc)
@@ -281,10 +281,10 @@ CTimeCalcManager *CTimeCalcManager::instance()
 
 
 
-FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(pthread_t threadId)
+FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(base::pthread_t threadId)
 {	
 	CGuardMutex guardMutex(m_thread_map_mutex);
-	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(threadId);
+	std::map<base::pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(threadId);
 	FuncTraceInfo_t *TraceInfo = NULL;
 
 	if(it != m_thread_map.end())//如果查找到
@@ -304,7 +304,7 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(pthread_t threadId)
 		TraceInfo->pUpString->append("//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n");
 
 		TraceInfo->pCalcList = CList::createCList();
-		std::pair<pthread_t, FuncTraceInfo_t *> thread_map_pair(threadId, TraceInfo);
+		std::pair<base::pthread_t, FuncTraceInfo_t *> thread_map_pair(threadId, TraceInfo);
 
 		m_thread_map.insert(thread_map_pair);
 	}
@@ -313,7 +313,7 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(pthread_t threadId)
 
 
 
-void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo, pthread_t threadId)
+void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo, base::pthread_t threadId)
 {
 
 	CGuardMutex guardMutex(m_thread_map_mutex);
@@ -323,10 +323,10 @@ void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo, pthread_t thr
 	base::free(TraceInfo);
 }
 
-FuncTraceInfo_t * CTimeCalcManager::GetTraceInf(pthread_t threadI)
+FuncTraceInfo_t * CTimeCalcManager::GetTraceInf(base::pthread_t threadI)
 {
 	CGuardMutex guardMutex(m_thread_map_mutex);
-	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(threadI);
+	std::map<base::pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(threadI);
 	if(it != m_thread_map.end())//如果查找到
 	{
 		return it->second;
@@ -401,7 +401,7 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	return ;
 }
 
-void CTimeCalcManager::printfMemInfMap(pthread_t threadId)
+void CTimeCalcManager::printfMemInfMap(base::pthread_t threadId)
 {
 #ifdef WRAP
 	CalcMem::instance()->printfMemInfMap(threadId);
@@ -441,7 +441,7 @@ void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &sta
 
 
 
-void CTimeCalcManager::InsertTrace(int line, char *file_name, pthread_t threadId, const char* content)
+void CTimeCalcManager::InsertTrace(int line, char *file_name, base::pthread_t threadId, const char* content)
 {
 	FuncTraceInfo_t *TraceInfo = GetTraceInf(threadId);
 	if (TraceInfo && !needPrint(TraceInfo->pCalcList))
@@ -465,7 +465,7 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, pthread_t threadId
 
 }
 
-void CTimeCalcManager::InsertStrOnly(pthread_t threadId, const char* fmt, ...)
+void CTimeCalcManager::InsertStrOnly(base::pthread_t threadId, const char* fmt, ...)
 {
 	FuncTraceInfo_t *TraceInfo = GetTraceInf(threadId);
 	if (TraceInfo && !needPrint(TraceInfo->pCalcList))
@@ -513,7 +513,7 @@ void CTimeCalcManager::InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr)
 }
 
 
-void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, pthread_t threadId, const char *pStr)
+void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, base::pthread_t threadId, const char *pStr)
 {
 	struct timeb cur_time;
 	ftime(&cur_time);
@@ -643,7 +643,7 @@ void CTimeCalcManager::InsertTag(int line, char *file_name, const char* content)
 void CTimeCalcManager::DispAll(const char* content)
 {
 
-	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it;
+	std::map<base::pthread_t, FuncTraceInfo_t *>::const_iterator   it;
 	FuncTraceInfo_t *TraceInfo = NULL;
 
 	CGuardMutex guardMutex(m_thread_map_mutex);
@@ -682,7 +682,7 @@ void CTimeCalcManager::DispTraces(int signo)
 	CGuardMutex guardMutex(m_thread_map_mutex);
 	printLog((char *)"//%s    %2d","Except    DispTraces", signo);
 	
-	std::map<pthread_t, FuncTraceInfo_t *>::const_iterator   it;
+	std::map<base::pthread_t, FuncTraceInfo_t *>::const_iterator   it;
 
 	FuncTraceInfo_t *TraceInfo = NULL;
        for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)

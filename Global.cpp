@@ -79,7 +79,7 @@ void CBugKiller::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 	return ;
 }
 
-void CBugKiller::InsertStrOnly(pthread_t threadId, const char* fmt, ...)
+void CBugKiller::InsertStrOnly(base::pthread_t threadId, const char* fmt, ...)
 {
 	char content[4096];
 	va_list ap;

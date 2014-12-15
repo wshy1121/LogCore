@@ -5,7 +5,7 @@
 #include <string>
 #include <stdlib.h>
 #include "mem_base.h"
-
+#include "thread_base.h"
 #define container_of(ptr, type, member) ({  \
 const typeof( ((type *)0)->member ) *__mptr = (ptr);   \
 (type *)( (char *)__mptr - offsetof(type,member) );})
@@ -97,8 +97,8 @@ public:
 	///\brief 构造函数，默认为互斥锁
 	CPthreadMutex()
 	{
-		m_mutex = (pthread_mutex_t *)base::malloc(sizeof(pthread_mutex_t));
-		pthread_mutex_init(m_mutex, NULL);
+		m_mutex = (base::pthread_mutex_t *)base::malloc(sizeof(base::pthread_mutex_t));
+		base::pthread_mutex_init(m_mutex, NULL);
 	}
 
 	///\brief 析构函数
@@ -122,7 +122,7 @@ public:
 	}
 
 private:
-	pthread_mutex_t  *m_mutex;
+	base::pthread_mutex_t  *m_mutex;
 };
 
 class CGuardMutex
@@ -154,7 +154,7 @@ typedef enum
 
 typedef struct 
 {
-	pthread_t thread_id;
+	base::pthread_t thread_id;
 	bool enable[e_ThreadEnableNum];
 	struct node node;
 }ThreadNode;

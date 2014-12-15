@@ -20,9 +20,9 @@ public:
 	void initThreadNode(ThreadNode *queue_node);
 	void initQueue();
 	int insertQueue(ThreadNode *queue_node);
-	int removeQueue(pthread_t thread_id);
+	int removeQueue(base::pthread_t thread_id);
 	int removeNode(ThreadNode *queueNode, E_ENABLE_TYPE m_type);
-	int getQueue(pthread_t thread_id, ThreadNode **ret_queue_node);
+	int getQueue(base::pthread_t thread_id, ThreadNode **ret_queue_node);
 	void clearQueue();
 	void dispQueue();
 	void setEnable(bool enable);
@@ -31,7 +31,7 @@ public:
 	static void stop();
 	void wrapMalloc(void* addr, size_t c);
 	void wrapFree(void* addr);
-	ThreadNode *getQueueNode(pthread_t thread_id);
+	ThreadNode *getQueueNode(base::pthread_t thread_id);
 	static ThreadQueue *instance();
 private:
 	static bool m_enable;
@@ -62,7 +62,7 @@ typedef struct CalcMemInf
 		e_wrapFree, 			
 	}CalcMemOpr;
 	CalcMemOpr m_opr;
-	pthread_t m_threadId;
+	base::pthread_t m_threadId;
  	void *m_memAddr;
 	size_t m_memSize;
 	char *m_backTrace;
@@ -81,14 +81,14 @@ public:
 	static CalcMem *instance();
 	MEM_DATA *createMemData(int backTraceLen = 0);
 	void destroyMemData(MEM_DATA *pMemData);
-	void wrapMalloc(void* addr, size_t c, char *pBackTrace, pthread_t threadId);
-	void wrapFree(void* addr, size_t c, char *pBackTrace, pthread_t threadId);
-	void printfMemInfMap(pthread_t threadId);
+	void wrapMalloc(void* addr, size_t c, char *pBackTrace, base::pthread_t threadId);
+	void wrapFree(void* addr, size_t c, char *pBackTrace, base::pthread_t threadId);
+	void printfMemInfMap(base::pthread_t threadId);
 	std::string &getBackTrace(std::string &backTrace);
 private:
 	CalcMem();
 private:
-	void dealMemInf(const char *mallocPath, int size, pthread_t threadId);
+	void dealMemInf(const char *mallocPath, int size, base::pthread_t threadId);
 	inline std::string splitFilename (std::string &path);
 private:
 	static CalcMem *_instance;
@@ -118,7 +118,7 @@ private:
 	static CalcMemManager *_instance;
 	CList *m_recvList;
 	CPthreadMutex m_recvListMutex;
-	pthread_t m_threadId;
+	base::pthread_t m_threadId;
 };
 
 class CGuardEnable

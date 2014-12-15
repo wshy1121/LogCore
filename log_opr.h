@@ -10,7 +10,7 @@ typedef struct LogDataInf
 		e_writeFile, 			
 	}LogDataOpr;
 	LogDataOpr m_opr;
-	pthread_t m_threadId;
+	base::pthread_t m_threadId;
 	
 	char *m_backTrace;
  }LogDataInf;
@@ -39,7 +39,7 @@ private:
 private:
 	static CLogOprManager *_instance;
 	CPthreadMutex m_logFileMutex;
-	pthread_t m_threadId;
+	base::pthread_t m_threadId;
 	const int m_maxFileDataLen;
 	const char *m_logName;
 	char *m_fileData;
