@@ -5,8 +5,8 @@
 namespace base
 {
 #ifdef WIN32
-typedef int  pthread_mutex_t;
-typedef int  pthread_t;
+typedef CRITICAL_SECTION  pthread_mutex_t;
+typedef unsigned long pthread_t;
 typedef int  pthread_attr_t;
 typedef int  pthread_mutexattr_t;
 #else

@@ -277,7 +277,7 @@ void CString::append(char *str)
 		m_pStrList->push_back(m_lastStrNode->getNode());
 	}
 	
-	int remainLen = strlen(str);
+	int remainLen = (int)strlen(str);
 	int pos = 0;
 	int writeLen = 0;
 

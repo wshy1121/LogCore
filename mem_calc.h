@@ -89,11 +89,11 @@ private:
 	inline std::string splitFilename (std::string &path);
 private:
 	static CalcMem *_instance;
+	static const int m_stackNum;	
 	CPthreadMutex  m_mutex;
 
 	typedef std::map<std::string, MemInf *> MemInfMap;
 	MemInfMap m_MemInfMap;
-	const int m_stackNum;
 	const char *m_traceHead;
 };
 

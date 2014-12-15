@@ -22,12 +22,12 @@ void free(void* p)
 
 void *realloc(void* c, size_t size)
 {
-	return __real_realloc(c, size);
+	return __real_realloc(c, (int)size);
 }
 
 void* calloc(size_t nmemb, size_t size)
 {
-	return __real_calloc(nmemb, size);
+	return __real_calloc((int)nmemb, (int)size);
 }
 
 }//base

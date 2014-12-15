@@ -329,7 +329,8 @@ void ThreadQueue::wrapFree(void* addr)
 	return ;
 }
 CalcMem *CalcMem::_instance = NULL;
-CalcMem::CalcMem():m_stackNum(32)
+const int CalcMem::m_stackNum = 32;
+CalcMem::CalcMem()
 {
 	m_traceHead = "addr2line -e ./Challenge_Debug -f -C  ";
 }
