@@ -4,8 +4,7 @@
 #include <stddef.h>
 #include <string>
 #include <stdlib.h>
-#include "mem_base.h"
-#include "thread_base.h"
+#include "stdafx.h"
 #define container_of(ptr, type, member) ({  \
 const typeof( ((type *)0)->member ) *__mptr = (ptr);   \
 (type *)( (char *)__mptr - offsetof(type,member) );})
@@ -110,14 +109,14 @@ public:
 	///\brief Õ¼ÓÃËø
 	bool Enter()
 	{
-		pthread_mutex_lock(m_mutex);
+		base::pthread_mutex_lock(m_mutex);
 		return true;
 	}
 
 	///\brief ÊÍ·ÅËø
 	bool Leave()
 	{
-		pthread_mutex_unlock(m_mutex);
+		base::pthread_mutex_unlock(m_mutex);
 		return true;
 	}
 

@@ -1,12 +1,12 @@
+#include "stdafx.h"
 #include "log_opr.h"
 #include "mem_calc.h"
 #include "time_calc.h"
-#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include <time.h>
-#include "thread_base.h"
+
 extern CPthreadMutex g_insMutexCalc;
 
 CLogOprManager *CLogOprManager::_instance = NULL;
@@ -36,14 +36,14 @@ void CLogOprManager::threadProc()
 	{
 		if(m_fileDataLen == 0)
 		{
-			usleep(10 * 1000);
+			base::usleep(10 * 1000);
 			continue;
 		}
 		
 		diff =  time(NULL) - startTime;
 		if (diff < 3)
 		{
-			usleep(10 * 1000);
+			base::usleep(10 * 1000);
 			continue;			
 		}
 		startTime = time(NULL);

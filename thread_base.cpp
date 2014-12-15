@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "thread_base.h"
 
 
@@ -33,9 +34,19 @@ int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr)
 	return ::pthread_mutex_init(mutex, attr);
 }
 
+int pthread_mutex_lock(pthread_mutex_t *mutex)
+{
+	return ::pthread_mutex_lock(mutex);
+}
 
-
-	   
+int pthread_mutex_trylock(pthread_mutex_t *mutex)
+{
+	return ::pthread_mutex_trylock(mutex);
+}
+int pthread_mutex_unlock(pthread_mutex_t *mutex)
+{
+	return ::pthread_mutex_unlock(mutex);
+}
 
 }//base
 

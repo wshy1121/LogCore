@@ -1,12 +1,12 @@
+#include "stdafx.h"
 #include "mem_calc.h"
 #include "Global.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <unistd.h>
 #include "mem_check.h"
-#include "mem_base.h"
-#include "thread_base.h"
+
+
 
 extern CPthreadMutex g_insMutexCalc;
 extern "C" int backtrace(void **buffer, int size);
@@ -506,7 +506,7 @@ void CalcMemManager::threadProc()
 
 		if(m_recvList->empty())
 		{
-			usleep(10 * 1000);
+			base::usleep(10 * 1000);
 			continue;
 		}
 		m_recvListMutex.Enter();

@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "mem_check.h"
-#include "mem_base.h"
 #include "link_tool.h"
 #include "time_calc.h"
 

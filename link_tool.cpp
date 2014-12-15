@@ -1,10 +1,8 @@
+#include "stdafx.h"
 #include "link_tool.h"
 #include <stdio.h>
 #include <string.h>
-#include <execinfo.h>
 #include <assert.h>
-#include <unistd.h>
-#include "mem_base.h"
 
 /******************************************************/
 void init_node(struct node *node)
@@ -182,7 +180,7 @@ void CStrNode::destroyCStrNode(CStrNode *pNode)
 
 int CStrNode::writeStr(char *str)
 {
-	int strLen = strlen(str);
+	int strLen = (int)strlen(str);
 	int writeLen = m_remainMem > strLen ? strLen:m_remainMem;
 
 	memcpy(m_str + m_strLen, str, writeLen);
@@ -205,7 +203,7 @@ void CStrNode::setStr(char *str, int strLen)
 {
 	if (strLen == -1)
 	{
-		strLen = strlen(str);
+		strLen = (int)strlen(str);
 	}
 	m_strLen = strLen;	
 	m_str = str;

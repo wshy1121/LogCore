@@ -1,14 +1,11 @@
+#include "stdafx.h"
 #include <stdio.h>
 #include <sys/types.h>
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <execinfo.h>
 #include <string.h>
 
 #include "time_calc.h"
 #include "mem_calc.h"
 #include "mem_check.h"
-#include "mem_base.h"
 
 extern "C" void *__wrap_malloc(size_t c)
 {

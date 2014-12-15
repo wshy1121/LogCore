@@ -1,14 +1,14 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 #include <string>
-#include "thread_base.h"
+#include "stdafx.h"
 
 #define debug_printf()  printf("WSHY DEBUG  %d  %s\n", __LINE__, __FILE__);
 
 class CCandy
 {
 public:
-	CCandy(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)__FUNCTION__, int display_level=100);
+	CCandy(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)"__FUNCTION__", int display_level=100);
 	~CCandy();
 };
 

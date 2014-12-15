@@ -1,4 +1,5 @@
- #include "time_calc.h"
+#include "stdafx.h"
+#include "time_calc.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -8,11 +9,8 @@
 #include <map>
 #include <stdarg.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include "mem_calc.h"
-#include "mem_base.h"
 #include "log_opr.h"
-#include "thread_base.h"
 
 #ifdef WRAP
 #include <execinfo.h>

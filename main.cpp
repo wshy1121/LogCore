@@ -1,10 +1,9 @@
+#include "stdafx.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include "Global.h"
-#include "thread_base.h"
-#include "mem_base.h"
+
 
 //≤‚ ‘CTimeCalc π”√
 
@@ -106,7 +105,7 @@ int main()
 		{
 			base::pthread_join(thread_id[i], NULL);
 		}
-		usleep(10*1000*1000);
+		base::usleep(10*1000*1000);
 	}
 	return 0;
 }
