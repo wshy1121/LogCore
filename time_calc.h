@@ -5,7 +5,6 @@
 #include <map>
 #include <list>
 #include <signal.h>
-#include <sys/timeb.h>
 #include <stdlib.h>
 #include "link_tool.h"
 
@@ -15,7 +14,7 @@ void NextStep(const char *function, const char *fileName, int line);
 
 typedef struct FuncTraceInfo_t
 {
-	struct timeb EndTime;
+	TimeB EndTime;
 	int deep;
 	CString *pUpString;
 	CList *pCalcList;
@@ -53,7 +52,7 @@ public:
 	int m_Line;
 	char *m_FileName;
 	char *m_FuncName;
-	struct timeb m_StartTime;
+	TimeB m_StartTime;
 	struct node m_node;
 	
 }CTimeCalc;

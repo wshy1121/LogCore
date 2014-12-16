@@ -75,7 +75,7 @@ void CTimeCalc::init(int line, char *file_name, char *func_name, int display_lev
 	m_FuncName = (char *)base::malloc(strlen(func_name) + 1);
 	base::strcpy(m_FuncName, func_name);
 
-	ftime(&m_StartTime);
+	base::ftime(&m_StartTime);
 	m_threadId = threadId;
 	DealFuncEnter();
 }
@@ -129,8 +129,8 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 	}
 	TraceInfo->pUpString->append("{");
 
-	struct timeb cur_time;
-	ftime(&cur_time);
+	TimeB cur_time;
+	base::ftime(&cur_time);
 
 	
 	base::snprintf(time_tmp, sizeof(time_tmp), "       //    cost second: %4ld  %4d  %16ld  %4d  route", cur_time.time - TraceInfo->EndTime.time, cur_time.millitm - TraceInfo->EndTime.millitm, cur_time.time, cur_time.millitm);
@@ -154,10 +154,10 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 	char time_tmp[128];
 	base::strcpy(time_tmp, "wshy");
 
-	struct timeb cur_time; 
-	ftime(&cur_time);
+	TimeB cur_time; 
+	base::ftime(&cur_time);
 
-	base::snprintf(tmp, sizeof(tmp), "        //func  cost second: %4ld  %4d  %16ld  %4d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName, time_tmp);
+	base::snprintf(tmp, sizeof(tmp), "        //func  cost second: %ld  %d  %ld  %d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName, time_tmp);
 
 	TraceInfo->pUpString->append(tmp);
 	TraceInfo->pUpString->append("\n");
@@ -230,7 +230,7 @@ void CTimeCalc::DealFuncExit()
 		{
 			return ;
 		}	
-		ftime(&TraceInfo->EndTime);
+		base::ftime(&TraceInfo->EndTime);
 		//-------------------
 		if (TraceInfo->deep < 1)
 		{
@@ -294,7 +294,7 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(base::pthread_t threadId)
 		TraceInfo = (FuncTraceInfo_t *)base::malloc(sizeof(FuncTraceInfo_t));
 		assert(TraceInfo != NULL);
 
-		ftime(&TraceInfo->EndTime);
+		base::ftime(&TraceInfo->EndTime);
 		
 		TraceInfo->deep = 0;
 
@@ -357,8 +357,8 @@ void CTimeCalcManager::printStack(int line, char *file_name, const char* fmt, ..
 
 void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr)
 {
-	struct timeb cur_time;
-	ftime(&cur_time);
+	TimeB cur_time;
+	base::ftime(&cur_time);
 
 	char tmp[128];
 
@@ -493,8 +493,8 @@ void CTimeCalcManager::InsertStrOnly(base::pthread_t threadId, const char* fmt, 
 
 void CTimeCalcManager::InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr)
 {
-	struct timeb cur_time;
-	ftime(&cur_time);
+	TimeB cur_time;
+	base::ftime(&cur_time);
 
 	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
@@ -513,8 +513,8 @@ void CTimeCalcManager::InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr)
 
 void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, base::pthread_t threadId, const char *pStr)
 {
-	struct timeb cur_time;
-	ftime(&cur_time);
+	TimeB cur_time;
+	base::ftime(&cur_time);
 
 	char tmp[128];
 	base::snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)threadId, "wshy", cur_time.time, cur_time.millitm);
@@ -539,8 +539,8 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 	base::strcpy(time_tmp, "wshy");
 
 
-	struct timeb cur_time;
-	ftime(&cur_time);
+	TimeB cur_time;
+	base::ftime(&cur_time);
 	
 	char str[4096];
 	/* save log msg in file */
@@ -556,9 +556,9 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 		if (j==0)
 		{
 			memset (sLine,	' ', sizeof(sLine));
-			sprintf (sTemp,	"%04d:", i );
+			base::snprintf (sTemp,	sizeof(sTemp), "%04d:", i );
 			memcpy (sLine, sTemp, 5);
-			sprintf (sTemp, ":%04d", i+15 );
+			base::snprintf (sTemp, sizeof(sTemp), ":%04d", i+15 );
 			memcpy (sLine+72, sTemp, 5);
 		}
 
@@ -628,8 +628,8 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 void CTimeCalcManager::InsertTag(int line, char *file_name, const char* content)
 {
 	
-	struct timeb cur_time;
-	ftime(&cur_time);
+	TimeB cur_time;
+	base::ftime(&cur_time);
 
 	char str[256];
 	base::snprintf(str, sizeof(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "huang_yuan", cur_time.time, cur_time.millitm);

@@ -1,6 +1,8 @@
 #ifndef _GLOBAL_H_
 #define _GLOBAL_H_
 #include <string>
+#include <signal.h>
+#include "thread_base.h"
 
 
 #define debug_printf()  printf("WSHY DEBUG  %d  %s\n", __LINE__, __FILE__);

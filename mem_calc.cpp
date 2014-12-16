@@ -471,7 +471,7 @@ std::string &CalcMem::getBackTrace(std::string &backTrace)
 	backTrace = m_traceHead;
 
 	m_mutex.Enter();
-	layer = backtrace(stack_addr, m_stackNum);
+	layer = base::backtrace(stack_addr, m_stackNum);
 	m_mutex.Leave();
 	for(i = 3; i < layer; i++)
 	{

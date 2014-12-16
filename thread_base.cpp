@@ -3,6 +3,8 @@
 #ifdef WIN32
 #include <assert.h>
 #include <process.h>
+#else
+#include <execinfo.h>
 #endif
 
 namespace base
@@ -56,6 +58,13 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex)
 	LeaveCriticalSection(mutex);
 	return 0;
 }
+
+int backtrace(void **buffer, int size)
+{
+	assert(0);
+	return 0;
+}
+
 #else
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                           void *(*start_routine) (void *), void *arg)
@@ -97,6 +106,11 @@ int pthread_mutex_trylock(pthread_mutex_t *mutex)
 int pthread_mutex_unlock(pthread_mutex_t *mutex)
 {
 	return ::pthread_mutex_unlock(mutex);
+}
+
+int backtrace(void **buffer, int size)
+{
+	return ::backtrace(buffer, size);
 }
 #endif
 }//base
