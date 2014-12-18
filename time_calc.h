@@ -18,7 +18,10 @@ typedef struct FuncTraceInfo_t
 	int deep;
 	CString *pUpString;
 	CList *pCalcList;
+	base::pthread_t threadId;
+	node Node;
 } FuncTraceInfo_t;
+#define TNodeContain(x) container_of((x), FuncTraceInfo_t, Node)
 
 class CTimeCalcManager;
 
@@ -90,10 +93,10 @@ private:
 	FILE *openLog(const char *sLogName);
 private:
 	CTimeCalcManager();
-
+	~CTimeCalcManager();
 private:
-	CPthreadMutex  m_thread_map_mutex;
-	std::map<base::pthread_t, FuncTraceInfo_t *> m_thread_map; 
+	CPthreadMutex  m_threadListMutex;
+	CList *m_pThreadList;
 	std::map<std::string, int > m_stack_inf_map;
 	FILE *m_fp;
 	const char *m_logName;

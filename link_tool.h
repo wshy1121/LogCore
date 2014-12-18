@@ -35,10 +35,11 @@ public:
 	void clear();
 	int size();
 	node *getHead();
+	node *find(node *cmpNode, bool (*cmpFuc)(node *node1, node *node2));
 private:
 	void init();
 	void exit();
-private:
+public:
 	node head_node;
 	node *tail;
 	int node_num;

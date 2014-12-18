@@ -135,6 +135,20 @@ node *CList::getHead()
 	return &head_node;
 }
 
+node *CList::find(node *cmpNode, bool (*cmpFuc)(node *node1, node *node2))
+{
+	node *pNode = NULL;
+	each_link_node(&head_node, pNode)
+	{
+		if (cmpFuc(cmpNode, pNode))
+		{
+			return pNode;
+		}
+	}
+	return NULL;
+}
+
+
 void CStrNode::init(int maxStrLen)
 {
 	m_strLen = 0;

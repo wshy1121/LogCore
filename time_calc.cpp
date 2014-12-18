@@ -257,11 +257,30 @@ void CTimeCalc::DealFuncExit()
 
 }
 
+bool cmpThreadNode(node *node1, node *node2)
+{
+	FuncTraceInfo_t *tmpNode1 = TNodeContain(node1);
+	FuncTraceInfo_t *tmpNode2 = TNodeContain(node2);
+	if (tmpNode1->threadId == tmpNode2->threadId)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 CTimeCalcManager *CTimeCalcManager::_instance = NULL;
 CTimeCalcManager::CTimeCalcManager():m_fp(NULL), 
 										m_logName("./Debug.cpp")
 {
+	m_pThreadList = CList::createCList();
+}
+CTimeCalcManager::~CTimeCalcManager()
+{
+	CList::destroyClist(m_pThreadList);
+	m_pThreadList = NULL;
 }
 
 CTimeCalcManager *CTimeCalcManager::instance()
@@ -281,13 +300,15 @@ CTimeCalcManager *CTimeCalcManager::instance()
 
 FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(base::pthread_t threadId)
 {	
-	CGuardMutex guardMutex(m_thread_map_mutex);
-	std::map<base::pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(threadId);
-	FuncTraceInfo_t *TraceInfo = NULL;
+	CGuardMutex guardMutex(m_threadListMutex);
+	FuncTraceInfo_t traceInfo;
+	traceInfo.threadId = threadId;
+	node *pNode = m_pThreadList->find(&traceInfo.Node,cmpThreadNode);
 
-	if(it != m_thread_map.end())//如果查找到
+	FuncTraceInfo_t *TraceInfo = NULL;
+	if (pNode != NULL)//如果查找到
 	{
-		TraceInfo = it->second;
+		TraceInfo = TNodeContain(pNode);
 	}
 	else  
 	{
@@ -301,10 +322,10 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(base::pthread_t threadId)
 		TraceInfo->pUpString = CString::createCString();
 		TraceInfo->pUpString->append("//CTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalcCTimeCalc\n");
 
+		TraceInfo->threadId = threadId;
 		TraceInfo->pCalcList = CList::createCList();
-		std::pair<base::pthread_t, FuncTraceInfo_t *> thread_map_pair(threadId, TraceInfo);
 
-		m_thread_map.insert(thread_map_pair);
+		m_pThreadList->push_back(&TraceInfo->Node);
 	}
 	return TraceInfo;
 }
@@ -313,22 +334,28 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(base::pthread_t threadId)
 
 void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo, base::pthread_t threadId)
 {
-
-	CGuardMutex guardMutex(m_thread_map_mutex);
-	m_thread_map.erase(threadId);
+	CGuardMutex guardMutex(m_threadListMutex);
+	node *pNode = m_pThreadList->find(&TraceInfo->Node,cmpThreadNode);
+	if (pNode != NULL)
+	{
+		remov_node(pNode);
+	}
 	CString::destroyCString(TraceInfo->pUpString);
 	CList::destroyClist(TraceInfo->pCalcList);
 	base::free(TraceInfo);
 }
 
-FuncTraceInfo_t * CTimeCalcManager::GetTraceInf(base::pthread_t threadI)
+FuncTraceInfo_t * CTimeCalcManager::GetTraceInf(base::pthread_t threadId)
 {
-	CGuardMutex guardMutex(m_thread_map_mutex);
-	std::map<base::pthread_t, FuncTraceInfo_t *>::const_iterator   it = m_thread_map.find(threadI);
-	if(it != m_thread_map.end())//如果查找到
+	CGuardMutex guardMutex(m_threadListMutex);
+	FuncTraceInfo_t traceInfo;
+	traceInfo.threadId = threadId;
+	node *pNode = m_pThreadList->find(&traceInfo.Node,cmpThreadNode);
+
+	if (pNode != NULL)
 	{
-		return it->second;
-	}
+		return TNodeContain(pNode);
+	}	
 	
 	return NULL;
 }
@@ -644,28 +671,28 @@ void CTimeCalcManager::DispAll(const char* content)
 	std::map<base::pthread_t, FuncTraceInfo_t *>::const_iterator   it;
 	FuncTraceInfo_t *TraceInfo = NULL;
 
-	CGuardMutex guardMutex(m_thread_map_mutex);
-	for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)
+	CGuardMutex guardMutex(m_threadListMutex);
+	
+	node *pNode = NULL;
+	each_link_node(&m_pThreadList->head_node, pNode)
 	{
-		TraceInfo = it->second;
-		if (TraceInfo)
+		if (pNode != NULL)//如果查找到
 		{
+			TraceInfo = TNodeContain(pNode);
 			printf("%s\n", TraceInfo->pUpString->c_str());
 		}
 	}
-
-	
 #ifdef WRAP	
 	printf("backTrace  %s\n", content);
 	printStrLog(content);
 #endif
 
 	printStrLog("\n#if 0");
-       for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)
+	each_link_node(&m_pThreadList->head_node, pNode)
 	{
-		TraceInfo = it->second;
-		if (TraceInfo)
+		if (pNode != NULL)//如果查找到
 		{
+			TraceInfo = TNodeContain(pNode);
 			printStrLog(TraceInfo->pUpString->c_str());
 		}
 	}
@@ -677,18 +704,22 @@ void CTimeCalcManager::DispTraces(int signo)
 {
 	threadQueueEnable(e_Mem);
 
-	CGuardMutex guardMutex(m_thread_map_mutex);
+	CGuardMutex guardMutex(m_threadListMutex);
 	printLog((char *)"//%s    %2d","Except    DispTraces", signo);
 	
 	std::map<base::pthread_t, FuncTraceInfo_t *>::const_iterator   it;
 
+	node *pNode = NULL;
 	FuncTraceInfo_t *TraceInfo = NULL;
-       for(it = m_thread_map.begin(); it != m_thread_map.end(); it++)
+	each_link_node(&m_pThreadList->head_node, pNode)
 	{
-		TraceInfo = it->second;
-		
-		printStrLog(TraceInfo->pUpString->c_str());
+		if (pNode != NULL)//如果查找到
+		{
+			TraceInfo = TNodeContain(pNode);
+			printStrLog(TraceInfo->pUpString->c_str());
+		}
 	}
+
 	if ((signo == SIGSEGV) || (signo == SIGINT) )
 	{
 		char signo_inf[64];
