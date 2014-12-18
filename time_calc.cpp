@@ -133,7 +133,7 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 	base::ftime(&cur_time);
 
 	
-	base::snprintf(time_tmp, sizeof(time_tmp), "       //    cost second: %4ld  %4d  %16ld  %4d  route", cur_time.time - TraceInfo->EndTime.time, cur_time.millitm - TraceInfo->EndTime.millitm, cur_time.time, cur_time.millitm);
+	base::snprintf(time_tmp, sizeof(time_tmp), "       //    cost second: %4ld  %4d  %16ld  %4d  route", (int)(cur_time.time - TraceInfo->EndTime.time), (int)(cur_time.millitm - TraceInfo->EndTime.millitm), (int)cur_time.time, (int)cur_time.millitm);
 	TraceInfo->pUpString->append(time_tmp);
 	TraceInfo->pUpString->append("\n");
 
@@ -157,7 +157,7 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 	TimeB cur_time; 
 	base::ftime(&cur_time);
 
-	base::snprintf(tmp, sizeof(tmp), "        //func  cost second: %ld  %d  %ld  %d     %s  %s  ", cur_time.time - m_StartTime.time, cur_time.millitm - m_StartTime.millitm, cur_time.time, cur_time.millitm, m_FuncName, time_tmp);
+	base::snprintf(tmp, sizeof(tmp), "        //func  cost second: %ld  %d  %ld  %d     %s  %s  ", (int)(cur_time.time - m_StartTime.time), (int)(cur_time.millitm - m_StartTime.millitm), (int)cur_time.time, (int)cur_time.millitm, m_FuncName, time_tmp);
 
 	TraceInfo->pUpString->append(tmp);
 	TraceInfo->pUpString->append("\n");
@@ -520,10 +520,7 @@ void CTimeCalcManager::InsertStrOnly(base::pthread_t threadId, const char* fmt, 
 
 void CTimeCalcManager::InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr)
 {
-	TimeB cur_time;
-	base::ftime(&cur_time);
 
-	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
 	{
 		TraceInfo->pUpString->append("\t");
