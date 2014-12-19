@@ -86,7 +86,7 @@ void CLogOprManager::pushLogData(const char *logStr)
 	{
 		writeToFile();
 	}
-	base::snprintf(m_fileData + m_fileDataLen, m_maxFileDataLen - m_fileDataLen, "%s", logStr);
+	memcpy(m_fileData + m_fileDataLen, logStr, logStrLen);
 	m_fileDataLen += logStrLen;
 	return ;
 }
@@ -100,7 +100,7 @@ void CLogOprManager::writeToFile()
 	{
 		return ;
 	}
-	fprintf(fp, "%s", m_fileData);
+	fwrite(m_fileData, m_fileDataLen, 1, fp);
 	fclose (fp);
 	m_fileDataLen = 0;
 	return ;
