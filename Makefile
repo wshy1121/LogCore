@@ -14,6 +14,7 @@ OPT_CFLAGS +=  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc
 OPT_CFLAGS	+= -fstack-protector-all
 CFLAGS += -DWRAP
 LIB_OBJS += wrap_malloc.o mem_calc.o mem_check.o log_opr.o link_tool.o mem_base.o thread_base.o platform_base.o string_base.o 
+LIB_OBJS += net_server.o  
 else
 OPT_CFLAGS +=  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc -static
 endif
@@ -47,6 +48,7 @@ $(LIB_TARGET): $(LIB_OBJS)
 	$(AR) $(AFLAGS) $@ $^
 	$(RANLIB) $@
 	$(CPP) -g -o deamon main.cpp  $(LIB_OBJS) $(OPT_CFLAGS)
+	$(CPP) -g -o server main_server.cpp  $(LIB_OBJS) $(OPT_CFLAGS)
 
 .c.o:
 	$(CC) -c $(CFLAGS) $^ -o $@

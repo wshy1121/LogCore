@@ -27,6 +27,7 @@ public:
 	static void printfMemInfMap();
 	static void printfStackInfo(int line, char *file_name);
 	static void getStackInfo(std::string &stackInf);
+	static void startServer();
 	static void start();
 	static void stop();
 private:

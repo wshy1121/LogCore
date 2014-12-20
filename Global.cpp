@@ -10,6 +10,7 @@
 #include "time_calc.h"
 #include "mem_calc.h"
 #include "mem_check.h"
+#include "net_server.h"
 
 
 CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
@@ -179,6 +180,17 @@ void CBugKiller::getStackInfo(std::string &stackInf)
 	CTimeCalcManager::instance()->getStackInfo(stackInf);
 }
 
+void CBugKiller::startServer()
+{
+	CMemCheck::instance();
+	CalcMem::instance();	
+	ThreadQueue::instance();
+	CalcMemManager::instance();
+	CLogOprManager::instance();
+	CTimeCalcInfManager::instance();
+	CTimeCalcManager::instance();
+	CNetServer::instance()->startServer();
+}
 
 void CBugKiller::start()
 {
