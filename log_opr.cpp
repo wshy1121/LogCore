@@ -48,8 +48,7 @@ void CLogOprManager::threadProc()
 		}
 		startTime = time(NULL);
 		CGuardMutex guardMutex(m_logFileMutex);	
-		writeToFile();
-		//dealRecvData(&pLogData->logDataInf);
+		toFile();
 	}
 }
 
@@ -84,16 +83,26 @@ void CLogOprManager::pushLogData(const char *logStr)
 	int logStrLen = (int)strlen(logStr);
 	if ((logStrLen + m_fileDataLen) >= m_maxFileDataLen)
 	{
-		writeToFile();
+		toFile();
 	}
-	memcpy(m_fileData + m_fileDataLen, logStr, logStrLen);
-	m_fileDataLen += logStrLen;
+	write(logStr, logStrLen);
+	return ;
+}
+
+void CLogOprManager::write(const char *data, int dataLen)
+{
+	memcpy(m_fileData + m_fileDataLen, data, dataLen);
+	m_fileDataLen += dataLen;
 	return ;
 }
 
 
-void CLogOprManager::writeToFile()
+void CLogOprManager::toFile()
 {
+	if (m_fileDataLen == 0)
+	{
+		return ;
+	}
 	FILE *fp = NULL;
 	fp = fopen (m_logName, "a+");
 	if (fp == NULL)

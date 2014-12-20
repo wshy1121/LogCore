@@ -35,7 +35,8 @@ private:
 	static void* threadFunc(void *pArg);
 	void threadProc();
 	void dealRecvData(LogDataInf *pCalcMemInf);
-	void writeToFile();
+	void toFile();
+	void write(const char *data, int dataLen);
 private:
 	static CLogOprManager *_instance;
 	CPthreadMutex m_logFileMutex;
