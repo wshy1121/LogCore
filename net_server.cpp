@@ -152,7 +152,7 @@ void *CNetServer::_clientThread(void *arg)
 					send(*iterWrite, sendBuf, strlen(sendBuf));
 				}
 			}
-			m_listClientWrite.clear();
+			listWirte.clear();
 			if(FD_ISSET(*iterRead, &fd_read))
 			{
 				memset(recvBuf, 0, sizeof(recvBuf));
@@ -162,7 +162,7 @@ void *CNetServer::_clientThread(void *arg)
 					
 					for (iterTmp=listRead.begin(); iterTmp!=listRead.end(); ++iterTmp)	
 					{
-						m_listClientWrite.push_back(*iterTmp);
+						listWirte.push_back(*iterTmp);
 					}
 				}
 				else
@@ -174,10 +174,15 @@ void *CNetServer::_clientThread(void *arg)
 						{
 							close(*iterRead);
 							iterTmp = listRead.erase(iterTmp);
+							break;
 						}
-						else
+					}
+					for (iterTmp=listWirte.begin(); iterTmp!=listWirte.end(); )
+					{
+						if(*iterRead == *iterTmp)
 						{
-							++iterTmp;
+							iterTmp = listWirte.erase(iterTmp);
+							break;
 						}
 					}
 				}
