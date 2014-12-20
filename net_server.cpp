@@ -127,64 +127,63 @@ void *CNetServer::_clientThread(void *arg)
 		FD_ZERO(&fd_read);
 		FD_ZERO(&fd_write);
 		
-		SocketList::iterator iter;
-		for (iter=listRead.begin(); iter!=listRead.end(); ++iter)	
+		SocketList::iterator iterTmp;
+		for (iterTmp=listRead.begin(); iterTmp!=listRead.end(); ++iterTmp)	
 		{
-			FD_SET(*iter, &fd_read);
+			FD_SET(*iterTmp, &fd_read);
 		}
-		for (iter=listWirte.begin(); iter!=listWirte.end(); ++iter)	
+		for (iterTmp=listWirte.begin(); iterTmp!=listWirte.end(); ++iterTmp)	
 		{
-			FD_SET(*iter, &fd_write);
+			FD_SET(*iterTmp, &fd_write);
 		}
 		
 		struct timeval cctv = {0, 50};
 		int count = select(100, &fd_read, &fd_write, NULL, &cctv);
 		
-		SocketList::iterator iter1 = listRead.begin();
+		SocketList::iterator iterRead = listRead.begin();
 		while(count > 0)
 		{
-			SocketList::iterator iter2;
-			for (iter2=listWirte.begin(); iter2!=listWirte.end(); ++iter2)	
+			SocketList::iterator iterWrite;
+			for (iterWrite=listWirte.begin(); iterWrite!=listWirte.end(); ++iterWrite)	
 			{
-				if(FD_ISSET(*iter2, &fd_write))
+				if(FD_ISSET(*iterWrite, &fd_write))
 				{
 					--count;
-					send(*iter2, sendBuf, strlen(sendBuf));
+					send(*iterWrite, sendBuf, strlen(sendBuf));
 				}
 			}
-			
 			m_listClientWrite.clear();
-			if(FD_ISSET(*iter, &fd_read))
+			if(FD_ISSET(*iterRead, &fd_read))
 			{
 				memset(recvBuf, 0, sizeof(recvBuf));
-				if(0 < receive(*iter, recvBuf, sizeof(recvBuf)))
+				if(0 < receive(*iterRead, recvBuf, sizeof(recvBuf)))
 				{
 					strcpy(sendBuf, recvBuf);
 					
-					for (iter=listRead.begin(); iter!=listRead.end(); ++iter)	
+					for (iterTmp=listRead.begin(); iterTmp!=listRead.end(); ++iterTmp)	
 					{
-						m_listClientWrite.push_back(*iter);
+						m_listClientWrite.push_back(*iterTmp);
 					}
 				}
 				else
 				{
 					CGuardMutex guardMutex(m_clientReadMutex);
-					for (iter=listRead.begin(); iter!=listRead.end(); )
+					for (iterTmp=listRead.begin(); iterTmp!=listRead.end(); )
 					{
-						if(*iter == *iter)
+						if(*iterRead == *iterTmp)
 						{
-							close(*iter);
-							iter = listRead.erase(iter);
+							close(*iterRead);
+							iterTmp = listRead.erase(iterTmp);
 						}
 						else
 						{
-							++iter;
+							++iterTmp;
 						}
 					}
 				}
 				break;
 			}
-			++iter;
+			++iterRead;
 		}
 	}
 	return NULL;
