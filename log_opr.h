@@ -36,15 +36,12 @@ private:
 	void threadProc();
 	void dealRecvData(LogDataInf *pCalcMemInf);
 	void toFile();
-	void write(const char *data, int dataLen);
 private:
 	static CLogOprManager *_instance;
 	CPthreadMutex m_logFileMutex;
 	base::pthread_t m_threadId;
-	const int m_maxFileDataLen;
 	const char *m_logName;
-	char *m_fileData;
-	int m_fileDataLen;
+	CString *pString;
 };
 
 #endif

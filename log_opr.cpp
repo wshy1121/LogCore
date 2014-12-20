@@ -10,9 +10,9 @@
 extern CPthreadMutex g_insMutexCalc;
 
 CLogOprManager *CLogOprManager::_instance = NULL;
-CLogOprManager::CLogOprManager() : m_maxFileDataLen(1024 *1024), m_logName("./Debug.cpp"), m_fileDataLen(0)
+CLogOprManager::CLogOprManager() : m_logName("./Debug.cpp")
 {
-	m_fileData = (char *)base::malloc(m_maxFileDataLen + 16);
+	pString = CString::createCString();	
 	base::pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
 CLogOprManager *CLogOprManager::instance()
@@ -34,7 +34,7 @@ void CLogOprManager::threadProc()
 	time_t diff = 0;
 	while(1)
 	{
-		if(m_fileDataLen == 0)
+		if(pString->size() == 0)
 		{
 			base::usleep(10 * 1000);
 			continue;
@@ -80,26 +80,13 @@ void CLogOprManager::dealRecvData(LogDataInf *pLogDataInf)
 void CLogOprManager::pushLogData(const char *logStr)
 {
 	CGuardMutex guardMutex(m_logFileMutex);
-	int logStrLen = (int)strlen(logStr);
-	if ((logStrLen + m_fileDataLen) >= m_maxFileDataLen)
-	{
-		toFile();
-	}
-	write(logStr, logStrLen);
+	pString->append(logStr);
 	return ;
 }
-
-void CLogOprManager::write(const char *data, int dataLen)
-{
-	memcpy(m_fileData + m_fileDataLen, data, dataLen);
-	m_fileDataLen += dataLen;
-	return ;
-}
-
 
 void CLogOprManager::toFile()
 {
-	if (m_fileDataLen == 0)
+	if (pString->size() == 0)
 	{
 		return ;
 	}
@@ -109,9 +96,9 @@ void CLogOprManager::toFile()
 	{
 		return ;
 	}
-	fwrite(m_fileData, m_fileDataLen, 1, fp);
+	fwrite(pString->c_str(), pString->size(), 1, fp);
+	pString->clear();
 	fclose (fp);
-	m_fileDataLen = 0;
 	return ;
 }
 

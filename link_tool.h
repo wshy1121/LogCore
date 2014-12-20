@@ -78,6 +78,7 @@ public:
 	void append(const char *str);
 	char *c_str();
 	int size();
+	void clear();
 private:
 	void init();
 	void exit();

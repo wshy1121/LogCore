@@ -194,6 +194,11 @@ void CStrNode::destroyCStrNode(CStrNode *pNode)
 
 int CStrNode::writeStr(char *str)
 {
+	if (m_remainMem <= 0)
+	{
+		return 0;
+	}
+	
 	int strLen = (int)strlen(str);
 	int writeLen = m_remainMem > strLen ? strLen:m_remainMem;
 
@@ -254,7 +259,22 @@ void CString::exit()
 	m_strLen = 0;	
 }
 
- CString* CString::createCString()
+void CString::clear()
+{
+	CStrNode *pStrNode = NULL; 
+	struct node *pNode = NULL;
+	while (m_pStrList->size())
+	{
+		pNode =  m_pStrList->begin();
+		pStrNode = TStrNodeContain(pNode);
+		m_pStrList->pop_front();
+		CStrNode::destroyCStrNode(pStrNode);
+	}
+	m_strLen = 0;
+	m_lastStrNode = NULL;
+}
+
+CString* CString::createCString()
 {
 	CString *pCString = (CString *)base::malloc(sizeof(CString));
 	if (pCString)
@@ -324,6 +344,13 @@ char *CString::c_str()
 	CStrNode *newStrNode = NULL;
 	struct node *pNode = NULL;
 
+	if (m_pStrList->size() == 1)
+	{
+		pNode =  m_pStrList->begin();
+		pStrNode = TStrNodeContain(pNode);
+		return pStrNode->getStr();
+	}
+	
 	int newStrLen = m_maxStrNodeLen > m_strLen ? m_maxStrNodeLen : m_strLen;
 	newStrNode = CStrNode::createCStrNode(newStrLen);
 	
@@ -340,7 +367,7 @@ char *CString::c_str()
 
 
 	m_pStrList->push_back(newStrNode->getNode());
-	m_lastStrNode = pStrNode;
+	m_lastStrNode = newStrNode;
 	return newStrNode->getStr();
 }
 
