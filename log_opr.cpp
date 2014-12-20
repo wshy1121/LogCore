@@ -30,23 +30,10 @@ CLogOprManager *CLogOprManager::instance()
 
 void CLogOprManager::threadProc()
 {	
-	time_t startTime = time(NULL);
-	time_t diff = 0;
+	const int sleepTime = 3* 1000 * 1000;
 	while(1)
 	{
-		if(pString->size() == 0)
-		{
-			base::usleep(10 * 1000);
-			continue;
-		}
-		
-		diff =  time(NULL) - startTime;
-		if (diff < 3)
-		{
-			base::usleep(10 * 1000);
-			continue;			
-		}
-		startTime = time(NULL);
+		base::usleep(sleepTime);
 		CGuardMutex guardMutex(m_logFileMutex);	
 		toFile();
 	}
