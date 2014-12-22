@@ -32,7 +32,7 @@ $(LIB_TARGET): $(LIB_OBJS)
 	$(RANLIB) $@
 
 .c.o:
-	$(CC) -c $(CFLAGS) $^ -o $@
+	$(CPP) -c $(CFLAGS) $^ -o $@
 
 .cpp.o:
 	$(CPP) -c -Wall $(CFLAGS) $^ -o $@

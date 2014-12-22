@@ -2,8 +2,15 @@
 #define _GLOBAL_H_
 #include <string>
 #include <signal.h>
-#include "thread_base.h"
 
+namespace base
+{
+#ifdef WIN32
+	typedef unsigned long pthread_t;
+#else
+	typedef ::pthread_t  pthread_t;
+#endif
+}
 
 #define debug_printf()  printf("WSHY DEBUG  %d  %s\n", __LINE__, __FILE__);
 
