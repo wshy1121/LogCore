@@ -25,6 +25,7 @@ ifeq ($(CROSS),arm-linux-gnueabihf-)
 #CFLAGS += -D__arm__ -DUNW_LOCAL_ONLY 
 endif
 
+OPT_CFLAGS += -I ./Libs/Json -L ./Libs/Json -ljson
 
 CPP	=	@echo " g++ $@"; $(CROSS)g++
 CC	=	@echo " gcc $@"; $(CROSS)gcc
