@@ -2,10 +2,10 @@
 #define __NET_SERVER_H
 #include "thread_base.h"
 #include "link_tool.h"
+#include "defs.h"
 
 #include <list>
 
-typedef int SOCKET;
 
 class CNetServer
 {

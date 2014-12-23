@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "json.h"
 #include "Global.h"
 #include "string_base.h"
 
@@ -85,8 +86,26 @@ void* printfMallocMap(void *pArg)
 #endif
 	return NULL;
 }
+
+const char *jsonData = "{\"opr\" : \"createCandy\", \"threadId\" : 100, \"line\" : 100, \"fileName\" : \"name\", \"funcName\" : \"name\", \"displayLevel\" : 100, \"content\" : \"I am Candy\"}";
 int main()
 {
+	json_object *new_obj = NULL;
+	json_object *json_para = NULL;
+	new_obj = json_tokener_parse(jsonData);
+	if (!new_obj)
+	{
+		debug_printf();
+	}
+	json_para = json_object_object_get(new_obj, "opr");
+	if (json_para)
+	{
+		printf("%s\n", json_object_to_json_string(json_para));
+	}
+	
+	json_object_put(new_obj);
+	return 0;
+	
 	time_start();
 
 	base::pthread_t printfThreadId;

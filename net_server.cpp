@@ -4,10 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <netinet/in.h>
+#include "defs.h"
 
-const int INVALID_SOCKET = -1;
-const int SOCKET_ERROR = -1;
-const int MAX_BUFFER_SIZE = 4096; 
 
 
 extern CPthreadMutex g_insMutexCalc;

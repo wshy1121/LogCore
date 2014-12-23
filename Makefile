@@ -14,7 +14,7 @@ OPT_CFLAGS +=  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc
 OPT_CFLAGS	+= -fstack-protector-all
 CFLAGS += -DWRAP
 LIB_OBJS += wrap_malloc.o mem_calc.o mem_check.o log_opr.o link_tool.o mem_base.o thread_base.o platform_base.o string_base.o 
-LIB_OBJS += net_server.o  
+LIB_OBJS += net_server.o defs.o net_client.o 
 else
 OPT_CFLAGS +=  -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lc -static
 endif
