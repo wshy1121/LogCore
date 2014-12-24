@@ -771,7 +771,7 @@ void CTimeCalcManager::stop()
 FILE *CTimeCalcManager::openLog(const char *sLogName)
 {
 	FILE *fp = NULL;
-	fp = fopen (sLogName, "a+");
+	fp = base::fopen (sLogName, "a+");
 	return fp;
 }
 void CTimeCalcManager::printLog(char *sFmt, ...)

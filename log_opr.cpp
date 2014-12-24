@@ -78,7 +78,7 @@ void CLogOprManager::toFile()
 		return ;
 	}
 	FILE *fp = NULL;
-	fp = fopen (m_logName, "a+");
+	fp = base::fopen (m_logName, "a+");
 	if (fp == NULL)
 	{
 		return ;

@@ -1,25 +1,8 @@
-.svn
-*.IMB
-*.IMD
-*.PFI
-*.PO
-*.PR
-*.PRI
-*.PS
-*.SearchResults
-*.WK3
-*.IAB
-*.IAD
-*.a
-*.so
-*.bin
 *.o
-*.ko
-*.lib
-*.bmp
-*.jpg
-*.gif
-*.bak
 
+*.a
+/LogCore/Debug
+/LogCore/ipch/
+/LogCore/*.sdf
 
-/backtrace/m64-gnueabihf-linux
+/LogCore/*.opensdf
