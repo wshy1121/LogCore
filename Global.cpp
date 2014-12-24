@@ -10,7 +10,6 @@
 #include "time_calc.h"
 #include "mem_calc.h"
 #include "mem_check.h"
-#include "net_server.h"
 
 
 CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
@@ -189,7 +188,6 @@ void CBugKiller::startServer()
 	CLogOprManager::instance();
 	CTimeCalcInfManager::instance();
 	CTimeCalcManager::instance();
-	CNetServer::instance()->startServer();
 }
 
 void CBugKiller::start()

@@ -9,10 +9,8 @@
 #CROSS  = arm-none-linux-gnueabi-
 #CROSS  = arm-linux-gnueabihf-
 
-LIB_OBJS += wrap_malloc.o mem_calc.o mem_check.o log_opr.o 
-LIB_OBJS += link_tool.o mem_base.o thread_base.o platform_base.o string_base.o 
-LIB_OBJS += net_server.o defs.o net_client.o 
-LIB_OBJS += time_calc.o Global.o
+CFLAGS += -I ../CrossPlat 
+LIB_OBJS += wrap_malloc.o mem_calc.o mem_check.o log_opr.o time_calc.o Global.o
 
 CPP	=	@echo " g++ $@"; $(CROSS)g++
 CC	=	@echo " gcc $@"; $(CROSS)gcc
@@ -25,7 +23,6 @@ CP	= cp -rf
 RM	= rm
 
 AFLAGS	+= -r   
-
 
 LIB_TARGET=libLogCore.a
 
@@ -45,7 +42,7 @@ clean:
 	$(RM) $(LIB_OBJS)
 
 install:
-	cp $(LIB_TARGET) ../Libs/libLogCore.a 
+	cp $(LIB_TARGET) ../Build/Libs/libLogCore.a 
 
 
 	
