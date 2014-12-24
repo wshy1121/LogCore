@@ -6,7 +6,9 @@ CNetClient netClient("127.0.0.1");
 static void main_exit(int sig)
 {
 	printf("main_exit\n");
+	printf("main_exit\n");
 	netClient.disConnect();
+	
 	exit(sig);
 }
 int main()
