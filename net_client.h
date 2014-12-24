@@ -10,7 +10,6 @@ public:
 	bool disConnect();
 public:
 	bool connect();
-private:
 	int receive(char *szText,int len);
 	int send(char *szText,int len);
 private:

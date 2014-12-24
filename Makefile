@@ -50,6 +50,7 @@ $(LIB_TARGET): $(LIB_OBJS)
 	$(RANLIB) $@
 	$(CPP) -g -o deamon main.cpp  $(LIB_OBJS) $(OPT_CFLAGS)
 	$(CPP) -g -o server main_server.cpp  $(LIB_OBJS) $(OPT_CFLAGS)
+	$(CPP) -g -o client main_client.cpp  $(LIB_OBJS) $(OPT_CFLAGS)
 
 .c.o:
 	$(CC) -c $(CFLAGS) $^ -o $@

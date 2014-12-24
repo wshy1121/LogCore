@@ -34,6 +34,42 @@ bool CNetClient::connect()
 bool CNetClient::disConnect()
 {
 	close(m_socketClient);
+	return true;
+}
+
+int CNetClient::receive(char *szText,int len)
+{
+	int rc;
+	rc=recv(m_socketClient,szText,len,0);
+	if(rc <= 0)
+	{
+		return -1;
+	}
+	return rc;
+}
+
+
+
+int CNetClient::send(char *szText,int len)
+{
+	int cnt;
+	int rc;
+	cnt=len;
+	while(cnt>0)
+	{
+		rc=::send(m_socketClient,szText,cnt,0);
+		if(rc==SOCKET_ERROR)
+		{
+			return -1;
+		}
+		if(rc==0)
+		{
+			return len-cnt;
+		}
+		szText+=rc;
+		cnt-=rc;
+	}
+	return len;
 }
 
 
