@@ -5,7 +5,6 @@
 #include "link_tool.h"
 
 #define TQueueContain(x) container_of((x), ThreadNode, node)
-#define each_link_node(head, node) for ((node)=(head)->next; (head) != (node); (node)=(node)->next)
 #define TRACE_INF_LEN  512
 
 
