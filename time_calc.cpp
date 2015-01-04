@@ -671,33 +671,37 @@ void CTimeCalcManager::InsertTag(int line, char *file_name, const char* content)
 	return ;
 }
 
-void CTimeCalcManager::DispAll(const char* content)
+void CTimeCalcManager::DispAll(int clientId, const char* content)
 {
 	FuncTraceInfo_t *TraceInfo = NULL;
 
 	CGuardMutex guardMutex(m_threadListMutex);
 	
 	node *pNode = NULL;
+#ifndef WIN32	
 	each_link_node(&m_pThreadList->head_node, pNode)
 	{
 		if (pNode != NULL)//如果查找到
 		{
 			TraceInfo = TNodeContain(pNode);
-			printf("%s\n", TraceInfo->pUpString->c_str());
+			if (TraceInfo->traceInfoId.clientId == clientId)
+			{
+				printf("%s\n", TraceInfo->pUpString->c_str());
+			}
 		}
 	}
-#ifdef WRAP	
-	printf("backTrace  %s\n", content);
-	printStrLog(content);
 #endif
-
+	printStrLog(content);
 	printStrLog("\n#if 0");
 	each_link_node(&m_pThreadList->head_node, pNode)
 	{
 		if (pNode != NULL)//如果查找到
 		{
 			TraceInfo = TNodeContain(pNode);
-			printStrLog(TraceInfo->pUpString->c_str());
+			if (TraceInfo->traceInfoId.clientId == clientId)
+			{
+				printStrLog(TraceInfo->pUpString->c_str());
+			}
 		}
 	}
 	printStrLog("#endif");
@@ -943,7 +947,7 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 			}
 		case TimeCalcInf::e_dispAll:
 			{
-				CTimeCalcManager::instance()->DispAll(content);
+				CTimeCalcManager::instance()->DispAll(traceInfoId.clientId, content);
 				break;
 
 			}

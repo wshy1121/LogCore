@@ -75,7 +75,7 @@ public:
 	void InsertTrace(int line, char *file_name, TraceInfoId &traceInfoId, const char* content);
 	void InsertStrOnly(TraceInfoId &traceInfoId, const char* fmt, ...);
 	void InsertTag(int line, char *file_name, const char* content);
-	void DispAll(const char* content);
+	void DispAll(int clientId, const char* content);
 	void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
 	void start();
 	void stop();
