@@ -7,6 +7,12 @@
 #define TQueueContain(x) container_of((x), ThreadNode, node)
 #define TRACE_INF_LEN  512
 
+typedef struct TraceInfoId
+{
+	base::pthread_t threadId;
+	int clientId;
+}TraceInfoId;
+
 
 class  ThreadQueue
 {
@@ -58,7 +64,7 @@ typedef struct CalcMemInf
 		e_wrapFree, 			
 	}CalcMemOpr;
 	CalcMemOpr m_opr;
-	base::pthread_t m_threadId;
+	TraceInfoId m_traceInfoId;
  	void *m_memAddr;
 	size_t m_memSize;
 	char *m_backTrace;
@@ -77,14 +83,14 @@ public:
 	static CalcMem *instance();
 	MEM_DATA *createMemData(int backTraceLen = 0);
 	void destroyMemData(MEM_DATA *pMemData);
-	void wrapMalloc(void* addr, size_t c, char *pBackTrace, base::pthread_t threadId);
-	void wrapFree(void* addr, size_t c, char *pBackTrace, base::pthread_t threadId);
-	void printfMemInfMap(base::pthread_t threadId);
+	void wrapMalloc(void* addr, size_t c, char *pBackTrace, TraceInfoId &traceInfoId);
+	void wrapFree(void* addr, size_t c, char *pBackTrace, TraceInfoId &traceInfoId);
+	void printfMemInfMap(TraceInfoId &traceInfoId);
 	std::string &getBackTrace(std::string &backTrace);
 private:
 	CalcMem();
 private:
-	void dealMemInf(const char *mallocPath, int size, base::pthread_t threadId);
+	void dealMemInf(const char *mallocPath, int size, TraceInfoId &traceInfoId);
 	inline std::string splitFilename (std::string &path);
 private:
 	static CalcMem *_instance;

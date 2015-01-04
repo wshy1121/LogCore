@@ -7,10 +7,12 @@
 #include <signal.h>
 #include <stdlib.h>
 #include "link_tool.h"
+#include "mem_calc.h"
 
 void NextStep(const char *function, const char *fileName, int line);
 #define nextStep()  NextStep(__FUNCTION__, __FILE__, __LINE__)
 #define tracepoint1()  printf("%d  %s  \t\t%ld\n", __LINE__, __FILE__, base::pthread_self());
+
 
 typedef struct FuncTraceInfo_t
 {
@@ -18,7 +20,7 @@ typedef struct FuncTraceInfo_t
 	int deep;
 	CString *pUpString;
 	CList *pCalcList;
-	base::pthread_t threadId;
+	TraceInfoId traceInfoId;
 	node Node;
 } FuncTraceInfo_t;
 #define TNodeContain(x) container_of((x), FuncTraceInfo_t, Node)
@@ -36,9 +38,9 @@ private:
 	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
 	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 public:
-	static CTimeCalc * createCTimeCalc(int line=__LINE__, char *file_name=(char *)__FILE__, char *func_name=(char *)"__FUNCTION__", int display_level=100, base::pthread_t threadId = base::pthread_self());
+	static CTimeCalc * createCTimeCalc(int line, char *file_name, char *func_name, int display_level, TraceInfoId &traceInfoId);
 	static void destroyCTimeCalc(CTimeCalc *pTimeCalc);
-	void init(int line, char *file_name, char *func_name, int display_level, base::pthread_t threadId);
+	void init(int line, char *file_name, char *func_name, int display_level, TraceInfoId &traceInfoId);
 	void exit();
 private:
 	void initTimeCalc(CList *pCalcList);
@@ -48,7 +50,7 @@ private:
 public:
 	bool m_displayFlag;
 	int m_DisplayLevel;
-	base::pthread_t m_threadId;
+	TraceInfoId m_traceInfoId;
 	 //使当前TimeCale不能显示的等级
 	int m_noDisplayLevel;  
 
@@ -67,20 +69,20 @@ class CTimeCalcManager
 public:
 	static CTimeCalcManager *instance();
 public:
-	void printfMemInfMap(base::pthread_t threadId);
+	void printfMemInfMap(TraceInfoId &traceInfoId);
 	void printStack(int line, char *file_name, const char* fmt, ...);
 	void getStackInfo(std::string &stackInf);
-	void InsertTrace(int line, char *file_name, base::pthread_t threadId, const char* content);
-	void InsertStrOnly(base::pthread_t threadId, const char* fmt, ...);
+	void InsertTrace(int line, char *file_name, TraceInfoId &traceInfoId, const char* content);
+	void InsertStrOnly(TraceInfoId &traceInfoId, const char* fmt, ...);
 	void InsertTag(int line, char *file_name, const char* content);
 	void DispAll(const char* content);
 	void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
 	void start();
 	void stop();
 public:
-	FuncTraceInfo_t *CreatTraceInf(base::pthread_t threadId);
-	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo, base::pthread_t threadId);
-	FuncTraceInfo_t *GetTraceInf(base::pthread_t threadId);
+	FuncTraceInfo_t *CreatTraceInf(TraceInfoId &traceInfoId);
+	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo, TraceInfoId &traceInfoId);
+	FuncTraceInfo_t *GetTraceInf(TraceInfoId &traceInfoId);
 	void printLog(char *sFmt, ...);
 	void printStrLog(const char *logStr);
 private:	
@@ -89,7 +91,7 @@ private:
 	void insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
 	void DispTraces(int signo);
 	bool needPrint(CList *pCalcList);
-	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, base::pthread_t threadId, const char *pStr);
+	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, TraceInfoId &traceInfoId, const char *pStr);
 	FILE *openLog(const char *sLogName);
 private:
 	CTimeCalcManager();
@@ -123,7 +125,7 @@ typedef struct TimeCalcInf
 		e_getStackInfo, 
 	}TimeCalcOpr;
 	TimeCalcOpr m_opr;
-	base::pthread_t m_threadId;
+	TraceInfoId m_traceInfoId;
 	int m_line;
 	char * m_fileName;
 	char * m_funcName;

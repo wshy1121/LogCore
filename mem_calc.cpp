@@ -298,7 +298,8 @@ void ThreadQueue::wrapMalloc(void* addr, size_t c)
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 		
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapMalloc;
-	pCalcMemInf->m_threadId = base::pthread_self();
+	pCalcMemInf->m_traceInfoId.threadId = base::pthread_self();
+	pCalcMemInf->m_traceInfoId.clientId = -1;
 	pCalcMemInf->m_memAddr = addr;
 	pCalcMemInf->m_memSize= c;
 	base::strcpy(pCalcMemInf->m_backTrace, backtrace.c_str());
@@ -320,7 +321,8 @@ void ThreadQueue::wrapFree(void* addr)
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapFree;
-	pCalcMemInf->m_threadId = base::pthread_self();
+	pCalcMemInf->m_traceInfoId.threadId = base::pthread_self();
+	pCalcMemInf->m_traceInfoId.clientId = -1;
 	pCalcMemInf->m_memAddr = addr;
 	pCalcMemInf->m_memSize= nodeInf.memSize;
 	base::strcpy(pCalcMemInf->m_backTrace, nodeInf.path.c_str());
@@ -354,7 +356,8 @@ MEM_DATA *CalcMem::createMemData(int backTraceLen)
 	CalcMemInf *pCalcMemInf = &pMemData->calcMemInf;
 
 	pCalcMemInf->m_opr = CalcMemInf::e_wrapMalloc;
-	pCalcMemInf->m_threadId = -1;
+	pCalcMemInf->m_traceInfoId.threadId = -1;
+	pCalcMemInf->m_traceInfoId.clientId = -1;
 	pCalcMemInf->m_memAddr = NULL;
 	pCalcMemInf->m_memSize= 0;
 
@@ -375,24 +378,23 @@ void CalcMem::destroyMemData(MEM_DATA *pMemData)
 }
 
 
-void CalcMem::wrapMalloc(void* addr, size_t c, char *pBackTrace, base::pthread_t threadId)
+void CalcMem::wrapMalloc(void* addr, size_t c, char *pBackTrace, TraceInfoId &traceInfoId)
 {
 	if (strlen(pBackTrace) <= 0)
 	{
 		return ;
 	}
 	CGuardMutex guardMutex(m_mutex);
-	dealMemInf(pBackTrace, (int)c, threadId);	
+	dealMemInf(pBackTrace, (int)c, traceInfoId);	
 }
 
-void CalcMem::wrapFree(void* addr, size_t c, char *pBackTrace, base::pthread_t threadId)
+void CalcMem::wrapFree(void* addr, size_t c, char *pBackTrace, TraceInfoId &traceInfoId)
 {
 	CGuardMutex guardMutex(m_mutex);
-	dealMemInf(pBackTrace, -(int)c, threadId);
+	dealMemInf(pBackTrace, -(int)c, traceInfoId);
 }
-void CalcMem::printfMemInfMap(base::pthread_t threadId)
+void CalcMem::printfMemInfMap(TraceInfoId &traceInfoId)
 {
-	threadId = base::pthread_self();
 	CCandy candy(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, 0);
 
 	std::string path;
@@ -408,14 +410,14 @@ void CalcMem::printfMemInfMap(base::pthread_t threadId)
 		{
 			itemSize = memInf->memSize /diffCount;
 		}
-		CBugKiller::InsertStrOnly(threadId, "maxSize  itemSize  memSize  diffCount  mallocCount  freeCount  %016d  %08d  %d  %d  %d  %d %s", memInf->maxSize, itemSize, memInf->memSize, 
+		CBugKiller::InsertStrOnly(traceInfoId, "maxSize  itemSize  memSize  diffCount  mallocCount  freeCount  %016d  %08d  %d  %d  %d  %d %s", memInf->maxSize, itemSize, memInf->memSize, 
 												diffCount, memInf->mallocCount, memInf->freeCount, path.c_str());
 	}
 	
 	return ;	
 }
 
-void CalcMem::dealMemInf(const char *mallocPath, int size, base::pthread_t threadId)
+void CalcMem::dealMemInf(const char *mallocPath, int size, TraceInfoId &traceInfoId)
 { 
 	MemInf *memInf = NULL;
 	MemInfMap::iterator memInfMapIter = m_MemInfMap.find(mallocPath);
@@ -450,7 +452,7 @@ void CalcMem::dealMemInf(const char *mallocPath, int size, base::pthread_t threa
 		memInf->maxSize = memInf->memSize;
 
 		int count = memInf->mallocCount - memInf->freeCount;
-		CBugKiller::InsertStrOnly(threadId, "%s  malloc size  %06d  %d  %d  %s", mallocPath, count, memInf->memSize, __LINE__, __FILE__);
+		CBugKiller::InsertStrOnly(traceInfoId, "%s  malloc size  %06d  %d  %d  %s", mallocPath, count, memInf->memSize, __LINE__, __FILE__);
 	}
 	return ;
 }
@@ -533,7 +535,7 @@ void CalcMemManager::dealRecvData(CalcMemInf *pCalcMemInf)
 	threadQueueEnable(e_Mem);	
 
 	CalcMemInf::CalcMemOpr &opr = pCalcMemInf->m_opr;
-	int threadId = pCalcMemInf->m_threadId;
+	TraceInfoId &traceInfoId = pCalcMemInf->m_traceInfoId;
 	 
 	void *memAddr = pCalcMemInf->m_memAddr;
 	size_t memSize = pCalcMemInf->m_memSize;
@@ -543,12 +545,12 @@ void CalcMemManager::dealRecvData(CalcMemInf *pCalcMemInf)
 	{
 		case CalcMemInf::e_wrapMalloc:
 			{
-				CalcMem::instance()->wrapMalloc(memAddr, memSize, pBackTrace, threadId);
+				CalcMem::instance()->wrapMalloc(memAddr, memSize, pBackTrace, traceInfoId);
  				break;
 			}
 		case CalcMemInf::e_wrapFree:
 			{
-				CalcMem::instance()->wrapFree(memAddr, memSize, pBackTrace, threadId);
+				CalcMem::instance()->wrapFree(memAddr, memSize, pBackTrace, traceInfoId);
 				break;
 			}
 		default:

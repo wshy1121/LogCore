@@ -2,7 +2,7 @@
 #define _GLOBAL_H_
 #include <string>
 #include <signal.h>
-
+#include "mem_calc.h"
 namespace base
 {
 #ifdef WIN32
@@ -29,7 +29,7 @@ public:
 	static void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
 	static void DispAll();
 	static void InsertTag(int line, char *file_name, const char* fmt, ...);
-	static void InsertStrOnly(base::pthread_t threadId, const char* fmt, ...);
+	static void InsertStrOnly(TraceInfoId &traceInfoId, const char* fmt, ...);
 	static std::string& getBackTrace(std::string &backTrace);	
 	static void printfMemInfMap();
 	static void printfStackInfo(int line, char *file_name);
