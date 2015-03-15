@@ -12,7 +12,6 @@ extern CPthreadMutex g_insMutexCalc;
 CLogOprManager *CLogOprManager::_instance = NULL;
 CLogOprManager::CLogOprManager() : m_logName("./Debug.cpp")
 {
-	pString = CString::createCString();	
 	base::pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
 CLogOprManager *CLogOprManager::instance()
@@ -31,11 +30,16 @@ CLogOprManager *CLogOprManager::instance()
 void CLogOprManager::threadProc()
 {	
 	const int sleepTime = 3* 1000 * 1000;
+	LOG_FILE *pLogFile = NULL;
 	while(1)
 	{
 		base::usleep(sleepTime);
-		CGuardMutex guardMutex(m_logFileMutex);	
-		toFile();
+		CGuardMutex guardMutex(m_logFileMutex);
+		for (LogFileMap::iterator iter = m_logFileMap.begin(); iter != m_logFileMap.end(); ++iter)
+		{
+			pLogFile = iter->second;
+			toFile(pLogFile->fileName, pLogFile->content);
+		}
 	}
 }
 
@@ -45,17 +49,28 @@ void* CLogOprManager::threadFunc(void *pArg)
 	return NULL;
 }
 
-void CLogOprManager::dealRecvData(LogDataInf *pLogDataInf)
+void CLogOprManager::dealLogData(LogDataInf *pLogData)
 {
-	threadQueueEnable(e_Mem);	
-
-	LogDataInf::LogDataOpr &opr = pLogDataInf->m_opr;
-	
+	CGuardMutex guardMutex(m_logFileMutex);
+	LogDataInf::LogDataOpr &opr = pLogData->m_opr;
+	int fileKey = pLogData->m_traceInfoId.clientId;
+	char *content = pLogData->m_content;
 	switch (opr)
 	{
 		case LogDataInf::e_writeFile:
 			{
- 				break;
+				writeFile(fileKey, content);
+				break;
+			}
+		case LogDataInf::e_openFile:
+			{
+				openFile(fileKey, content);
+				break;
+			}
+		case LogDataInf::e_closeFile:
+			{
+				closeFile(fileKey);
+				break;
 			}
 		default:
 			break;
@@ -63,22 +78,54 @@ void CLogOprManager::dealRecvData(LogDataInf *pLogDataInf)
 	return ;
 
 }
-
-void CLogOprManager::pushLogData(const char *logStr)
+bool CLogOprManager::openFile(int fileKey, char *fileName)
 {
-	CGuardMutex guardMutex(m_logFileMutex);
-	pString->append(logStr);
-	return ;
+	LogFileMap::iterator iter = m_logFileMap.find(fileKey);
+	if (iter != m_logFileMap.end())
+	{
+		closeFile(fileKey);
+	}
+	printf("openFile  fileKey, fileName  %d  %s\n", fileKey, fileName);
+	LOG_FILE *pLogFile = createLogFile(fileName);
+	m_logFileMap.insert(std::make_pair(fileKey, pLogFile));
+	return true;
 }
 
-void CLogOprManager::toFile()
+bool CLogOprManager::closeFile(int fileKey)
+{
+	printf("closeFile  fileKey  %d\n", fileKey);
+	LogFileMap::iterator iter = m_logFileMap.find(fileKey);
+	if (iter == m_logFileMap.end())
+	{
+		return false;
+	}
+	LOG_FILE *pLogFile = iter->second;
+	toFile(pLogFile->fileName, pLogFile->content);
+	m_logFileMap.erase(iter);
+	
+	destroyLogFile(pLogFile);
+	return true;
+}
+
+void CLogOprManager::writeFile(int fileKey,char *content)
+{
+	LogFileMap::iterator iter = m_logFileMap.find(fileKey);
+	if (iter == m_logFileMap.end())
+	{
+		printf("writeFile failed! no file opened\n");
+		return ;
+	}
+	LOG_FILE *pLogFile = m_logFileMap[fileKey];
+	(pLogFile->content)->append(content);
+}
+void CLogOprManager::toFile(char *fileName, CString *pString)
 {
 	if (pString->size() == 0)
 	{
 		return ;
 	}
 	FILE *fp = NULL;
-	fp = base::fopen (m_logName, "a+");
+	fp = base::fopen (fileName, "a+");
 	if (fp == NULL)
 	{
 		return ;
@@ -88,4 +135,22 @@ void CLogOprManager::toFile()
 	fclose (fp);
 	return ;
 }
+
+LOG_FILE *CLogOprManager::createLogFile(char *fileName)
+{
+	LOG_FILE *pLogFile = (LOG_FILE *)base::malloc(sizeof(LOG_FILE));
+	pLogFile->fileName = (char *)base::malloc(strlen(fileName) + 1);
+	pLogFile->content = CString::createCString();
+	
+	base::strcpy(pLogFile->fileName, fileName);
+	return pLogFile;
+}
+
+void CLogOprManager::destroyLogFile(LOG_FILE *pLogFile)
+{
+	base::free(pLogFile->fileName);
+	CString::destroyCString(pLogFile->content);
+	base::free(pLogFile);
+}
+
 

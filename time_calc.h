@@ -74,22 +74,26 @@ public:
 	void getStackInfo(std::string &stackInf);
 	void InsertTrace(int line, char *file_name, TraceInfoId &traceInfoId, const char* content);
 	void InsertStrOnly(TraceInfoId &traceInfoId, const char* fmt, ...);
-	void InsertTag(int line, char *file_name, const char* content);
+	void InsertTag(TraceInfoId &traceInfoId, int line, char *file_name, const char* content);
 	void DispAll(int clientId, const char* content);
-	void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
+	void cleanAll(int clientId);
+	void InsertHex(TraceInfoId &traceInfoId, int line, char *file_name, char *psBuf, int nBufLen);
+	bool openFile(int fileKey, char *fileName);
+	bool closeFile(int fileKey);
 	void start();
 	void stop();
 public:
 	FuncTraceInfo_t *CreatTraceInf(TraceInfoId &traceInfoId);
 	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo, TraceInfoId &traceInfoId);
 	FuncTraceInfo_t *GetTraceInf(TraceInfoId &traceInfoId);
-	void printLog(char *sFmt, ...);
-	void printStrLog(const char *logStr);
+	void printLog(TraceInfoId &traceInfoId, char *sFmt, ...);
+	void printStrLog(TraceInfoId &traceInfoId, const char *logStr);
+	bool openFile(TraceInfoId &traceInfoId, char *fileName);
+	bool closeFile(TraceInfoId &traceInfoId);
 private:	
 	void getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf);
 	void InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr);
 	void insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
-	void DispTraces(int signo);
 	bool needPrint(CList *pCalcList);
 	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, TraceInfoId &traceInfoId, const char *pStr);
 	FILE *openLog(const char *sLogName);
@@ -117,10 +121,13 @@ typedef struct TimeCalcInf
 		e_insertTrace, 
 		e_InsertStrOnly, 
 		e_dispAll, 
+		e_cleanAll, 
 		e_insertTag, 
 		e_insertHex, 
 		e_getBackTrace, 
 		e_printfMemInfMap, 
+		e_openFile, 
+		e_closeFile, 
 		e_printfStackInfo, 
 		e_getStackInfo, 
 	}TimeCalcOpr;

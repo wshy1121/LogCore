@@ -233,7 +233,7 @@ void CTimeCalc::DealFuncExit()
 		//-------------------
 		if (TraceInfo->deep < 1)
 		{
-			CTimeCalcManager::instance()->printStrLog("//ERRERRERRERRERRERRERRERR");
+			CTimeCalcManager::instance()->printStrLog(m_traceInfoId, "//ERRERRERRERRERRERRERRERR");
 			return;
 		}
 	
@@ -243,14 +243,14 @@ void CTimeCalc::DealFuncExit()
 
 		if (TraceInfo->deep == 0)
 		{
-			CTimeCalcManager::instance()->printStrLog(TraceInfo->pUpString->c_str());
+			CTimeCalcManager::instance()->printStrLog(m_traceInfoId, TraceInfo->pUpString->c_str());
 			CTimeCalcManager::instance()->DestroyTraceInf(TraceInfo, m_traceInfoId);
 		}
 
 	}
 	else
 	{
-		CTimeCalcManager::instance()->printStrLog("//ERRERRERRERRERRERRERRERR");
+		CTimeCalcManager::instance()->printStrLog(m_traceInfoId, "//ERRERRERRERRERRERRERRERR");
 		return;
 	}
 
@@ -488,7 +488,7 @@ void CTimeCalcManager::InsertTrace(int line, char *file_name, TraceInfoId &trace
 	{
 		char logStr[512];
 		base::snprintf(logStr, sizeof(logStr), "trace:/*%s  %d  %s*/\n", content, line, file_name);
-		CTimeCalcManager::instance()->printStrLog(logStr);
+		CTimeCalcManager::instance()->printStrLog(traceInfoId, logStr);
 	}
 
 
@@ -516,7 +516,7 @@ void CTimeCalcManager::InsertStrOnly(TraceInfoId &traceInfoId, const char* fmt, 
 	}  
 	else
 	{
-		CTimeCalcManager::instance()->printLog((char *)"trace:/*%s*/", str);
+		CTimeCalcManager::instance()->printLog(traceInfoId, (char *)"trace:/*%s*/", str);
 	}
 
 
@@ -545,7 +545,7 @@ void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 {
 	TimeB cur_time;
 	base::ftime(&cur_time);
-	char *selfInf = "creat by huang_yuan@dahuatech.com";
+	char *selfInf = (char *)"creat by huang_yuan@dahuatech.com";
 	char tmp[128];
 	base::snprintf(tmp, sizeof(tmp), "    %4d    %s  tid:%d  cid:%d  %s    %16ld  ms %4d", line, file_name, (int)traceInfoId.threadId, traceInfoId.clientId, selfInf, cur_time.time, cur_time.millitm);
 
@@ -563,7 +563,7 @@ void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	return ;
 }
 
-void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
+void CTimeCalcManager::InsertHex(TraceInfoId &traceInfoId, int line, char *file_name, char *psBuf, int nBufLen)
 {
 	char time_tmp[128];
 	base::strcpy(time_tmp, "wshy");
@@ -630,9 +630,6 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 
 	base::snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
 
-	TraceInfoId traceInfoId;
-	traceInfoId.threadId = base::pthread_self();
-	traceInfoId.clientId = -1;
 	FuncTraceInfo_t *TraceInfo = GetTraceInf(traceInfoId);
 	
 	if(TraceInfo)//如果查找到
@@ -651,14 +648,14 @@ void CTimeCalcManager::InsertHex(int line, char *file_name, char *psBuf, int nBu
 	}  
 	else
 	{
-		printLog((char *)"trace:/*%s*/", str);
+		printLog(traceInfoId, (char *)"trace:/*%s*/", str);
 	}
 	return ;
 
 }
 
 
-void CTimeCalcManager::InsertTag(int line, char *file_name, const char* content)
+void CTimeCalcManager::InsertTag(TraceInfoId &traceInfoId, int line, char *file_name, const char* content)
 {
 	
 	TimeB cur_time;
@@ -667,7 +664,7 @@ void CTimeCalcManager::InsertTag(int line, char *file_name, const char* content)
 	char str[256];
 	base::snprintf(str, sizeof(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "huang_yuan", cur_time.time, cur_time.millitm);
 
-	printLog((char *)"trace:/*%s %s*/", content, str);
+	printLog(traceInfoId, (char *)"trace:/*%s %s*/", content, str);
 	return ;
 }
 
@@ -686,13 +683,11 @@ void CTimeCalcManager::DispAll(int clientId, const char* content)
 			TraceInfo = TNodeContain(pNode);
 			if (TraceInfo->traceInfoId.clientId == clientId)
 			{
-				printf("%s\n", TraceInfo->pUpString->c_str());
+				//printf("%s\n", TraceInfo->pUpString->c_str());
 			}
 		}
 	}
 #endif
-	printStrLog(content);
-	printStrLog("\n#if 0");
 	each_link_node(&m_pThreadList->head_node, pNode)
 	{
 		if (pNode != NULL)//如果查找到
@@ -700,52 +695,56 @@ void CTimeCalcManager::DispAll(int clientId, const char* content)
 			TraceInfo = TNodeContain(pNode);
 			if (TraceInfo->traceInfoId.clientId == clientId)
 			{
-				printStrLog(TraceInfo->pUpString->c_str());
+				printStrLog(TraceInfo->traceInfoId, TraceInfo->pUpString->c_str());
 			}
 		}
 	}
-	printStrLog("#endif");
 
 	return ;
 }
-void CTimeCalcManager::DispTraces(int signo)
-{
-	threadQueueEnable(e_Mem);
 
+void CTimeCalcManager::cleanAll(int clientId)
+{
 	CGuardMutex guardMutex(m_threadListMutex);
-	printLog((char *)"//%s    %2d","Except    DispTraces", signo);
-	
+	node *pHead = &m_pThreadList->head_node;
 	node *pNode = NULL;
 	FuncTraceInfo_t *TraceInfo = NULL;
-	each_link_node(&m_pThreadList->head_node, pNode)
+	for ((pNode)=(pHead)->next; (pHead) != (pNode);)
 	{
-		if (pNode != NULL)//如果查找到
+		if (pNode != NULL)
 		{
 			TraceInfo = TNodeContain(pNode);
-			printStrLog(TraceInfo->pUpString->c_str());
-		}
+			if (TraceInfo->traceInfoId.clientId == clientId)
+			{
+				pNode = m_pThreadList->erase(pNode);
+				base::free(TraceInfo);
+				continue;
+			}
+		}		
+		(pNode)=(pNode)->next;
 	}
 
-	if ((signo == SIGSEGV) || (signo == SIGINT) )
-	{
-		char signo_inf[64];
-		switch(signo) 
-		{
-			case SIGSEGV:
-				base::strcpy(signo_inf, "SIGSEGV");
-				break;
-			case SIGINT:
-				base::strcpy(signo_inf, "SIGINT");
-				break;
-			default:
-				break;
-		}
-		
-		printLog((char *)"%s  signo:%2d    %s","//ERRERRERRERRERRERRERRERR", signo, signo_inf);
-		exit(0);
-	}
+}
 
-	return ;
+
+
+bool CTimeCalcManager::openFile(TraceInfoId &traceInfoId, char *fileName)
+{
+	LogDataInf logData;
+	logData.m_opr = LogDataInf::e_openFile;
+	logData.m_traceInfoId = traceInfoId;
+	logData.m_content = (char *)fileName;
+	CLogOprManager::instance()->dealLogData(&logData);
+	return true;
+}
+bool CTimeCalcManager::closeFile(TraceInfoId &traceInfoId)
+{
+	LogDataInf logData;
+	logData.m_opr = LogDataInf::e_closeFile;
+	logData.m_traceInfoId = traceInfoId;
+	logData.m_content = (char *)"";
+	CLogOprManager::instance()->dealLogData(&logData);
+	return true;
 }
 
 bool CTimeCalcManager::needPrint(CList *pCalcList)
@@ -783,24 +782,35 @@ FILE *CTimeCalcManager::openLog(const char *sLogName)
 	fp = base::fopen (sLogName, "a+");
 	return fp;
 }
-void CTimeCalcManager::printLog(char *sFmt, ...)
+void CTimeCalcManager::printLog(TraceInfoId &traceInfoId, char *sFmt, ...)
 {
 	char logStr[512];
 	va_list ap;
 	va_start(ap,sFmt);
 	base::vsnprintf(logStr, sizeof(logStr), sFmt, ap);
 	va_end(ap);
-	CLogOprManager::instance()->pushLogData(logStr);
+
+	LogDataInf logData;
+	logData.m_opr = LogDataInf::e_writeFile;
+	logData.m_traceInfoId = traceInfoId;
+	logData.m_content = logStr;
+	CLogOprManager::instance()->dealLogData(&logData);
 	
 	base::snprintf(logStr, sizeof(logStr), "//thread id:%16d  creat by huang_yuan@dahuatech.com\n\n", (int)base::pthread_self());
-	CLogOprManager::instance()->pushLogData(logStr);
 
+	logData.m_opr = LogDataInf::e_writeFile;
+	logData.m_content = logStr;
+	CLogOprManager::instance()->dealLogData(&logData);
 	return ;
 }
 
-void CTimeCalcManager::printStrLog(const char *logStr)
+void CTimeCalcManager::printStrLog(TraceInfoId &traceInfoId, const char *logStr)
 {
-	CLogOprManager::instance()->pushLogData(logStr);
+	LogDataInf logData;
+	logData.m_opr = LogDataInf::e_writeFile;
+	logData.m_traceInfoId = traceInfoId;
+	logData.m_content = (char *)logStr;
+	CLogOprManager::instance()->dealLogData(&logData);
 }
 
 
@@ -951,9 +961,15 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 				break;
 
 			}
+		case TimeCalcInf::e_cleanAll:
+			{
+				CTimeCalcManager::instance()->cleanAll(traceInfoId.clientId);
+				break;
+
+			}
 		case TimeCalcInf::e_insertTag:
 			{
-				CTimeCalcManager::instance()->InsertTag(line, file_name, content);
+				CTimeCalcManager::instance()->InsertTag(traceInfoId, line, file_name, content);
 				break;
 
 			}
@@ -969,7 +985,17 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 			}
 		case TimeCalcInf::e_insertHex:
 			{
-				CTimeCalcManager::instance()->InsertHex(line, file_name, (char *)content, contentLen);
+				CTimeCalcManager::instance()->InsertHex(traceInfoId, line, file_name, (char *)content, contentLen);
+				break;
+			}
+		case TimeCalcInf::e_openFile:
+			{
+				CTimeCalcManager::instance()->openFile(traceInfoId, (char *)content);
+				break;
+			}
+		case TimeCalcInf::e_closeFile:
+			{
+				CTimeCalcManager::instance()->closeFile(traceInfoId);
 				break;
 			}
 		default:
