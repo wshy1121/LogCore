@@ -19,12 +19,12 @@ class  ThreadQueue
 public:
 	ThreadQueue();
 public:
-	void initThreadNode(ThreadNode *queue_node);
+	void initThreadNode(base::ThreadNode *queue_node);
 	void initQueue();
-	int insertQueue(ThreadNode *queue_node);
+	int insertQueue(base::ThreadNode *queue_node);
 	int removeQueue(base::pthread_t thread_id);
-	int removeNode(ThreadNode *queueNode, E_ENABLE_TYPE m_type);
-	int getQueue(base::pthread_t thread_id, ThreadNode **ret_queue_node);
+	int removeNode(base::ThreadNode *queueNode, base::E_ENABLE_TYPE m_type);
+	int getQueue(base::pthread_t thread_id, base::ThreadNode **ret_queue_node);
 	void clearQueue();
 	void dispQueue();
 	void setEnable(bool enable);
@@ -33,16 +33,16 @@ public:
 	static void stop();
 	void wrapMalloc(void* addr, size_t c);
 	void wrapFree(void* addr);
-	ThreadNode *getQueueNode(base::pthread_t thread_id);
+	base::ThreadNode *getQueueNode(base::pthread_t thread_id);
 	static ThreadQueue *instance();
 private:
 	static bool m_enable;
 	static ThreadQueue *_instance;
 private:
-	ThreadNode head_node;
-	ThreadNode *tail;
+	base::ThreadNode head_node;
+	base::ThreadNode *tail;
 	int node_num;
-	CPthreadMutex  m_mutex;
+	base::CPthreadMutex  m_mutex;
 };
 
 typedef struct MemInf
@@ -95,7 +95,7 @@ private:
 private:
 	static CalcMem *_instance;
 	static const int m_stackNum;	
-	CPthreadMutex  m_mutex;
+	base::CPthreadMutex  m_mutex;
 
 	typedef std::map<std::string, MemInf *> MemInfMap;
 	MemInfMap m_MemInfMap;
@@ -118,8 +118,8 @@ private:
 	void dealRecvData(CalcMemInf *pCalcMemInf);
 private:
 	static CalcMemManager *_instance;
-	CList *m_recvList;
-	CPthreadMutex m_recvListMutex;
+	base::CList *m_recvList;
+	base::CPthreadMutex m_recvListMutex;
 	base::pthread_t m_threadId;
 };
 
@@ -127,15 +127,15 @@ class CGuardEnable
 {
 public:
 	///\brief 构造函数
-	CGuardEnable(E_ENABLE_TYPE type);
+	CGuardEnable(base::E_ENABLE_TYPE type);
 
 	///\brief 析构函数
 	~CGuardEnable();
 
 	bool needReturn();
 private:
-	E_ENABLE_TYPE m_type;
-	ThreadNode *m_queueNode;
+	base::E_ENABLE_TYPE m_type;
+	base::ThreadNode *m_queueNode;
 	bool m_needReturn;
 };
 

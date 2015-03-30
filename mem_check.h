@@ -36,7 +36,7 @@ private:
 	static const size_t m_flagSize;
 	typedef std::map<void *, MemNodeInf> MemNodeInfMap;
 	MemNodeInfMap m_memNodeInfMap;
-	CPthreadMutex  m_memNodeInfMapMutex;
+	base::CPthreadMutex  m_memNodeInfMapMutex;
 };
 
 

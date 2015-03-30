@@ -7,6 +7,7 @@
 #include <string.h>
 #include <time.h>
 
+using namespace base;
 extern CPthreadMutex g_insMutexCalc;
 
 CLogOprManager *CLogOprManager::_instance = NULL;

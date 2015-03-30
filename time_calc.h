@@ -18,8 +18,8 @@ typedef struct FuncTraceInfo_t
 {
 	TimeB EndTime;
 	int deep;
-	CString *pUpString;
-	CList *pCalcList;
+	base::CString *pUpString;
+	base::CList *pCalcList;
 	TraceInfoId traceInfoId;
 	node Node;
 } FuncTraceInfo_t;
@@ -43,9 +43,9 @@ public:
 	void init(int line, char *file_name, char *func_name, int display_level, TraceInfoId &traceInfoId);
 	void exit();
 private:
-	void initTimeCalc(CList *pCalcList);
-	void exitTimeCalc(CList *pCalcList);
-	CTimeCalc *getLastTimeCalc(CList *pCalcList);
+	void initTimeCalc(base::CList *pCalcList);
+	void exitTimeCalc(base::CList *pCalcList);
+	CTimeCalc *getLastTimeCalc(base::CList *pCalcList);
 	void setDisplayFlag(CTimeCalc *timeCalc);
 public:
 	bool m_displayFlag;
@@ -94,19 +94,19 @@ private:
 	void getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf);
 	void InsertStrOnlyInfo(FuncTraceInfo_t *TraceInfo, char *pStr);
 	void insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, char *pStr);
-	bool needPrint(CList *pCalcList);
+	bool needPrint(base::CList *pCalcList);
 	void insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, char *file_name, TraceInfoId &traceInfoId, const char *pStr);
 	FILE *openLog(const char *sLogName);
 private:
 	CTimeCalcManager();
 	~CTimeCalcManager();
 private:
-	CPthreadMutex  m_threadListMutex;
-	CList *m_pThreadList;
+	base::CPthreadMutex  m_threadListMutex;
+	base::CList *m_pThreadList;
 	std::map<std::string, int > m_stack_inf_map;
 	FILE *m_fp;
 	const char *m_logName;
-	CPthreadMutex  m_logFileMutex;
+	base::CPthreadMutex  m_logFileMutex;
 	static CTimeCalcManager *_instance;
 };
 
@@ -165,8 +165,8 @@ private:
 private:
 	static CTimeCalcInfManager *_instance;
 	const int  m_maxListSize;
-	CList *m_recvList;
-	CPthreadMutex m_recvListMutex;
+	base::CList *m_recvList;
+	base::CPthreadMutex m_recvListMutex;
 	base::pthread_t m_threadId;
 	bool m_isLocked;
 };

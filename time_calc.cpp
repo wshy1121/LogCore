@@ -41,7 +41,7 @@
 
 
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
-
+using namespace base;
 CPthreadMutex g_insMutexCalc;
 
 void NextStep(const char *function, const char *fileName, int line)
@@ -858,7 +858,7 @@ void CTimeCalcInfManager::calcFree(void *pMem)
 #ifdef WRAP
 	 base::free(pMem);
 #else
-	 free(pMem);
+	 base::free(pMem);
 #endif
 	return ;
 }

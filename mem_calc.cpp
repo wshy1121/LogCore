@@ -8,7 +8,7 @@
 #include "mem_check.h"
 
 
-
+using namespace base;
 extern CPthreadMutex g_insMutexCalc;
 extern "C" int backtrace(void **buffer, int size);
 /******************************************************/

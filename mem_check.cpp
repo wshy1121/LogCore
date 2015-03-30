@@ -5,6 +5,7 @@
 
 #include <string.h>
 
+using namespace base;
 extern CPthreadMutex g_insMutexCalc;
 
 CMemCheck *CMemCheck::_instance = NULL;

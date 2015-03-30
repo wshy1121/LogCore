@@ -28,7 +28,7 @@ typedef struct LOG_DATA
 typedef struct LOG_FILE
 {
 	char *fileName;
-	CString *content;
+	base::CString *content;
 	
 }LOG_FILE;
 class  CLogOprManager
@@ -44,13 +44,13 @@ private:
 	bool openFile(int fileKey, char *fileName);
 	bool closeFile(int fileKey);
 	void writeFile(int fileKey,char *content);
-	void toFile(char *fileName, CString *pString);
+	void toFile(char *fileName, base::CString *pString);
 	LOG_FILE *createLogFile(char *fileName);
 	void destroyLogFile(LOG_FILE *pLogFile);
 private:
 	typedef std::map<int, LOG_FILE*> LogFileMap;
 	static CLogOprManager *_instance;
-	CPthreadMutex m_logFileMutex;
+	base::CPthreadMutex m_logFileMutex;
 	base::pthread_t m_threadId;
 	const char *m_logName;
 	LogFileMap m_logFileMap;
