@@ -868,7 +868,7 @@ RECV_DATA *CTimeCalcInfManager::createRecvData(int contentLen)
 {
 	RECV_DATA *pRecvData = (RECV_DATA *)calcMalloc(sizeof(RECV_DATA));
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
-	pCalcInf->m_pContent = (char *)calcMalloc(contentLen);
+	pCalcInf->m_memBuffer = (char *)calcMalloc(contentLen);
 	pCalcInf->m_contentLen = contentLen;
 	
 	pCalcInf->m_oper = NULL;
@@ -883,7 +883,7 @@ RECV_DATA *CTimeCalcInfManager::createRecvData(int contentLen)
 }
 void CTimeCalcInfManager::destroyRecvData(RECV_DATA *pRecvData)
 {
-	calcFree(pRecvData->calcInf.m_pContent);
+	calcFree(pRecvData->calcInf.m_memBuffer);
 	calcFree(pRecvData);
 }
 void CTimeCalcInfManager::threadProc()
