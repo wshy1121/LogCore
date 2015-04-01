@@ -814,21 +814,7 @@ void CTimeCalcManager::printStrLog(TraceInfoId &traceInfoId, const char *logStr)
 }
 
 
-IDealDataHandle::~IDealDataHandle()
-{
-}
 
-void IDealDataHandle::parseData(TimeCalcInf *pCalcInf)
-{
-	m_opr = pCalcInf->m_opr;
-	m_pTraceInfoId = &(pCalcInf->m_traceInfoId);
-	m_line = pCalcInf->m_line;
-	m_fileName = pCalcInf->m_fileName;
-	m_funcName = pCalcInf->m_funcName;
-	m_displayLevel = pCalcInf->m_displayLevel;
-	m_content = pCalcInf->m_pContent;
-	m_contentLen = pCalcInf->m_contentLen;
-}
 
 CTimeCalcInfManager *CTimeCalcInfManager::_instance = NULL;
 
@@ -950,63 +936,55 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 			}
 		case TimeCalcInf::e_destroyCandy:
 			{
-				FuncTraceInfo_t *TraceInfo = CTimeCalcManager::instance()->GetTraceInf(traceInfoId);
-				if (TraceInfo == NULL || TraceInfo->pCalcList->size() == 0)
-				{
-					break ;
-				}
-
-				CTimeCalc *pTimeCalc = CTimeCalcContain(TraceInfo->pCalcList->back());
-				CTimeCalc::destroyCTimeCalc(pTimeCalc);
+				m_dealHandleMap["destroyCandy"]->dealDataHandle(pCalcInf);
 				break;
 			}
 		case TimeCalcInf::e_insertTrace:
 			{
-				CTimeCalcManager::instance()->InsertTrace(line, file_name, traceInfoId, content);
+				m_dealHandleMap["insertTrace"]->dealDataHandle(pCalcInf);
 				break;
-
 			}
 		case TimeCalcInf::e_dispAll:
 			{
-				CTimeCalcManager::instance()->DispAll(traceInfoId.clientId, content);
+				m_dealHandleMap["dispAll"]->dealDataHandle(pCalcInf);
 				break;
 
 			}
 		case TimeCalcInf::e_cleanAll:
 			{
-				CTimeCalcManager::instance()->cleanAll(traceInfoId.clientId);
+				m_dealHandleMap["cleanAll"]->dealDataHandle(pCalcInf);
 				break;
 
 			}
 		case TimeCalcInf::e_insertTag:
 			{
-				CTimeCalcManager::instance()->InsertTag(traceInfoId, line, file_name, content);
+				m_dealHandleMap["insertTag"]->dealDataHandle(pCalcInf);
 				break;
 
 			}
 		case TimeCalcInf::e_InsertStrOnly:
 			{
-				CTimeCalcManager::instance()->InsertStrOnly(traceInfoId, content);
+				m_dealHandleMap["insertStrOnly"]->dealDataHandle(pCalcInf);
 				break;
 			}
 		case TimeCalcInf::e_printfMemInfMap:
 			{
-				CTimeCalcManager::instance()->printfMemInfMap(traceInfoId);
+				m_dealHandleMap["printfMemInfMap"]->dealDataHandle(pCalcInf);
 				break;
 			}
 		case TimeCalcInf::e_insertHex:
 			{
-				CTimeCalcManager::instance()->InsertHex(traceInfoId, line, file_name, (char *)content, contentLen);
+				m_dealHandleMap["insertHex"]->dealDataHandle(pCalcInf);
 				break;
 			}
 		case TimeCalcInf::e_openFile:
 			{
-				CTimeCalcManager::instance()->openFile(traceInfoId, (char *)content);
+				m_dealHandleMap["openFile"]->dealDataHandle(pCalcInf);
 				break;
 			}
 		case TimeCalcInf::e_closeFile:
 			{
-				CTimeCalcManager::instance()->closeFile(traceInfoId);
+				m_dealHandleMap["closeFile"]->dealDataHandle(pCalcInf);
 				break;
 			}
 		default:
