@@ -917,7 +917,7 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 {
 	threadQueueEnable(e_Mem);
-	char *oper = pCalcInf->m_oper;
+	char *oper = pCalcInf->infs[0];
 	if (m_dealHandleMap.find(oper) != m_dealHandleMap.end())
 	{
 		m_dealHandleMap[oper]->dealDataHandle(pCalcInf);
