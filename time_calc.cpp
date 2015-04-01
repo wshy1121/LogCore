@@ -871,7 +871,7 @@ RECV_DATA *CTimeCalcInfManager::createRecvData(int contentLen)
 	pCalcInf->m_pContent = (char *)calcMalloc(contentLen);
 	pCalcInf->m_contentLen = contentLen;
 	
-	pCalcInf->m_opr = TimeCalcInf::e_none;
+	pCalcInf->m_oper = NULL;
 	pCalcInf->m_traceInfoId.threadId = -1;
 	pCalcInf->m_traceInfoId.clientId= -1;
 	pCalcInf->m_line = -1;
@@ -916,79 +916,11 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 
 void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 {
-	threadQueueEnable(e_Mem);	
-	TimeCalcInf::TimeCalcOpr &opr = pCalcInf->m_opr;
-	TraceInfoId &traceInfoId = pCalcInf->m_traceInfoId;
-	int line = pCalcInf->m_line;
-	char *file_name = pCalcInf->m_fileName;
-	char *func_name = pCalcInf->m_funcName;
-	int display_level = pCalcInf->m_displayLevel;
-	const char *content = pCalcInf->m_pContent;
-	int contentLen = pCalcInf->m_contentLen;
-
-	switch (opr)
+	threadQueueEnable(e_Mem);
+	char *oper = pCalcInf->m_oper;
+	if (m_dealHandleMap.find(oper) != m_dealHandleMap.end())
 	{
-		case TimeCalcInf::e_createCandy:
-			{
-				
-				m_dealHandleMap["createCandy"]->dealDataHandle(pCalcInf);
-				break;
-			}
-		case TimeCalcInf::e_destroyCandy:
-			{
-				m_dealHandleMap["destroyCandy"]->dealDataHandle(pCalcInf);
-				break;
-			}
-		case TimeCalcInf::e_insertTrace:
-			{
-				m_dealHandleMap["insertTrace"]->dealDataHandle(pCalcInf);
-				break;
-			}
-		case TimeCalcInf::e_dispAll:
-			{
-				m_dealHandleMap["dispAll"]->dealDataHandle(pCalcInf);
-				break;
-
-			}
-		case TimeCalcInf::e_cleanAll:
-			{
-				m_dealHandleMap["cleanAll"]->dealDataHandle(pCalcInf);
-				break;
-
-			}
-		case TimeCalcInf::e_insertTag:
-			{
-				m_dealHandleMap["insertTag"]->dealDataHandle(pCalcInf);
-				break;
-
-			}
-		case TimeCalcInf::e_InsertStrOnly:
-			{
-				m_dealHandleMap["insertStrOnly"]->dealDataHandle(pCalcInf);
-				break;
-			}
-		case TimeCalcInf::e_printfMemInfMap:
-			{
-				m_dealHandleMap["printfMemInfMap"]->dealDataHandle(pCalcInf);
-				break;
-			}
-		case TimeCalcInf::e_insertHex:
-			{
-				m_dealHandleMap["insertHex"]->dealDataHandle(pCalcInf);
-				break;
-			}
-		case TimeCalcInf::e_openFile:
-			{
-				m_dealHandleMap["openFile"]->dealDataHandle(pCalcInf);
-				break;
-			}
-		case TimeCalcInf::e_closeFile:
-			{
-				m_dealHandleMap["closeFile"]->dealDataHandle(pCalcInf);
-				break;
-			}
-		default:
-			break;
+		m_dealHandleMap[oper]->dealDataHandle(pCalcInf);
 	}
 	return ;
 }
