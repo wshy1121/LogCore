@@ -148,6 +148,26 @@ typedef struct RECV_DATA
 }RECV_DATA;	
 #define recvDataContain(ptr)  container_of(ptr, RECV_DATA, node)
 
+
+class IDealDataHandle{
+
+public: 
+	virtual ~IDealDataHandle() = 0;
+	virtual void parseData(TimeCalcInf *pCalcInf);
+public: 
+	virtual void dealDataHandle (TimeCalcInf *pCalcInf) = 0;
+protected:	
+	TimeCalcInf::TimeCalcOpr m_opr;
+	TraceInfoId *m_pTraceInfoId;
+	int m_line;
+	char *m_fileName;
+	char *m_funcName;
+	int m_displayLevel;
+	const char *m_content;
+	int m_contentLen;
+	
+};
+
 class CTimeCalcInfManager
 {
 public:
@@ -158,17 +178,17 @@ public:
 	void calcFree(void *pMem);
 	void pushRecvData(RECV_DATA *pRecvData);	
 	void dealRecvData(TimeCalcInf *pCalcInf);
+	void registerHandle(const char *oper, IDealDataHandle *pHandle);
 private:
 	CTimeCalcInfManager();
 	static void* threadFunc(void *pArg);
 	void threadProc();
 private:
 	static CTimeCalcInfManager *_instance;
-	const int  m_maxListSize;
 	base::CList *m_recvList;
 	base::CPthreadMutex m_recvListMutex;
 	base::pthread_t m_threadId;
-	bool m_isLocked;
+	std::map<std::string, IDealDataHandle *> m_dealHandleMap;
 };
 
 

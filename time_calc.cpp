@@ -814,10 +814,25 @@ void CTimeCalcManager::printStrLog(TraceInfoId &traceInfoId, const char *logStr)
 }
 
 
+IDealDataHandle::~IDealDataHandle()
+{
+}
+
+void IDealDataHandle::parseData(TimeCalcInf *pCalcInf)
+{
+	m_opr = pCalcInf->m_opr;
+	m_pTraceInfoId = &(pCalcInf->m_traceInfoId);
+	m_line = pCalcInf->m_line;
+	m_fileName = pCalcInf->m_fileName;
+	m_funcName = pCalcInf->m_funcName;
+	m_displayLevel = pCalcInf->m_displayLevel;
+	m_content = pCalcInf->m_pContent;
+	m_contentLen = pCalcInf->m_contentLen;
+}
 
 CTimeCalcInfManager *CTimeCalcInfManager::_instance = NULL;
 
-CTimeCalcInfManager::CTimeCalcInfManager() : m_maxListSize(4), m_isLocked(false)
+CTimeCalcInfManager::CTimeCalcInfManager()
 {
 	m_recvList = CList::createCList();
 	base::pthread_create(&m_threadId, NULL,threadFunc,NULL);
@@ -930,11 +945,7 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 		case TimeCalcInf::e_createCandy:
 			{
 				
-				CTimeCalc *pTimeCalc = CTimeCalc::createCTimeCalc(line, file_name, func_name, display_level, traceInfoId);
-				if (pTimeCalc == NULL)
-				{
-					break;
-				}
+				m_dealHandleMap["createCandy"]->dealDataHandle(pCalcInf);
 				break;
 			}
 		case TimeCalcInf::e_destroyCandy:
@@ -1017,4 +1028,8 @@ void CTimeCalcInfManager::pushRecvData(RECV_DATA *pRecvData)
 	return ;
 }
 
+void CTimeCalcInfManager::registerHandle(const char *oper, IDealDataHandle *pHandle)
+{
+	m_dealHandleMap[oper] = pHandle;
+}
 
