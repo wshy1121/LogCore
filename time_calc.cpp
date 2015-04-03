@@ -866,9 +866,8 @@ void CTimeCalcInfManager::calcFree(void *pMem)
 
 RECV_DATA *CTimeCalcInfManager::createRecvData(int contentLen)
 {
-	RECV_DATA *pRecvData = (RECV_DATA *)calcMalloc(sizeof(RECV_DATA));
+	RECV_DATA *pRecvData = new RECV_DATA;
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
-	pCalcInf->m_memBuffer = (char *)calcMalloc(contentLen);
 	pCalcInf->m_contentLen = contentLen;
 	
 	pCalcInf->m_oper = NULL;
@@ -883,8 +882,7 @@ RECV_DATA *CTimeCalcInfManager::createRecvData(int contentLen)
 }
 void CTimeCalcInfManager::destroyRecvData(RECV_DATA *pRecvData)
 {
-	calcFree(pRecvData->calcInf.m_memBuffer);
-	calcFree(pRecvData);
+	delete pRecvData;
 }
 void CTimeCalcInfManager::threadProc()
 {	
@@ -917,7 +915,7 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 {
 	threadQueueEnable(e_Mem);
-	char *oper = pCalcInf->infs[0];
+	char *oper = pCalcInf->m_dataInf.m_infs[0];
 	if (m_dealHandleMap.find(oper) != m_dealHandleMap.end())
 	{
 		m_dealHandleMap[oper]->dealDataHandle(pCalcInf);
