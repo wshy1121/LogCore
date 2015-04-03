@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include "mem_calc.h"
 #include "log_opr.h"
+#include "net_server.h"
 
 #ifdef WRAP
 #include <execinfo.h>
@@ -363,7 +364,6 @@ FuncTraceInfo_t * CTimeCalcManager::GetTraceInf(TraceInfoId &traceInfoId)
 
 void CTimeCalcManager::printStack(int line, char *file_name, const char* fmt, ...)
 {
-	threadQueueEnable(e_Mem);
 	TraceInfoId traceInfoId;
 	traceInfoId.threadId = base::pthread_self();
 	traceInfoId.clientId = -1;
@@ -437,7 +437,6 @@ void CTimeCalcManager::printfMemInfMap(TraceInfoId &traceInfoId)
 }
 void CTimeCalcManager::getStackInfo(std::string &stackInf)
 {
-	threadQueueEnable(e_Mem);
 	TraceInfoId traceInfoId;
 	traceInfoId.threadId = base::pthread_self();
 	traceInfoId.clientId = -1;
@@ -894,23 +893,24 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 
 void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 {
-	threadQueueEnable(e_Mem);
 	char *oper = pCalcInf->m_dataInf.m_infs[0];
 	if (m_dealHandleMap.find(oper) != m_dealHandleMap.end())
 	{
-		TimeCalcInf *repCalcInf = new TimeCalcInf;
-		repCalcInf->m_traceInfoId = pCalcInf->m_traceInfoId;
-		m_dealHandleMap[oper]->dealDataHandle(pCalcInf, repCalcInf);
-
-		CLogDataInf &dataInf = repCalcInf->m_dataInf;
-		dataInf.putInf("openFile");
-		dataInf.putInf("0");
-		dataInf.putInf("0");
-		dataInf.putInf("");
-		dataInf.putInf("");
-		dataInf.putInf("0");
+		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
+		TimeCalcInf &calcInf = pRecvData->calcInf;
+		CLogDataInf &dataInf = calcInf.m_dataInf;
 		
-		delete repCalcInf;
+		calcInf.m_traceInfoId = pCalcInf->m_traceInfoId;
+		m_dealHandleMap[oper]->dealDataHandle(pCalcInf, &calcInf);
+
+		dataInf.putInf("OK");
+		dataInf.putInf("0");
+		dataInf.putInf("0");
+		dataInf.putInf("");
+		dataInf.putInf("");
+		dataInf.putInf("0");
+
+		CNetServer::instance()->pushRecvData(pRecvData);
 	}
 	return ;
 }
