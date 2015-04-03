@@ -864,26 +864,6 @@ void CTimeCalcInfManager::calcFree(void *pMem)
 	return ;
 }
 
-RECV_DATA *CTimeCalcInfManager::createRecvData(int contentLen)
-{
-	RECV_DATA *pRecvData = new RECV_DATA;
-	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
-	pCalcInf->m_contentLen = contentLen;
-	
-	pCalcInf->m_oper = NULL;
-	pCalcInf->m_traceInfoId.threadId = -1;
-	pCalcInf->m_traceInfoId.clientId= -1;
-	pCalcInf->m_line = -1;
-	pCalcInf->m_fileName = NULL;
-	pCalcInf->m_funcName = NULL;
-	pCalcInf->m_displayLevel = -1;
-	return pRecvData;
-	
-}
-void CTimeCalcInfManager::destroyRecvData(RECV_DATA *pRecvData)
-{
-	delete pRecvData;
-}
 void CTimeCalcInfManager::threadProc()
 {	
 	while(1)
@@ -901,7 +881,7 @@ void CTimeCalcInfManager::threadProc()
 		m_recvListMutex.Leave();
 		
 		dealRecvData(&pRecvData->calcInf);
-		destroyRecvData(pRecvData);
+		IDealDataHandle::destroyRecvData(pRecvData);
 	}
 }
 
@@ -918,7 +898,19 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 	char *oper = pCalcInf->m_dataInf.m_infs[0];
 	if (m_dealHandleMap.find(oper) != m_dealHandleMap.end())
 	{
-		m_dealHandleMap[oper]->dealDataHandle(pCalcInf);
+		TimeCalcInf *repCalcInf = new TimeCalcInf;
+		repCalcInf->m_traceInfoId = pCalcInf->m_traceInfoId;
+		m_dealHandleMap[oper]->dealDataHandle(pCalcInf, repCalcInf);
+
+		CLogDataInf &dataInf = repCalcInf->m_dataInf;
+		dataInf.putInf("openFile");
+		dataInf.putInf("0");
+		dataInf.putInf("0");
+		dataInf.putInf("");
+		dataInf.putInf("");
+		dataInf.putInf("0");
+		
+		delete repCalcInf;
 	}
 	return ;
 }

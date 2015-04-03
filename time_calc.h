@@ -120,8 +120,6 @@ class CTimeCalcInfManager
 {
 public:
 	static CTimeCalcInfManager *instance();
-	RECV_DATA *createRecvData(int contentLen = 0);
-	void destroyRecvData(RECV_DATA *pRecvData);
 	void *calcMalloc(int size);
 	void calcFree(void *pMem);
 	void pushRecvData(RECV_DATA *pRecvData);	

@@ -15,7 +15,7 @@
 CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 {
 
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData();
+	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_oper = "createCandy";
@@ -34,7 +34,7 @@ CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 CCandy::~CCandy()
 {
 
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData();
+	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_oper = "destroyCandy";
@@ -55,7 +55,7 @@ void CBugKiller::InsertTrace(int line, char *file_name, const char* fmt, ...)
 	va_end(ap);
 
 
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData((int)strlen(content));
+	RECV_DATA *pRecvData = IDealDataHandle::createRecvData((int)strlen(content));
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_oper = "insertTrace";
@@ -71,7 +71,7 @@ void CBugKiller::InsertTrace(int line, char *file_name, const char* fmt, ...)
 
 void CBugKiller::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 {
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData(nBufLen);
+	RECV_DATA *pRecvData = IDealDataHandle::createRecvData(nBufLen);
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_oper = "insertHex";
@@ -94,7 +94,7 @@ void CBugKiller::InsertStrOnly(TraceInfoId &traceInfoId, const char* fmt, ...)
 	va_end(ap);
 
 
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData((int)strlen(content));
+	RECV_DATA *pRecvData = IDealDataHandle::createRecvData((int)strlen(content));
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_oper = "insertStrOnly";
@@ -111,7 +111,7 @@ void CBugKiller::DispAll()
 	std::string backtrace;
 	CalcMem::instance()->getBackTrace(backtrace);
 
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData((int)backtrace.size());
+	RECV_DATA *pRecvData = IDealDataHandle::createRecvData((int)backtrace.size());
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_oper = "dispAll";
@@ -132,7 +132,7 @@ void CBugKiller::InsertTag(int line, char *file_name, const char* fmt, ...)
 	base::vsnprintf(content,sizeof(content), fmt, ap);
 	va_end(ap);
 
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData((int)strlen(content));
+	RECV_DATA *pRecvData = IDealDataHandle::createRecvData((int)strlen(content));
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_oper = "insertTag";
@@ -161,7 +161,7 @@ std::string& CBugKiller::getBackTrace(std::string &backTrace)
 }
 void CBugKiller::printfMemInfMap()
 {
-	RECV_DATA *pRecvData = CTimeCalcInfManager::instance()->createRecvData();
+	RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
 	TimeCalcInf *pCalcInf = &pRecvData->calcInf;
 
 	pCalcInf->m_oper = "printfMemInfMap";
