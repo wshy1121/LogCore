@@ -3,6 +3,7 @@
 #include <map>
 #include <stddef.h>
 #include "link_tool.h"
+#include "defs.h"
 
 #define TQueueContain(x) container_of((x), ThreadNode, node)
 #define TRACE_INF_LEN  512
@@ -11,6 +12,7 @@ typedef struct TraceInfoId
 {
 	base::pthread_t threadId;
 	int clientId;
+	SOCKET socket;
 }TraceInfoId;
 
 
