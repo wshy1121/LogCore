@@ -912,6 +912,10 @@ void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 
 		CNetServer::instance()->pushRecvData(pRecvData);
 	}
+	else
+	{
+		printf("failed can not find oper  %s\n", oper);
+	}
 	return ;
 }
 
