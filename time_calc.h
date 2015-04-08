@@ -124,7 +124,6 @@ public:
 	void calcFree(void *pMem);
 	void pushRecvData(RECV_DATA *pRecvData);	
 	void dealRecvData(TimeCalcInf *pCalcInf);
-	void registerHandle(const char *oper, IDealDataHandle *pHandle);
 private:
 	CTimeCalcInfManager();
 	static void* threadFunc(void *pArg);
@@ -134,7 +133,6 @@ private:
 	base::CList *m_recvList;
 	base::CPthreadMutex m_recvListMutex;
 	base::pthread_t m_threadId;
-	std::map<std::string, IDealDataHandle *> m_dealHandleMap;
 };
 
 

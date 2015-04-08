@@ -893,29 +893,7 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 
 void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 {
-	char *oper = pCalcInf->m_dataInf.m_infs[0];
-	if (m_dealHandleMap.find(oper) != m_dealHandleMap.end())
-	{
-		RECV_DATA *pRecvData = IDealDataHandle::createRecvData();
-		TimeCalcInf &calcInf = pRecvData->calcInf;
-		CLogDataInf &dataInf = calcInf.m_dataInf;
-		
-		calcInf.m_traceInfoId = pCalcInf->m_traceInfoId;
-		m_dealHandleMap[oper]->dealDataHandle(pCalcInf, &calcInf);
-
-		dataInf.putInf("OK");
-		dataInf.putInf("0");
-		dataInf.putInf("0");
-		dataInf.putInf("");
-		dataInf.putInf("");
-		dataInf.putInf("0");
-
-		CNetServer::instance()->pushRecvData(pRecvData);
-	}
-	else
-	{
-		printf("failed can not find oper  %s\n", oper);
-	}
+	IDealDataHandle::execute(pCalcInf);
 	return ;
 }
 
@@ -932,8 +910,4 @@ void CTimeCalcInfManager::pushRecvData(RECV_DATA *pRecvData)
 	return ;
 }
 
-void CTimeCalcInfManager::registerHandle(const char *oper, IDealDataHandle *pHandle)
-{
-	m_dealHandleMap[oper] = pHandle;
-}
 
