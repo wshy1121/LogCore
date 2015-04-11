@@ -10,7 +10,7 @@
 #CROSS  = arm-linux-gnueabihf-
 
 CFLAGS += -I ../CrossPlat 
-LIB_OBJS += wrap_malloc.o mem_calc.o mem_check.o log_opr.o time_calc.o Global.o
+LIB_OBJS += wrap_malloc.o mem_calc.o mem_check.o log_opr.o time_calc.o 
 
 CPP	=	@echo " g++ $@"; $(CROSS)g++
 CC	=	@echo " gcc $@"; $(CROSS)gcc

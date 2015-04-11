@@ -84,7 +84,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Global.cpp" />
     <ClCompile Include="..\log_opr.cpp" />
     <ClCompile Include="..\mem_calc.cpp" />
     <ClCompile Include="..\mem_check.cpp" />
