@@ -47,7 +47,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../CrossPlat;../../NetApp;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../CrossPlat;../../NetApp;../../TraceWorker;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -82,6 +82,7 @@
     <ClInclude Include="..\mem_check.h" />
     <ClInclude Include="..\stdafx.h" />
     <ClInclude Include="..\time_calc.h" />
+    <ClInclude Include="..\user_manager.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +90,7 @@
     <ClCompile Include="..\mem_calc.cpp" />
     <ClCompile Include="..\mem_check.cpp" />
     <ClCompile Include="..\time_calc.cpp" />
+    <ClCompile Include="..\user_manager.cpp" />
     <ClCompile Include="..\wrap_malloc.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

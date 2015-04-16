@@ -39,6 +39,9 @@
     <ClInclude Include="..\time_calc.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\user_manager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -57,6 +60,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\log_opr.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\user_manager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

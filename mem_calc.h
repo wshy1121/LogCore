@@ -13,6 +13,19 @@ typedef struct TraceInfoId
 	base::pthread_t threadId;
 	int clientId;
 	SOCKET socket;
+	bool operator < (const struct TraceInfoId &key) const
+	{
+		if (key.clientId < clientId)
+		{
+			return true;
+		}
+		else if (key.socket < socket)
+		{
+			return true;
+		}
+		return false;
+	}
+
 }TraceInfoId;
 
 

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "string_base.h"
 #include "mem_calc.h"
-#include "Global.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -410,8 +409,7 @@ void CalcMem::printfMemInfMap(TraceInfoId &traceInfoId)
 		{
 			itemSize = memInf->memSize /diffCount;
 		}
-		CBugKiller::InsertStrOnly(traceInfoId, "maxSize  itemSize  memSize  diffCount  mallocCount  freeCount  %016d  %08d  %d  %d  %d  %d %s", memInf->maxSize, itemSize, memInf->memSize, 
-												diffCount, memInf->mallocCount, memInf->freeCount, path.c_str());
+		//CBugKiller::InsertStrOnly(traceInfoId, "maxSize  itemSize  memSize  diffCount  mallocCount  freeCount  %016d  %08d  %d  %d  %d  %d %s", memInf->maxSize, itemSize, memInf->memSize, diffCount, memInf->mallocCount, memInf->freeCount, path.c_str());
 	}
 	
 	return ;	
@@ -452,7 +450,7 @@ void CalcMem::dealMemInf(const char *mallocPath, int size, TraceInfoId &traceInf
 		memInf->maxSize = memInf->memSize;
 
 		int count = memInf->mallocCount - memInf->freeCount;
-		CBugKiller::InsertStrOnly(traceInfoId, "%s  malloc size  %06d  %d  %d  %s", mallocPath, count, memInf->memSize, __LINE__, __FILE__);
+		//CBugKiller::InsertStrOnly(traceInfoId, "%s  malloc size  %06d  %d  %d  %s", mallocPath, count, memInf->memSize, __LINE__, __FILE__);
 	}
 	return ;
 }
