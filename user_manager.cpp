@@ -49,7 +49,7 @@ bool CUserManager::isLogined(TraceInfoId &traceInfoId)
 }
 
 CUserInf::CUserInf(char *userName, char *passWord)
-{
+{	trace_worker();
 	m_userName = userName;
 	m_passWord = passWord;
 }
