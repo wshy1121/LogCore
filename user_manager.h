@@ -24,7 +24,7 @@ public:
 	bool login(TraceInfoId &traceInfoId, char *userName, char *passWord);
 	bool logout(TraceInfoId &traceInfoId);
 	bool isLogined(TraceInfoId &traceInfoId);
-	bool dealVerify(char *access, int accessLen);
+	bool verifyAccess(char *access, int accessLen, char *accessRep);
 	bool isVerified();
 private:	
 	CUserManager();

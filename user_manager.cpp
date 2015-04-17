@@ -78,8 +78,14 @@ bool CUserManager::isLogined(TraceInfoId &traceInfoId)
 }
 
 
-bool CUserManager::dealVerify(char *access, int accessLen)
+bool CUserManager::verifyAccess(char *access, int accessLen, char *accessRep)
 {	trace_worker();
+	bool bRet = CSafeServer::instance()->verifyAccess(access, accessLen, accessRep);
+	if (!bRet)
+	{	trace_printf("NULL");
+		return false;
+	}
+	
 	m_isVerified = true;
 	trace_printf("m_isVerified  %d", m_isVerified);
 	return true;
