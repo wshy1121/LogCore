@@ -55,7 +55,9 @@ bool CUserManager::login(TraceInfoId &traceInfoId, char *userName, char *passWor
 
 bool CUserManager::logout(TraceInfoId &traceInfoId)
 {	trace_worker();
+	trace_printf("m_userInfMap.size()  %d", m_userInfMap.size());
 	UserInfMap::iterator pos = m_userInfMap.find(traceInfoId);
+	trace_printf("NULL");	
 	if (pos == m_userInfMap.end())
 	{	trace_printf("NULL");
 		return true;
