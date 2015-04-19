@@ -9,29 +9,31 @@ class CUserManager;
 class CUserInf
 {
 public:
-	CUserInf(char *userName, char *passWord);
+	friend CUserManager;
+	CUserInf();
 	~CUserInf();
 public:
 	void setAccess(bool isAccess);
 private:
+	bool m_isLogined;
 	std::string m_userName;
 	std::string m_passWord;
+	std::string m_logPath;
 };
 class CUserManager
 {
 public:
 	static CUserManager* instance();	
-	bool login(TraceInfoId &traceInfoId, char *userName, char *passWord);
-	bool logout(TraceInfoId &traceInfoId);
-	bool isLogined(TraceInfoId &traceInfoId);
+	bool login(char *userName, char *passWord, CUserInf *userInf);
+	bool logout(CUserInf *userInf);
+	bool isLogined(CUserInf *userInf);
 	bool verifyAccess(char *access, int accessLen, char *accessRep);
 	bool isVerified();
 private:	
 	CUserManager();
+	bool initUserInf(char *userName, char *passWord, CUserInf *userInf);
 private:
 	static  CUserManager* _instance;
-	typedef std::map<TraceInfoId, CUserInf *> UserInfMap;
-	UserInfMap m_userInfMap;	
 	bool m_isVerified;
 };
 #endif

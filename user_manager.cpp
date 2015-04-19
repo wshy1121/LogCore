@@ -2,16 +2,15 @@
 #include "user_manager.h"
 #include "link_tool.h"
 #include "safe_server.h"
+#include "Sqlite\SqliteManager.h"
 
 
 using namespace base;
 
 extern CPthreadMutex g_insMutexCalc;
 
-CUserInf::CUserInf(char *userName, char *passWord)
+CUserInf::CUserInf():m_userName(""), m_passWord(""), m_logPath(""), m_isLogined(false)
 {	trace_worker();
-	m_userName = userName;
-	m_passWord = passWord;
 }
 
 CUserInf::~CUserInf()
@@ -40,43 +39,35 @@ CUserManager* CUserManager::instance()
 }
 
 
-bool CUserManager::login(TraceInfoId &traceInfoId, char *userName, char *passWord)
+bool CUserManager::login(char *userName, char *passWord, CUserInf *userInf)
 {	trace_worker();
-	if (m_userInfMap.find(traceInfoId) != m_userInfMap.end())
+	if (!userInf)
 	{
-		trace_printf("has logined");
-		return true;
+		return false;
 	}
-
-	CUserInf *userInf = new CUserInf(userName, passWord);
-	m_userInfMap.insert(std::make_pair(traceInfoId, userInf));
-	return true;
-}
-
-bool CUserManager::logout(TraceInfoId &traceInfoId)
-{	trace_worker();
-	trace_printf("m_userInfMap.size()  %d", m_userInfMap.size());
-	UserInfMap::iterator pos = m_userInfMap.find(traceInfoId);
-	trace_printf("NULL");	
-	if (pos == m_userInfMap.end())
+	if (!initUserInf(userName, passWord, userInf))
 	{	trace_printf("NULL");
-		return true;
+		return false;
 	}
-	trace_printf("NULL");
+	userInf->m_isLogined = true;
+	return true;
+}
 
-	CUserInf *userInf = pos->second;
-	delete userInf;
-	trace_printf("NULL");	
-	m_userInfMap.erase(pos);
+bool CUserManager::logout(CUserInf *userInf)
+{	trace_worker();
+	if (!userInf)
+	{	trace_printf("NULL");
+		return false;
+	}
+	userInf->m_isLogined = true;
 	trace_printf("NULL");	
 	return true;
 }
 
-bool CUserManager::isLogined(TraceInfoId &traceInfoId)
+bool CUserManager::isLogined(CUserInf *userInf)
 {	trace_worker();
-	bool isLogined = m_userInfMap.find(traceInfoId) != m_userInfMap.end();
-	trace_printf("isLogined  %d", isLogined);
-	return isLogined;
+	trace_printf("userInf->m_isLogined  %d", userInf->m_isLogined);
+	return userInf->m_isLogined;
 }
 
 
@@ -100,4 +91,20 @@ bool CUserManager::isVerified()
 	return m_isVerified;
 }
 
+
+bool CUserManager::initUserInf(char *userName, char *passWord, CUserInf *userInf)
+{	trace_worker();
+
+	CppSQLite3Query query = CSqliteManager::instance()->execQuery("select logpath from userinf where name='%s' and password='%s'", userName, passWord);
+	if(query.eof())
+	{	trace_printf("NULL");
+		return false;
+	}
+	userInf->m_logPath = query.fieldValue("logpath");
+	trace_printf("userInf->m_logPath  %s", userInf->m_logPath.c_str());
+
+
+	query.finalize();
+	return true;
+}
 
