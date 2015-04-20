@@ -100,6 +100,8 @@ bool CUserManager::initUserInf(char *userName, char *passWord, CUserInf *userInf
 	{	trace_printf("NULL");
 		return false;
 	}
+	userInf->m_userName = userName;
+	userInf->m_passWord = passWord;
 	userInf->m_logPath = query.fieldValue("logpath");
 	trace_printf("userInf->m_logPath  %s", userInf->m_logPath.c_str());
 

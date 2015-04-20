@@ -6,14 +6,19 @@
 
 
 class CUserManager;
+class CVerifyHandle;
+class CVerifyClient;
 class CUserInf
 {
 public:
 	friend CUserManager;
+	friend CVerifyHandle;
+	friend CVerifyClient;
 	CUserInf();
 	~CUserInf();
 public:
 	void setAccess(bool isAccess);
+	std::string &getLogPath(){return m_logPath;}
 private:
 	bool m_isLogined;
 	std::string m_userName;
