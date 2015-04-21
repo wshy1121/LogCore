@@ -8,22 +8,26 @@
 class CUserManager;
 class CVerifyHandle;
 class CVerifyClient;
+class CTraceHandle;
 class CUserInf
 {
 public:
 	friend CUserManager;
 	friend CVerifyHandle;
 	friend CVerifyClient;
+	friend CTraceHandle;
 	CUserInf();
 	~CUserInf();
 public:
 	void setAccess(bool isAccess);
 	std::string &getLogPath(){return m_logPath;}
+	std::string &getfileName(){return m_fileName;}
 private:
 	bool m_isLogined;
 	std::string m_userName;
 	std::string m_passWord;
 	std::string m_logPath;
+	std::string m_fileName;
 };
 class CUserManager
 {
