@@ -110,6 +110,11 @@ bool CLogOprManager::closeFile(int fileKey)
 
 void CLogOprManager::writeFile(int fileKey,char *content)
 {
+	if (!isAvailable())
+	{
+		return;
+	}
+
 	LogFileMap::iterator iter = m_logFileMap.find(fileKey);
 	if (iter == m_logFileMap.end())
 	{
@@ -154,4 +159,10 @@ void CLogOprManager::destroyLogFile(LOG_FILE *pLogFile)
 	base::free(pLogFile);
 }
 
+bool CLogOprManager::isAvailable()
+{	trace_worker();
+	bool bRet = CUserManager::instance()->isVerified();
+	trace_printf("bRet  %d", bRet);
+	return bRet;
+}
 

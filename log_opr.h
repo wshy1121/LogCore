@@ -47,6 +47,7 @@ private:
 	void toFile(char *fileName, base::CString *pString);
 	LOG_FILE *createLogFile(char *fileName);
 	void destroyLogFile(LOG_FILE *pLogFile);
+	bool isAvailable();
 private:
 	typedef std::map<int, LOG_FILE*> LogFileMap;
 	static CLogOprManager *_instance;

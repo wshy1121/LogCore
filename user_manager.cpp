@@ -59,7 +59,7 @@ bool CUserManager::logout(CUserInf *userInf)
 	{	trace_printf("NULL");
 		return false;
 	}
-	userInf->m_isLogined = true;
+	userInf->m_isLogined = false;
 	trace_printf("NULL");	
 	return true;
 }
