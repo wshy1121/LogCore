@@ -38,12 +38,17 @@ public:
 	bool isLogined(CUserInf *userInf);
 	bool verifyAccess(char *access, int accessLen, char *accessRep);
 	bool isVerified();
+	bool addUser(int clientId, CUserInf *userInf);
+	bool removeUser(int clientId);
 private:	
 	CUserManager();
 	bool initUserInf(char *userName, char *passWord, CUserInf *userInf);
 private:
 	static  CUserManager* _instance;
-	bool m_isVerified;
+	bool m_isVerified;	
+	base::CPthreadMutex m_userInfMapMutex;
+	typedef std::map<int, CUserInf *> UserInfMap;
+	UserInfMap m_userInfMap;
 };
 #endif
 

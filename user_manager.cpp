@@ -110,3 +110,34 @@ bool CUserManager::initUserInf(char *userName, char *passWord, CUserInf *userInf
 	return true;
 }
 
+
+bool CUserManager::addUser(int clientId, CUserInf *userInf)
+{	trace_worker();
+	CGuardMutex guardMutex(m_userInfMapMutex);
+	
+	UserInfMap::iterator iter = m_userInfMap.find(clientId);
+	if (iter != m_userInfMap.end())
+	{	trace_printf("false");
+		return false;
+	}
+
+	m_userInfMap.insert(std::make_pair(clientId, userInf));
+	trace_printf("true");
+	return true;
+}
+
+bool CUserManager::removeUser(int clientId)
+{	trace_worker();
+	CGuardMutex guardMutex(m_userInfMapMutex);
+	
+	UserInfMap::iterator iter = m_userInfMap.find(clientId);
+	if (iter == m_userInfMap.end())
+	{	trace_printf("false");
+		return false;
+	}
+
+	m_userInfMap.erase(iter);
+	trace_printf("true");	
+	return true;
+}
+
