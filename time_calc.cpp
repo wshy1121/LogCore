@@ -870,7 +870,7 @@ void CTimeCalcInfManager::threadProc()
 
 		if(m_recvList->empty())
 		{
-			base::usleep(10 * 1000);
+			base::usleep(1000);
 			continue;
 		}
 		m_recvListMutex.Enter();
