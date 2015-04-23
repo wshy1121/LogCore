@@ -46,7 +46,7 @@ public:
 	TraceFileInf *openFile(int fileKey, char *fileName);
 	bool closeFile(int fileKey);
 	void writeFile(int fileKey,char *content);	
-	TraceFileInfMap &getTraceFileInfs();
+	TraceFileInfMap &getTraceFileList();
 private:
 	CLogOprManager();
 private:

@@ -185,7 +185,7 @@ void CLogOprManager::removeFile(char *fileName)
 	}
 }
 
-CLogOprManager::TraceFileInfMap &CLogOprManager::getTraceFileInfs()
+CLogOprManager::TraceFileInfMap &CLogOprManager::getTraceFileList()
 {
 	return m_traceFileInfMap;
 }
