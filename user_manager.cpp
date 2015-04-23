@@ -9,7 +9,8 @@ using namespace base;
 
 extern CPthreadMutex g_insMutexCalc;
 
-CClientInf::CClientInf():m_userName(""), m_passWord(""), m_logPath(""), m_isLogined(false)
+CClientInf::CClientInf():	m_userName(""), m_passWord(""), m_logPath(""), 
+							m_isLogined(false), m_traceFileInf(NULL)
 {	trace_worker();
 }
 

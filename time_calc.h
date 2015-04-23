@@ -79,8 +79,6 @@ public:
 	void DispAll(int clientId, const char* content);
 	void cleanAll(int clientId);
 	void InsertHex(TraceInfoId &traceInfoId, int line, char *file_name, char *psBuf, int nBufLen);
-	bool openFile(int fileKey, char *fileName);
-	bool closeFile(int fileKey);
 	void start();
 	void stop();
 public:

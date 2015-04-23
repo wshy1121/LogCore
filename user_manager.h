@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include "mem_calc.h"
+#include "log_opr.h"
 
 
 class CUserManager;
@@ -32,6 +33,7 @@ private:
 	std::string m_passWord;
 	std::string m_logPath;
 	std::string m_fileName;
+	TraceFileInf *m_traceFileInf;
 };
 class CUserManager
 {

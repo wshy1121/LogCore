@@ -51,37 +51,9 @@ void* CLogOprManager::threadFunc(void *pArg)
 	return NULL;
 }
 
-void CLogOprManager::dealLogData(LogDataInf *pLogData)
-{
-	CGuardMutex guardMutex(m_logFileMutex);
-	LogDataInf::LogDataOpr &opr = pLogData->m_opr;
-	int fileKey = pLogData->m_traceInfoId.clientId;
-	char *content = pLogData->m_content;
-	switch (opr)
-	{
-		case LogDataInf::e_writeFile:
-			{
-				writeFile(fileKey, content);
-				break;
-			}
-		case LogDataInf::e_openFile:
-			{
-				openFile(fileKey, content);
-				break;
-			}
-		case LogDataInf::e_closeFile:
-			{
-				closeFile(fileKey);
-				break;
-			}
-		default:
-			break;
-	}
-	return ;
-
-}
 bool CLogOprManager::openFile(int fileKey, char *fileName)
 {
+	CGuardMutex guardMutex(m_logFileMutex);
 	LogFileMap::iterator iter = m_logFileMap.find(fileKey);
 	if (iter != m_logFileMap.end())
 	{
@@ -97,6 +69,7 @@ bool CLogOprManager::openFile(int fileKey, char *fileName)
 
 bool CLogOprManager::closeFile(int fileKey)
 {
+	CGuardMutex guardMutex(m_logFileMutex);
 	printf("closeFile  fileKey  %d\n", fileKey);
 	LogFileMap::iterator iter = m_logFileMap.find(fileKey);
 	if (iter == m_logFileMap.end())
@@ -120,6 +93,7 @@ void CLogOprManager::writeFile(int fileKey,char *content)
 		return;
 	}
 
+	CGuardMutex guardMutex(m_logFileMutex);
 	LogFileMap::iterator iter = m_logFileMap.find(fileKey);
 	if (iter == m_logFileMap.end())
 	{

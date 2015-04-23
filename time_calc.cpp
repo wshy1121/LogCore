@@ -726,26 +726,6 @@ void CTimeCalcManager::cleanAll(int clientId)
 }
 
 
-
-bool CTimeCalcManager::openFile(TraceInfoId &traceInfoId, char *fileName)
-{
-	LogDataInf logData;
-	logData.m_opr = LogDataInf::e_openFile;
-	logData.m_traceInfoId = traceInfoId;
-	logData.m_content = (char *)fileName;
-	CLogOprManager::instance()->dealLogData(&logData);
-	return true;
-}
-bool CTimeCalcManager::closeFile(TraceInfoId &traceInfoId)
-{
-	LogDataInf logData;
-	logData.m_opr = LogDataInf::e_closeFile;
-	logData.m_traceInfoId = traceInfoId;
-	logData.m_content = (char *)"";
-	CLogOprManager::instance()->dealLogData(&logData);
-	return true;
-}
-
 bool CTimeCalcManager::needPrint(CList *pCalcList)
 {
 	CTimeCalc *timeCalc = NULL;
@@ -789,27 +769,17 @@ void CTimeCalcManager::printLog(TraceInfoId &traceInfoId, char *sFmt, ...)
 	base::vsnprintf(logStr, sizeof(logStr), sFmt, ap);
 	va_end(ap);
 
-	LogDataInf logData;
-	logData.m_opr = LogDataInf::e_writeFile;
-	logData.m_traceInfoId = traceInfoId;
-	logData.m_content = logStr;
-	CLogOprManager::instance()->dealLogData(&logData);
+	CLogOprManager::instance()->writeFile(traceInfoId.clientId, logStr);
 	
 	base::snprintf(logStr, sizeof(logStr), "//thread id:%16d  creat by huang_yuan@dahuatech.com\n\n", (int)base::pthread_self());
 
-	logData.m_opr = LogDataInf::e_writeFile;
-	logData.m_content = logStr;
-	CLogOprManager::instance()->dealLogData(&logData);
+	CLogOprManager::instance()->writeFile(traceInfoId.clientId, logStr);
 	return ;
 }
 
 void CTimeCalcManager::printStrLog(TraceInfoId &traceInfoId, const char *logStr)
 {
-	LogDataInf logData;
-	logData.m_opr = LogDataInf::e_writeFile;
-	logData.m_traceInfoId = traceInfoId;
-	logData.m_content = (char *)logStr;
-	CLogOprManager::instance()->dealLogData(&logData);
+	CLogOprManager::instance()->writeFile(traceInfoId.clientId, (char *)logStr);
 }
 
 
