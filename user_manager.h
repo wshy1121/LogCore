@@ -9,6 +9,7 @@ class CUserManager;
 class CVerifyHandle;
 class CVerifyClient;
 class CTraceHandle;
+class CNetServer;
 class CClientInf
 {
 public:
@@ -16,6 +17,7 @@ public:
 	friend CVerifyHandle;
 	friend CVerifyClient;
 	friend CTraceHandle;
+	friend CNetServer;
 	CClientInf();
 	~CClientInf();
 public:
@@ -23,6 +25,8 @@ public:
 	std::string &getLogPath(){return m_logPath;}
 	std::string &getfileName(){return m_fileName;}
 private:
+	SOCKET m_socket;
+	int m_clientId;	
 	bool m_isLogined;
 	std::string m_userName;
 	std::string m_passWord;
