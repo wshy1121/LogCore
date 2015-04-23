@@ -9,11 +9,11 @@ using namespace base;
 
 extern CPthreadMutex g_insMutexCalc;
 
-CUserInf::CUserInf():m_userName(""), m_passWord(""), m_logPath(""), m_isLogined(false)
+CClientInf::CClientInf():m_userName(""), m_passWord(""), m_logPath(""), m_isLogined(false)
 {	trace_worker();
 }
 
-CUserInf::~CUserInf()
+CClientInf::~CClientInf()
 {	trace_worker();
 }
 
@@ -39,35 +39,35 @@ CUserManager* CUserManager::instance()
 }
 
 
-bool CUserManager::login(char *userName, char *passWord, CUserInf *userInf)
+bool CUserManager::login(char *userName, char *passWord, CClientInf *clientInf)
 {	trace_worker();
-	if (!userInf)
+	if (!clientInf)
 	{
 		return false;
 	}
-	if (!initUserInf(userName, passWord, userInf))
+	if (!initClientInf(userName, passWord, clientInf))
 	{	trace_printf("NULL");
 		return false;
 	}
-	userInf->m_isLogined = true;
+	clientInf->m_isLogined = true;
 	return true;
 }
 
-bool CUserManager::logout(CUserInf *userInf)
+bool CUserManager::logout(CClientInf *clientInf)
 {	trace_worker();
-	if (!userInf)
+	if (!clientInf)
 	{	trace_printf("NULL");
 		return false;
 	}
-	userInf->m_isLogined = false;
+	clientInf->m_isLogined = false;
 	trace_printf("NULL");	
 	return true;
 }
 
-bool CUserManager::isLogined(CUserInf *userInf)
+bool CUserManager::isLogined(CClientInf *clientInf)
 {	trace_worker();
-	trace_printf("userInf->m_isLogined  %d", userInf->m_isLogined);
-	return userInf->m_isLogined;
+	trace_printf("clientInf->m_isLogined  %d", clientInf->m_isLogined);
+	return clientInf->m_isLogined;
 }
 
 
@@ -92,7 +92,7 @@ bool CUserManager::isVerified()
 }
 
 
-bool CUserManager::initUserInf(char *userName, char *passWord, CUserInf *userInf)
+bool CUserManager::initClientInf(char *userName, char *passWord, CClientInf *clientInf)
 {	trace_worker();
 
 	CppSQLite3Query query = CSqliteManager::instance()->execQuery("select logpath from userinf where name='%s' and password='%s'", userName, passWord);
@@ -100,10 +100,10 @@ bool CUserManager::initUserInf(char *userName, char *passWord, CUserInf *userInf
 	{	trace_printf("NULL");
 		return false;
 	}
-	userInf->m_userName = userName;
-	userInf->m_passWord = passWord;
-	userInf->m_logPath = query.fieldValue("logpath");
-	trace_printf("userInf->m_logPath  %s", userInf->m_logPath.c_str());
+	clientInf->m_userName = userName;
+	clientInf->m_passWord = passWord;
+	clientInf->m_logPath = query.fieldValue("logpath");
+	trace_printf("userInf->m_logPath  %s", clientInf->m_logPath.c_str());
 
 
 	query.finalize();
@@ -111,7 +111,7 @@ bool CUserManager::initUserInf(char *userName, char *passWord, CUserInf *userInf
 }
 
 
-bool CUserManager::addUser(int clientId, CUserInf *userInf)
+bool CUserManager::addClient(int clientId, CClientInf *clientInf)
 {	trace_worker();
 	CGuardMutex guardMutex(m_userInfMapMutex);
 	
@@ -121,12 +121,12 @@ bool CUserManager::addUser(int clientId, CUserInf *userInf)
 		return false;
 	}
 
-	m_userInfMap.insert(std::make_pair(clientId, userInf));
+	m_userInfMap.insert(std::make_pair(clientId, clientInf));
 	trace_printf("true");
 	return true;
 }
 
-bool CUserManager::removeUser(int clientId)
+bool CUserManager::removeClient(int clientId)
 {	trace_worker();
 	CGuardMutex guardMutex(m_userInfMapMutex);
 	

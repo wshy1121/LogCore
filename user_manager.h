@@ -9,15 +9,15 @@ class CUserManager;
 class CVerifyHandle;
 class CVerifyClient;
 class CTraceHandle;
-class CUserInf
+class CClientInf
 {
 public:
 	friend CUserManager;
 	friend CVerifyHandle;
 	friend CVerifyClient;
 	friend CTraceHandle;
-	CUserInf();
-	~CUserInf();
+	CClientInf();
+	~CClientInf();
 public:
 	void setAccess(bool isAccess);
 	std::string &getLogPath(){return m_logPath;}
@@ -33,21 +33,21 @@ class CUserManager
 {
 public:
 	static CUserManager* instance();	
-	bool login(char *userName, char *passWord, CUserInf *userInf);
-	bool logout(CUserInf *userInf);
-	bool isLogined(CUserInf *userInf);
+	bool login(char *userName, char *passWord, CClientInf *clientInf);
+	bool logout(CClientInf *clientInf);
+	bool isLogined(CClientInf *clientInf);
 	bool verifyAccess(char *access, int accessLen, char *accessRep);
 	bool isVerified();
-	bool addUser(int clientId, CUserInf *userInf);
-	bool removeUser(int clientId);
+	bool addClient(int clientId, CClientInf *clientInf);
+	bool removeClient(int clientId);
 private:	
 	CUserManager();
-	bool initUserInf(char *userName, char *passWord, CUserInf *userInf);
+	bool initClientInf(char *userName, char *passWord, CClientInf *clientInf);
 private:
 	static  CUserManager* _instance;
 	bool m_isVerified;	
 	base::CPthreadMutex m_userInfMapMutex;
-	typedef std::map<int, CUserInf *> UserInfMap;
+	typedef std::map<int, CClientInf *> UserInfMap;
 	UserInfMap m_userInfMap;
 };
 #endif
