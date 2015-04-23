@@ -51,7 +51,7 @@ void* CLogOprManager::threadFunc(void *pArg)
 	return NULL;
 }
 
-bool CLogOprManager::openFile(int fileKey, char *fileName)
+TraceFileInf *CLogOprManager::openFile(int fileKey, char *fileName)
 {
 	CGuardMutex guardMutex(m_logFileMutex);
 	LogFileMap::iterator iter = m_logFileMap.find(fileKey);
@@ -63,8 +63,7 @@ bool CLogOprManager::openFile(int fileKey, char *fileName)
 	LOG_FILE *pLogFile = createLogFile(fileName);
 	m_logFileMap.insert(std::make_pair(fileKey, pLogFile));
 	
-	addFile(fileName);
-	return true;
+	return addFile(fileName);
 }
 
 bool CLogOprManager::closeFile(int fileKey)
@@ -146,7 +145,7 @@ bool CLogOprManager::isAvailable()
 }
 
 
-void CLogOprManager::addFile(char *fileName)
+TraceFileInf *CLogOprManager::addFile(char *fileName)
 {	trace_worker();
 	trace_printf("fileName  %s", fileName);
 	TraceFileInf *traceFileInf = NULL;
@@ -165,6 +164,7 @@ void CLogOprManager::addFile(char *fileName)
 	}
 	traceFileInf->m_count++;
 	trace_printf("traceFileInf->m_count  %d", traceFileInf->m_count);
+	return traceFileInf;
 }
 
 void CLogOprManager::removeFile(char *fileName)

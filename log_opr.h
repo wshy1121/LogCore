@@ -43,7 +43,7 @@ public:
 	typedef std::map<std::string, TraceFileInf *> TraceFileInfMap;
 	typedef std::map<int, LOG_FILE*> LogFileMap;	
 	static CLogOprManager *instance();
-	bool openFile(int fileKey, char *fileName);
+	TraceFileInf *openFile(int fileKey, char *fileName);
 	bool closeFile(int fileKey);
 	void writeFile(int fileKey,char *content);	
 	TraceFileInfMap &getTraceFileInfs();
@@ -56,7 +56,7 @@ private:
 	LOG_FILE *createLogFile(char *fileName);
 	void destroyLogFile(LOG_FILE *pLogFile);
 	bool isAvailable();
-	void addFile(char *fileName);
+	TraceFileInf *addFile(char *fileName);
 	void removeFile(char *fileName);	
 private:
 	static CLogOprManager *_instance;
