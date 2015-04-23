@@ -3,6 +3,12 @@
 #include "link_tool.h"
 #include "mem_calc.h"
 
+typedef struct TraceFileInf
+{
+	std::string m_fileName;
+	int m_count;
+}TraceFileInf;
+
 typedef struct LogDataInf
 {
 	typedef enum
@@ -34,8 +40,11 @@ typedef struct LOG_FILE
 class  CLogOprManager
 {
 public:
+	typedef std::map<std::string, TraceFileInf *> TraceFileInfMap;
+	typedef std::map<int, LOG_FILE*> LogFileMap;	
 	static CLogOprManager *instance();
 	void dealLogData(LogDataInf *pLogData);	
+	TraceFileInfMap &getTraceFileInfs();
 private:
 	CLogOprManager();
 private:
@@ -48,13 +57,15 @@ private:
 	LOG_FILE *createLogFile(char *fileName);
 	void destroyLogFile(LOG_FILE *pLogFile);
 	bool isAvailable();
+	void addFile(char *fileName);
+	void removeFile(char *fileName);	
 private:
-	typedef std::map<int, LOG_FILE*> LogFileMap;
 	static CLogOprManager *_instance;
 	base::CPthreadMutex m_logFileMutex;
 	base::pthread_t m_threadId;
 	const char *m_logName;
 	LogFileMap m_logFileMap;
+	static TraceFileInfMap m_traceFileInfMap;	
 };
 
 #endif
