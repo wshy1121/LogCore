@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <sys\stat.h>
 
 using namespace base;
 extern CPthreadMutex g_insMutexCalc;
@@ -156,6 +157,13 @@ TraceFileInf *CLogOprManager::addFile(char *fileName)
 		traceFileInf = new TraceFileInf;
 		traceFileInf->m_fileName = fileName;
 		traceFileInf->m_count = 0;
+		traceFileInf->m_fileSize = 0;
+		struct stat statbuf; 
+		if (stat(fileName,&statbuf) == 0)
+		{
+			traceFileInf->m_fileSize = statbuf.st_size;
+		}
+		trace_printf("traceFileInf->m_fileSize  %d", traceFileInf->m_fileSize);	
 		m_traceFileInfMap.insert(std::make_pair(fileName, traceFileInf));
 	}
 	else

@@ -6,6 +6,7 @@
 typedef struct TraceFileInf
 {
 	std::string m_fileName;
+	size_t m_fileSize;
 	int m_count;
 }TraceFileInf;
 
