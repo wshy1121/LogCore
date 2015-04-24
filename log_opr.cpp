@@ -120,6 +120,18 @@ void CLogOprManager::toFile(char *fileName, CString *pString)
 	fwrite(pString->c_str(), pString->size(), 1, fp);
 	pString->clear();
 	fclose (fp);
+
+	TraceFileInfMap::iterator iter = m_traceFileInfMap.find(fileName);
+	if (iter == m_traceFileInfMap.end())
+	{
+		return ;
+	}
+	TraceFileInf *traceFileInf = iter->second;
+	struct stat statbuf; 
+	if (stat(fileName,&statbuf) == 0)
+	{
+		traceFileInf->m_fileSize = statbuf.st_size;
+	}
 	return ;
 }
 
