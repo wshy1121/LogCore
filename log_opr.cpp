@@ -102,6 +102,8 @@ void CLogOprManager::writeFile(TraceInfoId &traceInfoId, char *content)
 	}
 	LOG_FILE *pLogFile = iter->second;
 	(pLogFile->content)->append(content);
+	TraceFileInf *&traceFileInf = traceInfoId.clientInf->m_traceFileInf;
+	traceFileInf->m_fileSize += strlen(content);
 }
 void CLogOprManager::toFile(char *fileName, CString *pString)
 {
