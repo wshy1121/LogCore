@@ -41,7 +41,7 @@ void CLogOprManager::threadProc()
 		for (LogFileMap::iterator iter = m_logFileMap.begin(); iter != m_logFileMap.end(); ++iter)
 		{
 			pLogFile = iter->second;
-			toFile(pLogFile->fileName, pLogFile->content);
+			toFile(pLogFile, pLogFile->content);
 		}
 	}
 }
@@ -64,7 +64,8 @@ TraceFileInf *CLogOprManager::openFile(int fileKey, char *fileName)
 	LOG_FILE *pLogFile = createLogFile(fileName);
 	m_logFileMap.insert(std::make_pair(fileKey, pLogFile));
 	
-	return addFile(fileName);
+	pLogFile->traceFileInf = addFile(fileName);
+	return pLogFile->traceFileInf;
 }
 
 bool CLogOprManager::closeFile(int fileKey)
@@ -77,7 +78,7 @@ bool CLogOprManager::closeFile(int fileKey)
 		return false;
 	}
 	LOG_FILE *pLogFile = iter->second;
-	toFile(pLogFile->fileName, pLogFile->content);
+	toFile(pLogFile, pLogFile->content);
 
 	removeFile(pLogFile->fileName);
 	m_logFileMap.erase(iter);
@@ -105,8 +106,9 @@ void CLogOprManager::writeFile(TraceInfoId &traceInfoId, char *content)
 	TraceFileInf *&traceFileInf = traceInfoId.clientInf->m_traceFileInf;
 	traceFileInf->m_fileSize += strlen(content);
 }
-void CLogOprManager::toFile(char *fileName, CString *pString)
+void CLogOprManager::toFile(LOG_FILE *logFile, CString *pString)
 {
+	char *fileName = logFile->fileName;
 	if (pString->size() == 0)
 	{
 		return ;
@@ -121,12 +123,11 @@ void CLogOprManager::toFile(char *fileName, CString *pString)
 	pString->clear();
 	fclose (fp);
 
-	TraceFileInfMap::iterator iter = m_traceFileInfMap.find(fileName);
-	if (iter == m_traceFileInfMap.end())
+	if (!logFile->traceFileInf)
 	{
 		return ;
 	}
-	TraceFileInf *traceFileInf = iter->second;
+	TraceFileInf *&traceFileInf = logFile->traceFileInf;
 	struct stat statbuf; 
 	if (stat(fileName,&statbuf) == 0)
 	{

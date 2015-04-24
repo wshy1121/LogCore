@@ -36,6 +36,7 @@ typedef struct LOG_FILE
 {
 	char *fileName;
 	base::CString *content;
+	TraceFileInf *traceFileInf;
 	
 }LOG_FILE;
 class  CLogOprManager
@@ -53,7 +54,7 @@ private:
 private:
 	static void* threadFunc(void *pArg);
 	void threadProc();	
-	void toFile(char *fileName, base::CString *pString);
+	void toFile(LOG_FILE *logFile, base::CString *pString);
 	LOG_FILE *createLogFile(char *fileName);
 	void destroyLogFile(LOG_FILE *pLogFile);
 	bool isAvailable();
