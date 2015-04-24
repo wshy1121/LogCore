@@ -86,7 +86,7 @@ bool CLogOprManager::closeFile(int fileKey)
 	return true;
 }
 
-void CLogOprManager::writeFile(int fileKey,char *content)
+void CLogOprManager::writeFile(TraceInfoId &traceInfoId, char *content)
 {
 	if (!isAvailable())
 	{
@@ -94,7 +94,7 @@ void CLogOprManager::writeFile(int fileKey,char *content)
 	}
 
 	CGuardMutex guardMutex(m_logFileMutex);
-	LogFileMap::iterator iter = m_logFileMap.find(fileKey);
+	LogFileMap::iterator iter = m_logFileMap.find(traceInfoId.clientId);
 	if (iter == m_logFileMap.end())
 	{
 		printf("writeFile failed! no file opened\n");

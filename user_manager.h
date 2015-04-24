@@ -11,6 +11,7 @@ class CVerifyHandle;
 class CVerifyClient;
 class CTraceHandle;
 class CNetServer;
+class CDataWorkManager;
 class CClientInf
 {
 public:
@@ -19,6 +20,7 @@ public:
 	friend CVerifyClient;
 	friend CTraceHandle;
 	friend CNetServer;
+	friend CDataWorkManager;
 	CClientInf();
 	~CClientInf();
 public:

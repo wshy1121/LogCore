@@ -769,17 +769,17 @@ void CTimeCalcManager::printLog(TraceInfoId &traceInfoId, char *sFmt, ...)
 	base::vsnprintf(logStr, sizeof(logStr), sFmt, ap);
 	va_end(ap);
 
-	CLogOprManager::instance()->writeFile(traceInfoId.clientId, logStr);
+	CLogOprManager::instance()->writeFile(traceInfoId, logStr);
 	
 	base::snprintf(logStr, sizeof(logStr), "//thread id:%16d  creat by huang_yuan@dahuatech.com\n\n", (int)base::pthread_self());
 
-	CLogOprManager::instance()->writeFile(traceInfoId.clientId, logStr);
+	CLogOprManager::instance()->writeFile(traceInfoId, logStr);
 	return ;
 }
 
 void CTimeCalcManager::printStrLog(TraceInfoId &traceInfoId, const char *logStr)
 {
-	CLogOprManager::instance()->writeFile(traceInfoId.clientId, (char *)logStr);
+	CLogOprManager::instance()->writeFile(traceInfoId, (char *)logStr);
 }
 
 
