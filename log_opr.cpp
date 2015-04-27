@@ -87,6 +87,21 @@ bool CLogOprManager::closeFile(int fileKey)
 	return true;
 }
 
+bool CLogOprManager::cleanFile(char *fileName)
+{	trace_worker();
+	FILE *fp = NULL;
+	trace_printf("fileName  %s", fileName);
+	fp = base::fopen(fileName, "w");
+	if (fp == NULL)
+	{	trace_printf("NULL");
+		return true;
+	}
+	fclose(fp);
+	trace_printf("NULL");	
+	return true;
+}
+
+
 void CLogOprManager::writeFile(TraceInfoId &traceInfoId, char *content)
 {
 	if (!isAvailable())

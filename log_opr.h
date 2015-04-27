@@ -50,6 +50,7 @@ public:
 	static CLogOprManager *instance();
 	TraceFileInf *openFile(int fileKey, char *fileName);
 	bool closeFile(int fileKey);
+	bool cleanFile(char *fileName);
 	void writeFile(TraceInfoId &traceInfoId,char *content);	
 	TraceFileInfMap &getTraceFileList();
 private:
