@@ -8,6 +8,7 @@ typedef struct TraceFileInf
 	std::string m_fileName;
 	size_t m_fileSize;
 	int m_count;
+	std::string m_lastCandy;
 }TraceFileInf;
 
 typedef struct LogDataInf
