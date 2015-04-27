@@ -160,6 +160,22 @@ bool CLogOprManager::isAvailable()
 	return bRet;
 }
 
+void CLogOprManager::initTraceFileInf(TraceFileInf *traceFileInf, char *fileName)
+{	trace_worker();
+	traceFileInf->m_fileName = fileName;
+	traceFileInf->m_count = 0;
+	traceFileInf->m_fileSize = 0;
+	traceFileInf->m_candyCount = 0;
+	traceFileInf->m_traceCount = 0;
+	
+	struct stat statbuf; 
+	if (stat(fileName,&statbuf) == 0)
+	{
+		traceFileInf->m_fileSize = statbuf.st_size;
+	}
+	trace_printf("traceFileInf->m_fileSize	%d", traceFileInf->m_fileSize); 
+	return ;	
+}
 
 TraceFileInf *CLogOprManager::addFile(char *fileName)
 {	trace_worker();
@@ -170,15 +186,7 @@ TraceFileInf *CLogOprManager::addFile(char *fileName)
 	if (iter == m_traceFileInfMap.end())
 	{	trace_printf("NULL");
 		traceFileInf = new TraceFileInf;
-		traceFileInf->m_fileName = fileName;
-		traceFileInf->m_count = 0;
-		traceFileInf->m_fileSize = 0;
-		struct stat statbuf; 
-		if (stat(fileName,&statbuf) == 0)
-		{
-			traceFileInf->m_fileSize = statbuf.st_size;
-		}
-		trace_printf("traceFileInf->m_fileSize  %d", traceFileInf->m_fileSize);	
+		initTraceFileInf(traceFileInf, fileName);
 		m_traceFileInfMap.insert(std::make_pair(fileName, traceFileInf));
 	}
 	else

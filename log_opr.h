@@ -8,6 +8,8 @@ typedef struct TraceFileInf
 	std::string m_fileName;
 	size_t m_fileSize;
 	int m_count;
+	int m_candyCount;
+	int m_traceCount;
 	std::string m_lastCandy;
 }TraceFileInf;
 
@@ -59,6 +61,7 @@ private:
 	LOG_FILE *createLogFile(char *fileName);
 	void destroyLogFile(LOG_FILE *pLogFile);
 	bool isAvailable();
+	void initTraceFileInf(TraceFileInf *traceFileInf, char *fileName);
 	TraceFileInf *addFile(char *fileName);
 	void removeFile(char *fileName);	
 private:
