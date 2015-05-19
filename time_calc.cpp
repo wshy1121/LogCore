@@ -694,7 +694,9 @@ void CTimeCalcManager::DispAll(int clientId, const char* content)
 			TraceInfo = TNodeContain(pNode);
 			if (TraceInfo->traceInfoId.clientId == clientId)
 			{
+				printStrLog(TraceInfo->traceInfoId, "#if 0");
 				printStrLog(TraceInfo->traceInfoId, TraceInfo->pUpString->c_str());
+				printStrLog(TraceInfo->traceInfoId, "#endif\n");
 			}
 		}
 	}
