@@ -100,12 +100,9 @@ void CTimeCalc::destroyCTimeCalc(CTimeCalc *pTimeCalc)
 }
 void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 {
-	char tmp[64];
-
-	char time_tmp[128];
-	base::snprintf(time_tmp, sizeof(time_tmp), "level  %4d ", m_DisplayLevel);
-	
-	base::snprintf(tmp, sizeof(tmp), ":  %4d  tid:%d  cid:%d  %s", m_Line, (int)m_traceInfoId.threadId, m_traceInfoId.clientId, time_tmp);
+	char tmp[512];
+ 	
+	base::snprintf(tmp, sizeof(tmp), ":  %4d  tid:%d  cid:%d  level  %4d ", m_Line, (int)m_traceInfoId.threadId, m_traceInfoId.clientId, m_DisplayLevel);
 
 	if (this->m_DisplayLevel == 0)
 	{
@@ -134,8 +131,8 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 	base::ftime(&cur_time);
 
 	
-	base::snprintf(time_tmp, sizeof(time_tmp), "\t//\tcost second: %4ld  %4d  %16ld  %4d  route", (int)(cur_time.time - TraceInfo->EndTime.time), (int)(cur_time.millitm - TraceInfo->EndTime.millitm), (int)cur_time.time, (int)cur_time.millitm);
-	TraceInfo->pUpString->append(time_tmp);
+	base::snprintf(tmp, sizeof(tmp), "\t//\tcost second: %4ld  %4d  %16ld  %4d  route", (int)(cur_time.time - TraceInfo->EndTime.time), (int)(cur_time.millitm - TraceInfo->EndTime.millitm), (int)cur_time.time, (int)cur_time.millitm);
+	TraceInfo->pUpString->append(tmp);
 	TraceInfo->pUpString->append("\n");
 
 	return ;
@@ -149,16 +146,12 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 	}
 
 	TraceInfo->pUpString->append("}");
-	char tmp[128];
-
-
-	char time_tmp[128];
-	base::strcpy(time_tmp, "wshy");
+	char tmp[512];
 
 	TimeB cur_time; 
 	base::ftime(&cur_time);
 
-	base::snprintf(tmp, sizeof(tmp), "\t//func  cost second: %ld  %d  %ld  %d     %s  %s  ", (int)(cur_time.time - m_StartTime.time), (int)(cur_time.millitm - m_StartTime.millitm), (int)cur_time.time, (int)cur_time.millitm, m_FuncName, time_tmp);
+	base::snprintf(tmp, sizeof(tmp), "\t//func  cost second: %ld  %d  %ld  %d     %s  %s  ", (int)(cur_time.time - m_StartTime.time), (int)(cur_time.millitm - m_StartTime.millitm), (int)cur_time.time, (int)cur_time.millitm, m_FuncName, "wshy");
 
 	TraceInfo->pUpString->append(tmp);
 	TraceInfo->pUpString->append("\n");
@@ -390,7 +383,7 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	TimeB cur_time;
 	base::ftime(&cur_time);
 
-	char tmp[128];
+	char tmp[512];
 
 	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
@@ -452,7 +445,7 @@ void CTimeCalcManager::getStackInfo(std::string &stackInf)
 }
 void CTimeCalcManager::getStackInfo(FuncTraceInfo_t *TraceInfo, std::string &stackInf)
 {
-	char tmp[64];
+	char tmp[512];
 	CTimeCalc *timeCalc = NULL;
 	struct node *pNode = NULL;
 	CList *pCalcList = TraceInfo->pCalcList;
@@ -545,7 +538,7 @@ void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	TimeB cur_time;
 	base::ftime(&cur_time);
 	char *selfInf = (char *)"creat by huang_yuan@dahuatech.com";
-	char tmp[128];
+	char tmp[512];
 	base::snprintf(tmp, sizeof(tmp), "    %4d    %s  tid:%d  cid:%d  %s    %16ld  ms %4d", line, file_name, (int)traceInfoId.threadId, traceInfoId.clientId, selfInf, cur_time.time, cur_time.millitm);
 
 	//-------------------
@@ -564,10 +557,6 @@ void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 
 void CTimeCalcManager::InsertHex(TraceInfoId &traceInfoId, int line, char *file_name, char *psBuf, int nBufLen)
 {
-	char time_tmp[128];
-	base::strcpy(time_tmp, "wshy");
-
-
 	TimeB cur_time;
 	base::ftime(&cur_time);
 	
@@ -627,7 +616,7 @@ void CTimeCalcManager::InsertHex(TraceInfoId &traceInfoId, int line, char *file_
 
 
 
-	base::snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), time_tmp, cur_time.time, cur_time.millitm);
+	base::snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "wshy", cur_time.time, cur_time.millitm);
 
 	FuncTraceInfo_t *TraceInfo = GetTraceInf(traceInfoId);
 	
@@ -660,7 +649,7 @@ void CTimeCalcManager::InsertTag(TraceInfoId &traceInfoId, int line, char *file_
 	TimeB cur_time;
 	base::ftime(&cur_time);
 
-	char str[256];
+	char str[512];
 	base::snprintf(str, sizeof(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "huang_yuan", cur_time.time, cur_time.millitm);
 
 	printLog(traceInfoId, (char *)"trace:/*%s %s*/", content, str);
