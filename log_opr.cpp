@@ -58,7 +58,9 @@ TraceFileInf *CLogOprManager::openFile(int fileKey, char *fileName)
 	LogFileMap::iterator iter = m_logFileMap.find(fileKey);
 	if (iter != m_logFileMap.end())
 	{
+		m_logFileMutex.Leave();
 		closeFile(fileKey);
+		m_logFileMutex.Enter();
 	}
 	printf("openFile  fileKey, fileName  %d  %s\n", fileKey, fileName);
 	LOG_FILE *pLogFile = createLogFile(fileName);
