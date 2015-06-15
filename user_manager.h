@@ -17,13 +17,13 @@ class CLogOprManager;
 class CClientInf
 {
 public:
-	friend CUserManager;
-	friend CVerifyHandle;
-	friend CVerifyClient;
-	friend CTraceHandle;
-	friend CNetServer;
-	friend CDataWorkManager;
-	friend CLogOprManager;
+	friend class CUserManager;
+	friend class CVerifyHandle;
+	friend class CVerifyClient;
+	friend class CTraceHandle;
+	friend class CNetServer;
+	friend class CDataWorkManager;
+	friend class CLogOprManager;
 	CClientInf();
 	~CClientInf();
 public:

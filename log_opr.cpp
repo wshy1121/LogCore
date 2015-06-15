@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <sys\stat.h>
+#include <sys/stat.h>
 
 using namespace base;
 extern CPthreadMutex g_insMutexCalc;

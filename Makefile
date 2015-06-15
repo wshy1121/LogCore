@@ -9,8 +9,8 @@
 #CROSS  = arm-none-linux-gnueabi-
 #CROSS  = arm-linux-gnueabihf-
 
-CFLAGS += -I ../CrossPlat 
-LIB_OBJS += wrap_malloc.o mem_calc.o mem_check.o log_opr.o time_calc.o 
+CXXFLAGS += -std=c++0x -I ../CrossPlat -I../TraceWorker -I../NetApp -I../LogCore -I../Encrypt -I../CosApp 
+LIB_OBJS += wrap_malloc.o mem_calc.o mem_check.o log_opr.o time_calc.o user_manager.o 
 
 CPP	=	@echo " g++ $@"; $(CROSS)g++
 CC	=	@echo " gcc $@"; $(CROSS)gcc
@@ -24,7 +24,7 @@ RM	= rm
 
 AFLAGS	+= -r   
 
-LIB_TARGET=libLogCore.a
+LIB_TARGET=../CosApp/lib/libLogCore.a
 
 all	:	$(LIB_TARGET)
 
@@ -36,7 +36,7 @@ $(LIB_TARGET): $(LIB_OBJS)
 	$(CC) -c $(CFLAGS) $^ -o $@
 
 .cpp.o:
-	$(CPP) -c -Wall $(CFLAGS) $^ -o $@
+	$(CPP) -c -Wall $(CXXFLAGS) $^ -o $@
 
 clean:
 	$(RM) $(LIB_OBJS)

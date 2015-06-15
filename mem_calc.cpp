@@ -449,7 +449,7 @@ void CalcMem::dealMemInf(const char *mallocPath, int size, TraceInfoId &traceInf
 	{
 		memInf->maxSize = memInf->memSize;
 
-		int count = memInf->mallocCount - memInf->freeCount;
+		//int count = memInf->mallocCount - memInf->freeCount;
 		//CBugKiller::InsertStrOnly(traceInfoId, "%s  malloc size  %06d  %d  %d  %s", mallocPath, count, memInf->memSize, __LINE__, __FILE__);
 	}
 	return ;

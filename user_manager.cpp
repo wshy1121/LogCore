@@ -2,15 +2,16 @@
 #include "user_manager.h"
 #include "link_tool.h"
 #include "safe_server.h"
-#include "Sqlite\SqliteManager.h"
+#include "Sqlite/SqliteManager.h"
 
 
 using namespace base;
 
 extern CPthreadMutex g_insMutexCalc;
 
-CClientInf::CClientInf():	m_userName(""), m_passWord(""), m_logPath(""), 
-							m_isLogined(false), m_traceFileInf(NULL)
+CClientInf::CClientInf():	m_isLogined(false),
+							m_userName(""), m_passWord(""), m_logPath(""), 
+							m_traceFileInf(NULL)
 {	trace_worker();
 }
 
