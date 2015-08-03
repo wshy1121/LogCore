@@ -42,6 +42,12 @@
     <ClInclude Include="..\user_manager.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\SimpleIni.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ConvertUTF.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -63,6 +69,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\user_manager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\snippets.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ConvertUTF.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

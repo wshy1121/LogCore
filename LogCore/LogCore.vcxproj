@@ -76,19 +76,23 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\ConvertUTF.h" />
     <ClInclude Include="..\Global.h" />
     <ClInclude Include="..\log_opr.h" />
     <ClInclude Include="..\mem_calc.h" />
     <ClInclude Include="..\mem_check.h" />
+    <ClInclude Include="..\SimpleIni.h" />
     <ClInclude Include="..\stdafx.h" />
     <ClInclude Include="..\time_calc.h" />
     <ClInclude Include="..\user_manager.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\ConvertUTF.cpp" />
     <ClCompile Include="..\log_opr.cpp" />
     <ClCompile Include="..\mem_calc.cpp" />
     <ClCompile Include="..\mem_check.cpp" />
+    <ClCompile Include="..\snippets.cpp" />
     <ClCompile Include="..\time_calc.cpp" />
     <ClCompile Include="..\user_manager.cpp" />
     <ClCompile Include="..\wrap_malloc.cpp" />
