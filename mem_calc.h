@@ -13,7 +13,7 @@ typedef struct TraceInfoId
 {
 	base::pthread_t threadId;
 	int clientId;
-	SOCKET socket;
+	int socket;
 	CClientInf *clientInf;
 	bool operator < (const struct TraceInfoId &key) const
 	{

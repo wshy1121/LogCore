@@ -31,7 +31,7 @@ public:
 	std::string &getLogPath(){return m_logPath;}
 	std::string &getfileName(){return m_fileName;}
 private:
-	SOCKET m_socket;
+	int m_socket;
 	int m_clientId;	
 	bool m_isLogined;
 	std::string m_userName;
