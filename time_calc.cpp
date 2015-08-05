@@ -854,6 +854,10 @@ void* CTimeCalcInfManager::threadFunc(void *pArg)
 
 void CTimeCalcInfManager::dealRecvData(TimeCalcInf *pCalcInf)
 {
+	if (pCalcInf->m_packet)
+	{
+		pCalcInf->m_dataInf.unPacket(pCalcInf->m_packet);
+	}
 	IDealDataHandle::execute(pCalcInf);
 	return ;
 }
