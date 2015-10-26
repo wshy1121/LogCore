@@ -151,7 +151,7 @@ void CTimeCalc::insertExitInfo(FuncTraceInfo_t *TraceInfo)
 	TimeB cur_time; 
 	base::ftime(&cur_time);
 
-	base::snprintf(tmp, sizeof(tmp), "\t//func  cost second: %ld  %d  %ld  %d     %s  %s  ", (int)(cur_time.time - m_StartTime.time), (int)(cur_time.millitm - m_StartTime.millitm), (int)cur_time.time, (int)cur_time.millitm, m_FuncName, "wshy");
+	base::snprintf(tmp, sizeof(tmp), "\t//func  cost second: %ld  %d  %ld  %d     %s  %s  ", (int)(cur_time.time - m_StartTime.time), (int)(cur_time.millitm - m_StartTime.millitm), (int)cur_time.time, (int)cur_time.millitm, m_FuncName, "https://github.com/traceworker/traceworker.git");
 
 	TraceInfo->pUpString->append(tmp);
 	TraceInfo->pUpString->append("\n");
@@ -539,7 +539,7 @@ void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	base::ftime(&cur_time);
 	char *selfInf = (char *)"creat by 467831967@qq.com Wechat:traceworker";
 	char tmp[512];
-	base::snprintf(tmp, sizeof(tmp), "    %4d    %s  tid:%d  cid:%d  %s    %16ld  ms %4d", line, file_name, (int)traceInfoId.threadId, traceInfoId.clientId, selfInf, (int)cur_time.time, cur_time.millitm);
+	base::snprintf(tmp, sizeof(tmp), "    %4d    %s  tid:%d  cid:%d  %16ld  ms %4d    %s", line, file_name, (int)traceInfoId.threadId, traceInfoId.clientId, (int)cur_time.time, cur_time.millitm, selfInf);
 
 	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
