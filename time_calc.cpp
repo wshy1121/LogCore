@@ -64,24 +64,30 @@ void CTimeCalc::exit()
 	m_FuncName = NULL;
 }
 
-void CTimeCalc::init(int line, char *file_name, char *func_name, int display_level, TraceInfoId &traceInfoId)
+void CTimeCalc::init(int line[], char *file_name[], char *func_name[], int display_level, TraceInfoId &traceInfoId)
 {
 	m_displayFlag = true;
 	m_DisplayLevel = display_level;
 	m_noDisplayLevel = display_level;		
-	m_Line = line;
+	m_Line = line[0];
 
-	m_FileName = (char *)base::malloc(strlen(file_name) + 1);
-	base::strcpy(m_FileName, file_name);
-	m_FuncName = (char *)base::malloc(strlen(func_name) + 1);
-	base::strcpy(m_FuncName, func_name);
+	m_FileName = (char *)base::malloc(strlen(file_name[0]) + 1);
+	base::strcpy(m_FileName, file_name[0]);
+	m_FuncName = (char *)base::malloc(strlen(func_name[0]) + 1);
+	base::strcpy(m_FuncName, func_name[0]);
+
+	m_preLine = line[1];
+	m_preFileName = (char *)base::malloc(strlen(file_name[1]) + 1);
+	base::strcpy(m_preFileName, file_name[1]);
+	m_preFuncName = (char *)base::malloc(strlen(func_name[1]) + 1);
+	base::strcpy(m_preFuncName, func_name[1]);
 
 	base::ftime(&m_StartTime);
 	m_traceInfoId = traceInfoId;
 	DealFuncEnter();
 }
 
-CTimeCalc * CTimeCalc::createCTimeCalc(int line, char *file_name, char *func_name, int display_level, TraceInfoId &traceInfoId) 
+CTimeCalc * CTimeCalc::createCTimeCalc(int line[], char *file_name[], char *func_name[], int display_level, TraceInfoId &traceInfoId) 
 {
 	CTimeCalc *pTimeCalc = (CTimeCalc *)base::malloc(sizeof(CTimeCalc));
 	if (pTimeCalc)
@@ -131,10 +137,12 @@ void CTimeCalc::insertEnterInfo(FuncTraceInfo_t *TraceInfo)
 	base::ftime(&cur_time);
 
 	
-	base::snprintf(tmp, sizeof(tmp), "\t//\tcost second: %4ld  %4d  %16ld  %4d  route", (int)(cur_time.time - TraceInfo->EndTime.time), (int)(cur_time.millitm - TraceInfo->EndTime.millitm), (int)cur_time.time, (int)cur_time.millitm);
+	base::snprintf(tmp, sizeof(tmp), "\t//\tcost second: %4ld  %4d  %16ld  %4d  route  ", (int)(cur_time.time - TraceInfo->EndTime.time), (int)(cur_time.millitm - TraceInfo->EndTime.millitm), (int)cur_time.time, (int)cur_time.millitm);
 	TraceInfo->pUpString->append(tmp);
-	TraceInfo->pUpString->append("\n");
 
+	base::snprintf(tmp, sizeof(tmp),"%s  %d  %s\n", m_preFuncName, m_preLine, m_preFileName);
+	TraceInfo->pUpString->append(tmp);
+	
 	return ;
 }
 

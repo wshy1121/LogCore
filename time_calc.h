@@ -39,9 +39,9 @@ private:
 	void insertEnterInfo(FuncTraceInfo_t *TraceInfo);
 	void insertExitInfo(FuncTraceInfo_t *TraceInfo);
 public:
-	static CTimeCalc * createCTimeCalc(int line, char *file_name, char *func_name, int display_level, TraceInfoId &traceInfoId);
+	static CTimeCalc * createCTimeCalc(int line[], char *file_name[], char *func_name[], int display_level, TraceInfoId &traceInfoId);
 	static void destroyCTimeCalc(CTimeCalc *pTimeCalc);
-	void init(int line, char *file_name, char *func_name, int display_level, TraceInfoId &traceInfoId);
+	void init(int line[], char *file_name[], char *func_name[], int display_level, TraceInfoId &traceInfoId);
 	void exit();
 private:
 	void initTimeCalc(base::CList *pCalcList);
@@ -60,7 +60,10 @@ public:
 	char *m_FuncName;
 	TimeB m_StartTime;
 	struct node m_node;
-	
+
+	int m_preLine;
+	char *m_preFileName;
+	char *m_preFuncName;
 }CTimeCalc;
 #define CTimeCalcContain(x) container_of((x), CTimeCalc, m_node)
 
