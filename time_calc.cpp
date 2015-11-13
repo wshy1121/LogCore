@@ -547,7 +547,7 @@ void CTimeCalcManager::insertTraceInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	base::ftime(&cur_time);
 	char *selfInf = (char *)"creat by 467831967@qq.com Wechat:traceworker";
 	char tmp[512];
-	base::snprintf(tmp, sizeof(tmp), "    %4d    %s  tid:%d  cid:%d  %16ld  ms %4d    %s", line, file_name, (int)traceInfoId.threadId, traceInfoId.clientId, (int)cur_time.time, cur_time.millitm, selfInf);
+	base::snprintf(tmp, sizeof(tmp), "    %4d    %s  tid:%d  cid:%d  %16ld  ms %4d    %s", line, file_name, (int)traceInfoId.threadId, traceInfoId.clientId, cur_time.time, cur_time.millitm, selfInf);
 
 	//-------------------
 	for (int i=0; i<TraceInfo->deep; ++i)
