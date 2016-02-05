@@ -43,7 +43,7 @@
 
 #define SINGLE_LINE				"--------------------------------------------------------------------------------\n"
 using namespace base;
-CPthreadMutex g_insMutexCalc;
+extern CPthreadMutex g_insMutexCalc;
 
 void NextStep(const char *function, const char *fileName, int line)
 {
@@ -366,7 +366,7 @@ FuncTraceInfo_t * CTimeCalcManager::GetTraceInf(TraceInfoId &traceInfoId)
 void CTimeCalcManager::printStack(int line, char *file_name, const char* fmt, ...)
 {
 	TraceInfoId traceInfoId;
-	traceInfoId.threadId = base::pthread_self();
+	traceInfoId.threadId = CBase::pthread_self();
 	traceInfoId.clientId = -1;
 	
 	FuncTraceInfo_t *TraceInfo = GetTraceInf(traceInfoId);
@@ -423,7 +423,7 @@ void CTimeCalcManager::insertStackInfo(FuncTraceInfo_t *TraceInfo, int line, cha
 	TraceInfo->pUpString->append(stackInf.c_str());
 
 
-	base::snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "wshy", cur_time.time, cur_time.millitm);
+	base::snprintf(tmp, sizeof(tmp), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)CBase::pthread_self(), "wshy", cur_time.time, cur_time.millitm);
 	TraceInfo->pUpString->append(tmp);
 	TraceInfo->pUpString->append("*/\n");
 
@@ -439,7 +439,7 @@ void CTimeCalcManager::printfMemInfMap(TraceInfoId &traceInfoId)
 void CTimeCalcManager::getStackInfo(std::string &stackInf)
 {
 	TraceInfoId traceInfoId;
-	traceInfoId.threadId = base::pthread_self();
+	traceInfoId.threadId = CBase::pthread_self();
 	traceInfoId.clientId = -1;
 
 	FuncTraceInfo_t *TraceInfo = GetTraceInf(traceInfoId);
@@ -624,7 +624,7 @@ void CTimeCalcManager::InsertHex(TraceInfoId &traceInfoId, int line, char *file_
 
 
 
-	base::snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "wshy", cur_time.time, cur_time.millitm);
+	base::snprintf(str+strlen(str), sizeof(str)-strlen(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)CBase::pthread_self(), "wshy", cur_time.time, cur_time.millitm);
 
 	FuncTraceInfo_t *TraceInfo = GetTraceInf(traceInfoId);
 	
@@ -658,7 +658,7 @@ void CTimeCalcManager::InsertTag(TraceInfoId &traceInfoId, int line, char *file_
 	base::ftime(&cur_time);
 
 	char str[512];
-	base::snprintf(str, sizeof(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)base::pthread_self(), "huang_yuan", cur_time.time, cur_time.millitm);
+	base::snprintf(str, sizeof(str), "    %4d    %s  %16d  %s    %16ld  ms %4d", line, file_name, (int)CBase::pthread_self(), "huang_yuan", cur_time.time, cur_time.millitm);
 
 	printLog(traceInfoId, (char *)"trace:/*%s %s*/", content, str);
 	return ;
@@ -770,7 +770,7 @@ void CTimeCalcManager::printLog(TraceInfoId &traceInfoId, char *sFmt, ...)
 
 	CLogOprManager::instance()->writeFile(traceInfoId, logStr);
 	
-	base::snprintf(logStr, sizeof(logStr), "//thread id:%16d  creat by huang_yuan@dahuatech.com\n\n", (int)base::pthread_self());
+	base::snprintf(logStr, sizeof(logStr), "//thread id:%16d  creat by huang_yuan@dahuatech.com\n\n", (int)CBase::pthread_self());
 
 	CLogOprManager::instance()->writeFile(traceInfoId, logStr);
 	return ;
@@ -789,7 +789,7 @@ CTimeCalcInfManager *CTimeCalcInfManager::_instance = NULL;
 CTimeCalcInfManager::CTimeCalcInfManager()
 {
 	m_recvList = CList::createCList();
-	base::pthread_create(&m_threadId, NULL,threadFunc,NULL);
+	CBase::pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
 
 CTimeCalcInfManager *CTimeCalcInfManager::instance()

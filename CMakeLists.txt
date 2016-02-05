@@ -14,7 +14,6 @@ else()
 endif()
 
 SET(SRC_SRCS
-  wrap_malloc.cpp
   mem_calc.cpp
   mem_check.cpp
   log_opr.cpp

@@ -68,7 +68,7 @@ private:
 private:
 	static CLogOprManager *_instance;
 	base::CPthreadMutex m_logFileMutex;
-	base::pthread_t m_threadId;
+	CBase::pthread_t m_threadId;
 	const char *m_logName;
 	LogFileMap m_logFileMap;
 	static TraceFileInfMap m_traceFileInfMap;	

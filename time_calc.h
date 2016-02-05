@@ -12,7 +12,7 @@
 
 void NextStep(const char *function, const char *fileName, int line);
 #define nextStep()  NextStep(__FUNCTION__, __FILE__, __LINE__)
-#define tracepoint1()  printf("%d  %s  \t\t%ld\n", __LINE__, __FILE__, base::pthread_self());
+#define tracepoint1()  printf("%d  %s  \t\t%ld\n", __LINE__, __FILE__, CBase::pthread_self());
 
 
 typedef struct FuncTraceInfo_t
@@ -133,7 +133,7 @@ private:
 	static CTimeCalcInfManager *_instance;
 	base::CList *m_recvList;
 	base::CPthreadMutex m_recvListMutex;
-	base::pthread_t m_threadId;
+	CBase::pthread_t m_threadId;
 };
 
 

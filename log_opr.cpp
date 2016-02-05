@@ -15,7 +15,7 @@ CLogOprManager::TraceFileInfMap CLogOprManager::m_traceFileInfMap;
 CLogOprManager *CLogOprManager::_instance = NULL;
 CLogOprManager::CLogOprManager() : m_logName("./Debug.cpp")
 {
-	base::pthread_create(&m_threadId, NULL,threadFunc,NULL);
+	CBase::pthread_create(&m_threadId, NULL,threadFunc,NULL);
 }
 CLogOprManager *CLogOprManager::instance()
 {
