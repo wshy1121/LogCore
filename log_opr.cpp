@@ -7,6 +7,7 @@
 #include <string.h>
 #include <time.h>
 #include <sys/stat.h>
+#include <time.h>
 
 using namespace base;
 extern CPthreadMutex g_insMutexCalc;
@@ -82,7 +83,7 @@ bool CLogOprManager::closeFile(int fileKey)
 	LOG_FILE *pLogFile = iter->second;
 	toFile(pLogFile, pLogFile->content);
 
-	removeFile(pLogFile->fileName);
+	removeFile((char*)pLogFile->fileName.c_str());
 	m_logFileMap.erase(iter);
 	
 	destroyLogFile(pLogFile);
@@ -125,7 +126,7 @@ void CLogOprManager::writeFile(TraceInfoId &traceInfoId, char *content)
 }
 void CLogOprManager::toFile(LOG_FILE *logFile, CString *pString)
 {
-	char *fileName = logFile->fileName;
+	const char *fileName = logFile->fileNameAddTime.c_str();
 	if (pString->size() == 0)
 	{
 		return ;
@@ -150,24 +151,38 @@ void CLogOprManager::toFile(LOG_FILE *logFile, CString *pString)
 	{
 		traceFileInf->m_fileSize = statbuf.st_size;
 	}
+    if (traceFileInf->m_fileSize > 67108864) //large than 64M
+    {
+        logFile->fileNameAddTime = logFile->fileName;
+        std::string &fileNameAddTime = logFile->fileNameAddTime;
+        
+        std::string::size_type nameIndex = fileNameAddTime.find_last_of('.');
+        fileNameAddTime = fileNameAddTime.insert(nameIndex, nowTime());  
+    }
+
 	return ;
 }
 
 LOG_FILE *CLogOprManager::createLogFile(char *fileName)
 {
-	LOG_FILE *pLogFile = (LOG_FILE *)base::malloc(sizeof(LOG_FILE));
-	pLogFile->fileName = (char *)base::malloc(strlen(fileName) + 1);
+	LOG_FILE *pLogFile = new LOG_FILE;
 	pLogFile->content = CString::createCString();
-	
-	base::strcpy(pLogFile->fileName, fileName);
+
+    pLogFile->fileName = fileName;   
+    pLogFile->fileNameAddTime = fileName;   
+
+    std::string &fileNameAddTime = pLogFile->fileNameAddTime;
+    
+    std::string::size_type nameIndex = fileNameAddTime.find_last_of('.');
+    fileNameAddTime = fileNameAddTime.insert(nameIndex, nowTime());  
+
 	return pLogFile;
 }
 
 void CLogOprManager::destroyLogFile(LOG_FILE *pLogFile)
 {
-	base::free(pLogFile->fileName);
 	CString::destroyCString(pLogFile->content);
-	base::free(pLogFile);
+	delete pLogFile;
 }
 
 bool CLogOprManager::isAvailable()
@@ -236,5 +251,16 @@ void CLogOprManager::removeFile(char *fileName)
 CLogOprManager::TraceFileInfMap &CLogOprManager::getTraceFileList()
 {
 	return m_traceFileInfMap;
+}
+
+std::string CLogOprManager::nowTime()
+{
+    char nowTime[64];
+    time_t now;
+    struct tm  *w;
+    time(&now);  
+    w=localtime(&now);
+    CBase::snprintf(nowTime, sizeof(nowTime), "%04d%02d%02d-%02d%02d%02d",w->tm_year+1900,w->tm_mon+1,w->tm_mday,w->tm_hour,w->tm_min,w->tm_sec);
+    return nowTime;
 }
 

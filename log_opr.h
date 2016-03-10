@@ -37,7 +37,8 @@ typedef struct LOG_DATA
 
 typedef struct LOG_FILE
 {
-	char *fileName;
+	std::string fileName;
+    std::string fileNameAddTime;
 	base::CString *content;
 	TraceFileInf *traceFileInf;
 	
@@ -65,6 +66,7 @@ private:
 	void initTraceFileInf(TraceFileInf *traceFileInf, char *fileName);
 	TraceFileInf *addFile(char *fileName);
 	void removeFile(char *fileName);	
+    std::string nowTime();
 private:
 	static CLogOprManager *_instance;
 	base::CPthreadMutex m_logFileMutex;
