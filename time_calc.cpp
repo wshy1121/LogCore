@@ -56,12 +56,14 @@ void NextStep(const char *function, const char *fileName, int line)
 
 void CTimeCalc::exit()
 {
-	DealFuncExit();
+    DealFuncExit();
 
-	base::free(m_FileName);
-	base::free(m_FuncName);
-	m_FileName = NULL;
-	m_FuncName = NULL;
+    base::free(m_FileName);
+    base::free(m_FuncName);
+    base::free(m_preFileName);
+    base::free(m_preFuncName);
+    m_FileName = NULL;
+    m_FuncName = NULL;
 }
 
 void CTimeCalc::init(int line[], char *file_name[], char *func_name[], int display_level, TraceInfoId &traceInfoId)

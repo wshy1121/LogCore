@@ -66,7 +66,7 @@ bool CParsePacket::parsePacket(char &charData, char **pPacket)
 			{
 					if (m_curPacketSize == m_packetPos)
 				{
-					char *packet = (char *)::malloc(m_packetPos);
+					char *packet = new char[m_packetPos];
 					memcpy(packet, m_packetBuffer + 8, m_packetPos - 12);
 					*pPacket = packet;
 					initPacketInf();
