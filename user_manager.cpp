@@ -21,7 +21,7 @@ CParsePacket::CParsePacket()
 
 CParsePacket::~CParsePacket()
 {
-    delete m_packetBuffer;
+    delete []m_packetBuffer;
 }
 
 char &CParsePacket::charData()
