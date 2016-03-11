@@ -39,6 +39,7 @@ typedef struct LOG_FILE
 {
 	std::string fileName;
     std::string fileNameAddTime;
+    std::string clientIpAddr;
 	base::CString *content;
 	TraceFileInf *traceFileInf;
 	
@@ -49,7 +50,7 @@ public:
 	typedef std::map<std::string, TraceFileInf *> TraceFileInfMap;
 	typedef std::map<int, LOG_FILE*> LogFileMap;	
 	static CLogOprManager *instance();
-	TraceFileInf *openFile(int fileKey, char *fileName);
+	TraceFileInf *openFile(int fileKey, char *fileName, std::string &clientIpAddr);
 	bool closeFile(int fileKey);
 	bool cleanFile(char *fileName);
 	void writeFile(TraceInfoId &traceInfoId,char *content);	
@@ -60,13 +61,14 @@ private:
 	static void* threadFunc(void *pArg);
 	void threadProc();	
 	void toFile(LOG_FILE *logFile, base::CString *pString);
-	LOG_FILE *createLogFile(char *fileName);
+	LOG_FILE *createLogFile(char *fileName, std::string &clientIpAddr);
 	void destroyLogFile(LOG_FILE *pLogFile);
 	bool isAvailable();
 	void initTraceFileInf(TraceFileInf *traceFileInf, char *fileName);
 	TraceFileInf *addFile(char *fileName);
 	void removeFile(char *fileName);	
     std::string nowTime();
+    std::string &addAddrTime(std::string &fileName, std::string &clientIpAddr);
 private:
 	static CLogOprManager *_instance;
 	base::CPthreadMutex m_logFileMutex;

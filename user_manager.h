@@ -59,6 +59,8 @@ private:
 	std::string m_fileName;
 	TraceFileInf *m_traceFileInf;
 	CParsePacket m_parsePacket;
+    std::string m_clientIpAddr;
+    int m_clientPort;
 };
 class CUserManager
 {

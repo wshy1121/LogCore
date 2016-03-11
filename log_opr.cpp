@@ -53,7 +53,7 @@ void* CLogOprManager::threadFunc(void *pArg)
 	return NULL;
 }
 
-TraceFileInf *CLogOprManager::openFile(int fileKey, char *fileName)
+TraceFileInf *CLogOprManager::openFile(int fileKey, char *fileName, std::string &clientIpAddr)
 {
 	CGuardMutex guardMutex(m_logFileMutex);
 	LogFileMap::iterator iter = m_logFileMap.find(fileKey);
@@ -64,7 +64,7 @@ TraceFileInf *CLogOprManager::openFile(int fileKey, char *fileName)
 		m_logFileMutex.Enter();
 	}
 	printf("openFile  fileKey, fileName  %d  %s\n", fileKey, fileName);
-	LOG_FILE *pLogFile = createLogFile(fileName);
+	LOG_FILE *pLogFile = createLogFile(fileName, clientIpAddr);
 	m_logFileMap.insert(std::make_pair(fileKey, pLogFile));
 	
 	pLogFile->traceFileInf = addFile(fileName);
@@ -155,27 +155,25 @@ void CLogOprManager::toFile(LOG_FILE *logFile, CString *pString)
     {
         logFile->fileNameAddTime = logFile->fileName;
         std::string &fileNameAddTime = logFile->fileNameAddTime;
-        
-        std::string::size_type nameIndex = fileNameAddTime.find_last_of('.');
-        fileNameAddTime = fileNameAddTime.insert(nameIndex, nowTime());  
+        addAddrTime(fileNameAddTime, logFile->clientIpAddr);
     }
 
 	return ;
 }
 
-LOG_FILE *CLogOprManager::createLogFile(char *fileName)
+LOG_FILE *CLogOprManager::createLogFile(char *fileName, std::string &clientIpAddr)
 {
 	LOG_FILE *pLogFile = new LOG_FILE;
 	pLogFile->content = CString::createCString();
 
     pLogFile->fileName = fileName;   
     pLogFile->fileNameAddTime = fileName;   
-
-    std::string &fileNameAddTime = pLogFile->fileNameAddTime;
+    pLogFile->clientIpAddr = clientIpAddr;
     
-    std::string::size_type nameIndex = fileNameAddTime.find_last_of('.');
-    fileNameAddTime = fileNameAddTime.insert(nameIndex, nowTime());  
+    std::string &fileNameAddTime = pLogFile->fileNameAddTime;
 
+    addAddrTime(fileNameAddTime, clientIpAddr);
+    printf("fileNameAddTime.c_str()  %s\n", fileNameAddTime.c_str());
 	return pLogFile;
 }
 
@@ -262,5 +260,22 @@ std::string CLogOprManager::nowTime()
     w=localtime(&now);
     CBase::snprintf(nowTime, sizeof(nowTime), "%04d%02d%02d-%02d%02d%02d",w->tm_year+1900,w->tm_mon+1,w->tm_mday,w->tm_hour,w->tm_min,w->tm_sec);
     return nowTime;
+}
+
+
+std::string &CLogOprManager::addAddrTime(std::string &fileName, std::string &clientIpAddr)
+{
+    int nameIndex = fileName.find_last_of('/');
+    if (nameIndex > 0)
+    {
+        fileName = fileName.insert(nameIndex, '/' + clientIpAddr);  
+    }
+    nameIndex = fileName.find_last_of('.');
+    if (nameIndex > 0)
+    {
+        fileName = fileName.insert(nameIndex, '_' + nowTime());  
+    }
+    
+    return fileName;
 }
 
