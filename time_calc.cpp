@@ -278,8 +278,9 @@ bool cmpThreadNode(node *node1, node *node2)
 }
 
 CTimeCalcManager *CTimeCalcManager::_instance = NULL;
-CTimeCalcManager::CTimeCalcManager():m_fp(NULL), 
-										m_logName("./Debug.cpp")
+CTimeCalcManager::CTimeCalcManager()
+:m_fp(NULL)
+,m_logName("./Debug.cpp")
 {
 	m_pThreadList = CList::createCList();
 }
@@ -719,7 +720,10 @@ void CTimeCalcManager::cleanAll(int clientId)
 			if (TraceInfo->traceInfoId.clientId == clientId)
 			{
 				pNode = m_pThreadList->erase(pNode);
-				base::free(TraceInfo);
+                
+                CString::destroyCString(TraceInfo->pUpString);
+                CList::destroyClist(TraceInfo->pCalcList);
+                base::free(TraceInfo);
 				continue;
 			}
 		}		
