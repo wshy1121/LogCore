@@ -137,6 +137,8 @@ void CLogOprManager::toFile(LOG_FILE *logFile, CString *pString)
 	fp = base::fopen (fileName, "a+");
 	if (fp == NULL)
 	{
+	    printf("toFile  fopen  %s failed\n", fileName);
+	    pString->clear();
 		return ;
 	}
 	fwrite(pString->c_str(), pString->size(), 1, fp);
