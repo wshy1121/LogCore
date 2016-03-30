@@ -9,7 +9,7 @@ using namespace base;
 
 extern CPthreadMutex g_insMutexCalc;
 
-CParsePacket::CParsePacket()
+IParsePacket::IParsePacket()
 :m_headCount(0)
 ,m_tailCount(0)
 ,m_packetPos(0)
@@ -19,18 +19,18 @@ CParsePacket::CParsePacket()
     m_packetBuffer = new char[m_maxBufferSize];
 }
 
-CParsePacket::~CParsePacket()
+IParsePacket::~IParsePacket()
 {
     delete []m_packetBuffer;
 }
 
-char &CParsePacket::charData()
+char &IParsePacket::charData()
 {
     return m_packetBuffer[m_packetPos];
 }
 
-bool CParsePacket::parsePacket(char &charData, char **pPacket)
-{	    
+bool IParsePacket::parsePacket(char &charData, char **pPacket)
+{
 	if (m_curPacketSize == 0 && m_packetPos > 8)
 	{
 		memcpy(&m_curPacketSize, m_packetBuffer+4, 4);
@@ -86,7 +86,7 @@ bool CParsePacket::parsePacket(char &charData, char **pPacket)
 	return false;
 }
 
-void CParsePacket::initPacketInf()
+void IParsePacket::initPacketInf()
 {
     m_headCount = 0;
     m_tailCount = 0;

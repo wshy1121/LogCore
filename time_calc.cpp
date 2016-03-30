@@ -64,6 +64,8 @@ void CTimeCalc::exit()
     base::free(m_preFuncName);
     m_FileName = NULL;
     m_FuncName = NULL;
+    m_preFileName = NULL;
+    m_preFuncName = NULL;
 }
 
 void CTimeCalc::init(int line[], char *file_name[], char *func_name[], int display_level, TraceInfoId &traceInfoId)

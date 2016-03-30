@@ -14,11 +14,12 @@ class CNetServer;
 class CDataWorkManager;
 class CLogOprManager;
 
-class CParsePacket
+
+class IParsePacket
 {
 public:
-	CParsePacket();
-	~CParsePacket();
+	IParsePacket();
+	virtual ~IParsePacket();
 public:
 	bool parsePacket(char &charData, char **pPacket);
 	char &charData();
@@ -33,6 +34,7 @@ private:
 	const unsigned int m_maxBufferSize;
 };
 
+
 class CClientInf
 {
 public:
@@ -40,7 +42,7 @@ public:
 	friend class CVerifyHandle;
 	friend class CVerifyClient;
 	friend class CTraceHandle;
-	friend class CNetServer;
+	friend class INetServer;
 	friend class CDataWorkManager;
 	friend class CLogOprManager;
 	CClientInf();
@@ -58,7 +60,7 @@ private:
 	std::string m_logPath;
 	std::string m_fileName;
 	TraceFileInf *m_traceFileInf;
-	CParsePacket m_parsePacket;
+	IParsePacket m_parsePacket;
     std::string m_clientIpAddr;
     int m_clientPort;
 };
