@@ -9,6 +9,7 @@
 #include "link_tool.h"
 #include "mem_calc.h"
 #include "data_handle.h"
+#include "platform_base.h"
 
 void NextStep(const char *function, const char *fileName, int line);
 #define nextStep()  NextStep(__FUNCTION__, __FILE__, __LINE__)
