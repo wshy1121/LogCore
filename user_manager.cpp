@@ -3,7 +3,7 @@
 #include "link_tool.h"
 #include "safe_server.h"
 #include "Sqlite/SqliteManager.h"
-
+#include "trace_server.h"
 
 using namespace base;
 
@@ -94,13 +94,13 @@ void IParsePacket::initPacketInf()
     m_curPacketSize = 0;
 }
 
-CClientInf::CClientInf():	m_isLogined(false),
+IClientInf::IClientInf():	m_isLogined(false),
 							m_userName(""), m_passWord(""), m_logPath(""), 
 							m_traceFileInf(NULL)
 {	trace_worker();
 }
 
-CClientInf::~CClientInf()
+IClientInf::~IClientInf()
 {	trace_worker();
 }
 
@@ -126,7 +126,7 @@ CUserManager* CUserManager::instance()
 }
 
 
-bool CUserManager::login(char *userName, char *passWord, CClientInf *clientInf)
+bool CUserManager::login(char *userName, char *passWord, IClientInf *clientInf)
 {	trace_worker();
 	if (!clientInf)
 	{
@@ -140,7 +140,7 @@ bool CUserManager::login(char *userName, char *passWord, CClientInf *clientInf)
 	return true;
 }
 
-bool CUserManager::logout(CClientInf *clientInf)
+bool CUserManager::logout(IClientInf *clientInf)
 {	trace_worker();
 	if (!clientInf)
 	{	trace_printf("NULL");
@@ -151,7 +151,7 @@ bool CUserManager::logout(CClientInf *clientInf)
 	return true;
 }
 
-bool CUserManager::isLogined(CClientInf *clientInf)
+bool CUserManager::isLogined(IClientInf *clientInf)
 {	trace_worker();
 	trace_printf("clientInf->m_isLogined  %d", clientInf->m_isLogined);
 	return clientInf->m_isLogined;
@@ -179,7 +179,7 @@ bool CUserManager::isVerified()
 }
 
 
-bool CUserManager::initClientInf(char *userName, char *passWord, CClientInf *clientInf)
+bool CUserManager::initClientInf(char *userName, char *passWord, IClientInf *clientInf)
 {	trace_worker();
 
 	CppSQLite3Query query = CSqliteManager::instance()->execQuery("select logpath from userinf where name='%s' and password='%s'", userName, passWord);
@@ -198,7 +198,7 @@ bool CUserManager::initClientInf(char *userName, char *passWord, CClientInf *cli
 }
 
 
-bool CUserManager::addClient(int clientId, CClientInf *clientInf)
+bool CUserManager::addClient(int clientId, IClientInf *clientInf)
 {	trace_worker();
 	CGuardMutex guardMutex(m_userInfMapMutex);
 	

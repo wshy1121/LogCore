@@ -9,13 +9,13 @@
 #define TQueueContain(x) container_of((x), ThreadNode, node)
 #define TRACE_INF_LEN  512
 
-class CClientInf;
+class IClientInf;
 typedef struct TraceInfoId
 {
 	CBase::pthread_t threadId;
 	int clientId;
 	int socket;
-	CClientInf *clientInf;
+	IClientInf *clientInf;
 	bool operator < (const struct TraceInfoId &key) const
 	{
 		if (key.clientId < clientId)

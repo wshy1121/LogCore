@@ -1,13 +1,15 @@
-#include "stdafx.h"
-#include "string_base.h"
-#include "log_opr.h"
-#include "mem_calc.h"
-#include "time_calc.h"
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <sys/stat.h>
 #include <time.h>
+
+#include "stdafx.h"
+#include "string_base.h"
+#include "log_opr.h"
+#include "mem_calc.h"
+#include "time_calc.h"
+#include "trace_server.h"
 
 using namespace base;
 extern CPthreadMutex g_insMutexCalc;
