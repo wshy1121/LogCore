@@ -87,7 +87,8 @@ public:
 	void stop();
 public:
 	FuncTraceInfo_t *CreatTraceInf(TraceInfoId &traceInfoId);
-	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo, TraceInfoId &traceInfoId);
+    void removeTraceInf(FuncTraceInfo_t *TraceInfo);
+	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo);
 	FuncTraceInfo_t *GetTraceInf(TraceInfoId &traceInfoId);
 	void printLog(TraceInfoId &traceInfoId, char *sFmt, ...);
 	void printStrLog(TraceInfoId &traceInfoId, const char *logStr);

@@ -250,7 +250,8 @@ void CTimeCalc::DealFuncExit()
 		if (TraceInfo->deep == 0)
 		{
 			CTimeCalcManager::instance()->printStrLog(m_traceInfoId, TraceInfo->pUpString->c_str());
-			CTimeCalcManager::instance()->DestroyTraceInf(TraceInfo, m_traceInfoId);
+            CTimeCalcManager::instance()->removeTraceInf(TraceInfo);
+			CTimeCalcManager::instance()->DestroyTraceInf(TraceInfo);
 		}
 
 	}
@@ -339,7 +340,7 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(TraceInfoId &traceInfoId)
 
 
 
-void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo, TraceInfoId &traceInfoId)
+void CTimeCalcManager::removeTraceInf(FuncTraceInfo_t *TraceInfo)
 {
 	CGuardMutex guardMutex(m_threadListMutex);
 	node *pNode = m_pThreadList->find(&TraceInfo->Node,cmpThreadNode);
@@ -347,6 +348,10 @@ void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo, TraceInfoId &
 	{
 		remov_node(pNode);
 	}
+}
+
+void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo)
+{
 	CString::destroyCString(TraceInfo->pUpString);
 	CList::destroyClist(TraceInfo->pCalcList);
 	base::free(TraceInfo);
@@ -720,10 +725,7 @@ void CTimeCalcManager::cleanAll(int clientId)
 			if (TraceInfo->traceInfoId.clientId == clientId)
 			{
 				pNode = m_pThreadList->erase(pNode);
-                
-                CString::destroyCString(TraceInfo->pUpString);
-                CList::destroyClist(TraceInfo->pCalcList);
-                base::free(TraceInfo);
+                DestroyTraceInf(TraceInfo);
 				continue;
 			}
 		}		
