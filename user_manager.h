@@ -2,6 +2,8 @@
 #define _USER_MANAGER_H_
 #include <map>
 #include <string>
+#include <boost/shared_ptr.hpp>
+
 #include "mem_calc.h"
 #include "log_opr.h"
 
@@ -57,7 +59,7 @@ private:
 	std::string m_logPath;
 	std::string m_fileName;
 	TraceFileInf *m_traceFileInf;
-	IParsePacket m_parsePacket;
+    boost::shared_ptr<IParsePacket> m_parsePacket;
     std::string m_clientIpAddr;
     int m_clientPort;
 };
