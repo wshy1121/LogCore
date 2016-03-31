@@ -21,11 +21,11 @@ public:
 	IParsePacket();
 	virtual ~IParsePacket();
 public:
-	bool parsePacket(char &charData, char **pPacket);
+	virtual bool parsePacket(char &charData, char **pPacket) = 0;
 	char &charData();
-private:	
+protected:	
 	void initPacketInf();
-private:
+protected:
 	unsigned int m_headCount;
 	unsigned int m_tailCount;	
 	unsigned int m_packetPos;
