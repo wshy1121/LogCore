@@ -114,32 +114,6 @@ private:
 	static CTimeCalcManager *_instance;
 };
 
-
-
-
-
-
-class CTimeCalcInfManager
-{
-public:
-	static CTimeCalcInfManager *instance();
-	void *calcMalloc(int size);
-	void calcFree(void *pMem);
-	void pushRecvData(RECV_DATA *pRecvData);	
-	void dealRecvData(TimeCalcInf *pCalcInf);
-private:
-	CTimeCalcInfManager();
-	static void* threadFunc(void *pArg);
-	void threadProc();
-private:
-	static CTimeCalcInfManager *_instance;
-	base::CList *m_recvList;
-	base::CPthreadMutex m_recvListMutex;
-	CBase::pthread_t m_threadId;
-};
-
-
-
 #define VOUT16
 #ifdef VOUT16
 #define cutLine  // 
