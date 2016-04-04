@@ -21,7 +21,7 @@ public:
 	IParsePacket();
 	virtual ~IParsePacket();
 public:
-	virtual bool parsePacket(char &charData, char **pPacket) = 0;
+	virtual bool parsePacket(char &charData, std::string &packet) = 0;
 	char &charData();
 protected:	
 	void initPacketInf();
