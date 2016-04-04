@@ -21,6 +21,10 @@ IParsePacket::~IParsePacket()
     delete []m_packetBuffer;
 }
 
+void IParsePacket::writeData(char *data, int dataLen)
+{
+}
+
 char &IParsePacket::charData()
 {
     return m_packetBuffer[m_packetPos];
