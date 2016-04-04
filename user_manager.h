@@ -23,11 +23,14 @@ public:
 public:
 	virtual bool parsePacket(char &charData, std::string &packet) = 0;    
     virtual void writeData(char *data, int dataLen);
+    void setClientInf(std::shared_ptr<IClientInf> &clientInf);
+    void resetClientInf();
 	char &charData();
 protected:
 	unsigned int m_packetPos;
 	char *m_packetBuffer;    
-	const unsigned int m_maxBufferSize;
+	const unsigned int m_maxBufferSize;    
+    std::shared_ptr<IClientInf> m_clientInf;
 };
 
 
@@ -41,6 +44,7 @@ public:
 	friend class INetServer;
 	friend class CLogOprManager;
     friend class CCliManager;
+    friend class CTraceManager;
 	IClientInf();
 	virtual ~IClientInf();
 public:

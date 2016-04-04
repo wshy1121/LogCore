@@ -25,6 +25,16 @@ void IParsePacket::writeData(char *data, int dataLen)
 {
 }
 
+void IParsePacket::setClientInf(std::shared_ptr<IClientInf> &clientInf)
+{   trace_worker();
+    m_clientInf = clientInf;
+}
+
+void IParsePacket::resetClientInf()
+{   trace_worker();
+    m_clientInf.reset();
+}
+
 char &IParsePacket::charData()
 {
     return m_packetBuffer[m_packetPos];
