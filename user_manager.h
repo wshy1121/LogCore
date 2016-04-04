@@ -23,14 +23,9 @@ public:
 public:
 	virtual bool parsePacket(char &charData, std::string &packet) = 0;
 	char &charData();
-protected:	
-	void initPacketInf();
 protected:
-	unsigned int m_headCount;
-	unsigned int m_tailCount;	
 	unsigned int m_packetPos;
-	char *m_packetBuffer;
-	unsigned int m_curPacketSize;
+	char *m_packetBuffer;    
 	const unsigned int m_maxBufferSize;
 };
 

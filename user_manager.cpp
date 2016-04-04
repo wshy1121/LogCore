@@ -10,10 +10,7 @@ using namespace base;
 extern CPthreadMutex g_insMutexCalc;
 
 IParsePacket::IParsePacket()
-:m_headCount(0)
-,m_tailCount(0)
-,m_packetPos(0)
-,m_curPacketSize(0)
+:m_packetPos(0)
 ,m_maxBufferSize(1024*1024)
 {
     m_packetBuffer = new char[m_maxBufferSize];
@@ -27,15 +24,6 @@ IParsePacket::~IParsePacket()
 char &IParsePacket::charData()
 {
     return m_packetBuffer[m_packetPos];
-}
-
-
-void IParsePacket::initPacketInf()
-{
-    m_headCount = 0;
-    m_tailCount = 0;
-    m_packetPos = 0;
-    m_curPacketSize = 0;
 }
 
 IClientInf::IClientInf():	m_isLogined(false),
