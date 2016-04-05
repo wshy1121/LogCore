@@ -50,6 +50,31 @@ IClientInf::~IClientInf()
 {	trace_worker();
 }
 
+void IClientInf::formatInf(std::string &inf)
+{   trace_worker();
+    char tmpChars[128];
+
+    inf = "";
+    base::snprintf(tmpChars, sizeof(tmpChars), "%d", m_clientId);
+    inf += tmpChars;
+    inf += "  ";
+    base::snprintf(tmpChars, sizeof(tmpChars), "%d", m_socket);
+    inf += tmpChars;
+    inf += "  ";
+    inf += m_clientIpAddr;
+    inf += "  ";
+    base::snprintf(tmpChars, sizeof(tmpChars), "%d", m_clientPort);
+    inf += tmpChars;
+    inf += "  ";
+    base::snprintf(tmpChars, sizeof(tmpChars), "%d", m_clientId);
+    inf += tmpChars;
+    inf += "  ";    
+    if (m_traceFileInf)
+    {        
+        inf += m_traceFileInf->fileNameAddTime;
+    }
+    inf += "  ";
+}
 
 CUserManager* CUserManager::_instance = NULL;
 
@@ -172,5 +197,11 @@ bool CUserManager::removeClient(int clientId)
 	m_userInfMap.erase(iter);
 	trace_printf("true");	
 	return true;
+}
+
+void CUserManager::getClientInfs(UserInfMap &userInfMap)
+{
+    CGuardMutex guardMutex(m_userInfMapMutex);
+    userInfMap = m_userInfMap;
 }
 

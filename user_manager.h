@@ -51,6 +51,7 @@ public:
 	void setAccess(bool isAccess);
 	std::string &getLogPath(){return m_logPath;}
 	std::string &getfileName(){return m_fileName;}
+    void formatInf(std::string &inf);
 private:
 	int m_socket;
 	int m_clientId;	
@@ -67,6 +68,7 @@ private:
 class CUserManager
 {
 public:
+	typedef std::map<int, IClientInf *> UserInfMap;
 	static CUserManager* instance();	
 	bool login(char *userName, char *passWord, IClientInf *clientInf);
 	bool logout(IClientInf *clientInf);
@@ -75,6 +77,7 @@ public:
 	bool isVerified();
 	bool addClient(int clientId, IClientInf *clientInf);
 	bool removeClient(int clientId);
+    void getClientInfs(UserInfMap &userInfMap);
 private:	
 	CUserManager();
 	bool initClientInf(char *userName, char *passWord, IClientInf *clientInf);
@@ -82,7 +85,6 @@ private:
 	static  CUserManager* _instance;
 	bool m_isVerified;	
 	base::CPthreadMutex m_userInfMapMutex;
-	typedef std::map<int, IClientInf *> UserInfMap;
 	UserInfMap m_userInfMap;
 };
 #endif

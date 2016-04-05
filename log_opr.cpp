@@ -69,7 +69,7 @@ TraceFileInf *CLogOprManager::openFile(int fileKey, char *fileName, std::string 
 	LOG_FILE *pLogFile = createLogFile(fileName, clientIpAddr);
 	m_logFileMap.insert(std::make_pair(fileKey, pLogFile));
 	
-	pLogFile->traceFileInf = addFile(fileName);
+	pLogFile->traceFileInf = addFile(fileName, clientIpAddr);
 	return pLogFile->traceFileInf;
 }
 
@@ -128,7 +128,7 @@ void CLogOprManager::writeFile(TraceInfoId &traceInfoId, char *content)
 }
 void CLogOprManager::toFile(LOG_FILE *logFile, CString *pString)
 {
-	const char *fileName = logFile->fileNameAddTime.c_str();
+	const char *fileName = logFile->traceFileInf->fileNameAddTime.c_str();
 	if (pString->size() == 0)
 	{
 		return ;
@@ -157,8 +157,8 @@ void CLogOprManager::toFile(LOG_FILE *logFile, CString *pString)
 	}
     if (traceFileInf->m_fileSize > 67108864) //large than 64M
     {
-        logFile->fileNameAddTime = logFile->fileName;
-        std::string &fileNameAddTime = logFile->fileNameAddTime;
+        logFile->traceFileInf->fileNameAddTime = logFile->fileName;
+        std::string &fileNameAddTime = logFile->traceFileInf->fileNameAddTime;
         addAddrTime(fileNameAddTime, logFile->clientIpAddr);
     }
 
@@ -171,13 +171,9 @@ LOG_FILE *CLogOprManager::createLogFile(char *fileName, std::string &clientIpAdd
 	pLogFile->content = CString::createCString();
 
     pLogFile->fileName = fileName;   
-    pLogFile->fileNameAddTime = fileName;   
     pLogFile->clientIpAddr = clientIpAddr;
     
-    std::string &fileNameAddTime = pLogFile->fileNameAddTime;
 
-    addAddrTime(fileNameAddTime, clientIpAddr);
-    printf("fileNameAddTime.c_str()  %s\n", fileNameAddTime.c_str());
 	return pLogFile;
 }
 
@@ -211,7 +207,7 @@ void CLogOprManager::initTraceFileInf(TraceFileInf *traceFileInf, char *fileName
 	return ;	
 }
 
-TraceFileInf *CLogOprManager::addFile(char *fileName)
+TraceFileInf *CLogOprManager::addFile(char *fileName, std::string &clientIpAddr)
 {	trace_worker();
 	trace_printf("fileName  %s", fileName);
 	TraceFileInf *traceFileInf = NULL;
@@ -229,6 +225,11 @@ TraceFileInf *CLogOprManager::addFile(char *fileName)
 	}
 	traceFileInf->m_count++;
 	trace_printf("traceFileInf->m_count  %d", traceFileInf->m_count);
+    
+    traceFileInf->fileNameAddTime = fileName;       
+    std::string &fileNameAddTime = traceFileInf->fileNameAddTime;
+    addAddrTime(fileNameAddTime, clientIpAddr);
+    printf("fileNameAddTime.c_str()  %s\n", fileNameAddTime.c_str());
 	return traceFileInf;
 }
 

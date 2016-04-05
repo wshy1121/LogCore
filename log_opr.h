@@ -11,6 +11,7 @@ typedef struct TraceFileInf
 	int m_candyCount;
 	int m_traceCount;
 	std::string m_lastCandy;
+    std::string fileNameAddTime;
 }TraceFileInf;
 
 typedef struct LogDataInf
@@ -38,7 +39,6 @@ typedef struct LOG_DATA
 typedef struct LOG_FILE
 {
 	std::string fileName;
-    std::string fileNameAddTime;
     std::string clientIpAddr;
 	base::CString *content;
 	TraceFileInf *traceFileInf;
@@ -65,7 +65,7 @@ private:
 	void destroyLogFile(LOG_FILE *pLogFile);
 	bool isAvailable();
 	void initTraceFileInf(TraceFileInf *traceFileInf, char *fileName);
-	TraceFileInf *addFile(char *fileName);
+	TraceFileInf *addFile(char *fileName, std::string &clientIpAddr);
 	void removeFile(char *fileName);	
     std::string nowTime();
     std::string &addAddrTime(std::string &fileName, std::string &clientIpAddr);
