@@ -80,7 +80,8 @@ public:
 	void InsertTrace(int line, char *file_name, TraceInfoId &traceInfoId, const char* content);
 	void InsertStrOnly(TraceInfoId &traceInfoId, const char* fmt, ...);
 	void InsertTag(TraceInfoId &traceInfoId, int line, char *file_name, const char* content);
-	void DispAll(int clientId, const char* content);
+	void DispAll(int clientId, const char* content = NULL);
+    void getTraceInfStr(int clientId, std::string &traceInfStr);
 	void cleanAll(int clientId);
 	void InsertHex(TraceInfoId &traceInfoId, int line, char *file_name, char *psBuf, int nBufLen);
 	void start();
