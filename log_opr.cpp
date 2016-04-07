@@ -85,7 +85,7 @@ bool CLogOprManager::closeFile(int fileKey)
 	LOG_FILE *pLogFile = iter->second;
 	toFile(pLogFile, pLogFile->content);
 
-	removeFile((char*)pLogFile->fileName.c_str());
+	removeFile((char*)pLogFile->fileName.c_str(), pLogFile->clientIpAddr);
 	m_logFileMap.erase(iter);
 	
 	destroyLogFile(pLogFile);
@@ -211,13 +211,13 @@ TraceFileInf *CLogOprManager::addFile(char *fileName, std::string &clientIpAddr)
 {	trace_worker();
 	trace_printf("fileName  %s", fileName);
 	TraceFileInf *traceFileInf = NULL;
-	TraceFileInfMap::iterator iter = m_traceFileInfMap.find(fileName);
+	TraceFileInfMap::iterator iter = m_traceFileInfMap.find(fileName + clientIpAddr);
 	
 	if (iter == m_traceFileInfMap.end())
 	{	trace_printf("NULL");
 		traceFileInf = new TraceFileInf;
 		initTraceFileInf(traceFileInf, fileName);
-		m_traceFileInfMap.insert(std::make_pair(fileName, traceFileInf));
+		m_traceFileInfMap.insert(std::make_pair(fileName + clientIpAddr, traceFileInf));
 	}
 	else
 	{	trace_printf("NULL");
@@ -233,10 +233,10 @@ TraceFileInf *CLogOprManager::addFile(char *fileName, std::string &clientIpAddr)
 	return traceFileInf;
 }
 
-void CLogOprManager::removeFile(char *fileName)
+void CLogOprManager::removeFile(char *fileName, std::string &clientIpAddr)
 {	trace_worker();
 	trace_printf("fileName  %s", fileName);
-	TraceFileInfMap::iterator iter = m_traceFileInfMap.find(fileName);
+	TraceFileInfMap::iterator iter = m_traceFileInfMap.find(fileName + clientIpAddr);
 	if (iter == m_traceFileInfMap.end())
 	{	trace_printf("NULL");
 		return ;

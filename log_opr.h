@@ -66,7 +66,7 @@ private:
 	bool isAvailable();
 	void initTraceFileInf(TraceFileInf *traceFileInf, char *fileName);
 	TraceFileInf *addFile(char *fileName, std::string &clientIpAddr);
-	void removeFile(char *fileName);	
+	void removeFile(char *fileName, std::string &clientIpAddr);	
     std::string nowTime();
     std::string &addAddrTime(std::string &fileName, std::string &clientIpAddr);
 private:
