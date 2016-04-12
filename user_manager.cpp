@@ -40,9 +40,13 @@ char &IParsePacket::charData()
     return m_packetBuffer[m_packetPos];
 }
 
-IClientInf::IClientInf():	m_isLogined(false),
-							m_userName(""), m_passWord(""), m_logPath(""), 
-							m_traceFileInf(NULL)
+IClientInf::IClientInf()
+:m_isLogined(false)
+,m_userName("")
+,m_passWord("")
+,m_logPath("")
+,m_traceFileInf(NULL)
+,m_isBackClient(false)
 {	trace_worker();
 }
 

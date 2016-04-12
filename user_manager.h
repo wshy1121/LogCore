@@ -64,6 +64,7 @@ private:
     boost::shared_ptr<IParsePacket> m_parsePacket;
     std::string m_clientIpAddr;
     int m_clientPort;
+    bool m_isBackClient;
 };
 class CUserManager
 {
