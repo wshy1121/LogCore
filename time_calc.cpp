@@ -346,7 +346,7 @@ void CTimeCalcManager::removeTraceInf(FuncTraceInfo_t *TraceInfo)
 	node *pNode = m_pThreadList->find(&TraceInfo->Node,cmpThreadNode);
 	if (pNode != NULL)
 	{
-		remov_node(pNode);
+	    m_pThreadList->erase(pNode);
 	}
 }
 
