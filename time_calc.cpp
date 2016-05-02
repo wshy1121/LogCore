@@ -250,7 +250,7 @@ void CTimeCalc::DealFuncExit()
 		if (TraceInfo->deep == 0)
 		{
 			CTimeCalcManager::instance()->printStrLog(m_traceInfoId, TraceInfo->pUpString->c_str());
-            CTimeCalcManager::instance()->removeTraceInf(TraceInfo);
+            CTimeCalcManager::instance()->removeTraceInf(TraceInfo->traceInfoId);
 			CTimeCalcManager::instance()->DestroyTraceInf(TraceInfo);
 		}
 
@@ -263,32 +263,15 @@ void CTimeCalc::DealFuncExit()
 
 }
 
-bool cmpThreadNode(node *node1, node *node2)
-{
-	FuncTraceInfo_t *tmpNode1 = TNodeContain(node1);
-	FuncTraceInfo_t *tmpNode2 = TNodeContain(node2);
-	if (tmpNode1->traceInfoId.threadId == tmpNode2->traceInfoId.threadId &&
-		tmpNode1->traceInfoId.clientId == tmpNode2->traceInfoId.clientId)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
 
 CTimeCalcManager *CTimeCalcManager::_instance = NULL;
 CTimeCalcManager::CTimeCalcManager()
 :m_fp(NULL)
 ,m_logName("./Debug.cpp")
 {
-	m_pThreadList = CList::createCList();
 }
 CTimeCalcManager::~CTimeCalcManager()
 {
-	CList::destroyClist(m_pThreadList);
-	m_pThreadList = NULL;
 }
 
 CTimeCalcManager *CTimeCalcManager::instance()
@@ -308,15 +291,15 @@ CTimeCalcManager *CTimeCalcManager::instance()
 
 FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(TraceInfoId &traceInfoId)
 {	
-	CGuardMutex guardMutex(m_threadListMutex);
+	CGuardMutex guardMutex(m_traceInfoMapMutex);
 	FuncTraceInfo_t traceInfo;
 	traceInfo.traceInfoId = traceInfoId;
-	node *pNode = m_pThreadList->find(&traceInfo.Node,cmpThreadNode);
+    TraceInfoMap::iterator iter = m_traceInfoMap.find(traceInfoId);
 
 	FuncTraceInfo_t *TraceInfo = NULL;
-	if (pNode != NULL)//如果查找到
+	if (iter != m_traceInfoMap.end())//如果查找到
 	{
-		TraceInfo = TNodeContain(pNode);
+		TraceInfo = iter->second;
 	}
 	else  
 	{
@@ -333,21 +316,17 @@ FuncTraceInfo_t * CTimeCalcManager::CreatTraceInf(TraceInfoId &traceInfoId)
 		TraceInfo->traceInfoId = traceInfoId;
 		TraceInfo->pCalcList = CList::createCList();
 
-		m_pThreadList->push_back(&TraceInfo->Node);
+		m_traceInfoMap.insert(std::make_pair(traceInfoId, TraceInfo));
 	}
 	return TraceInfo;
 }
 
 
 
-void CTimeCalcManager::removeTraceInf(FuncTraceInfo_t *TraceInfo)
+void CTimeCalcManager::removeTraceInf(TraceInfoId &traceInfoId)
 {
-	CGuardMutex guardMutex(m_threadListMutex);
-	node *pNode = m_pThreadList->find(&TraceInfo->Node,cmpThreadNode);
-	if (pNode != NULL)
-	{
-	    m_pThreadList->erase(pNode);
-	}
+	CGuardMutex guardMutex(m_traceInfoMapMutex);
+    m_traceInfoMap.erase(traceInfoId);
 }
 
 void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo)
@@ -359,14 +338,14 @@ void CTimeCalcManager::DestroyTraceInf(FuncTraceInfo_t *TraceInfo)
 
 FuncTraceInfo_t * CTimeCalcManager::GetTraceInf(TraceInfoId &traceInfoId)
 {
-	CGuardMutex guardMutex(m_threadListMutex);
+	CGuardMutex guardMutex(m_traceInfoMapMutex);
 	FuncTraceInfo_t traceInfo;
 	traceInfo.traceInfoId = traceInfoId;
-	node *pNode = m_pThreadList->find(&traceInfo.Node,cmpThreadNode);
+	TraceInfoMap::iterator iter = m_traceInfoMap.find(traceInfoId);
 
-	if (pNode != NULL)
+	if (iter != m_traceInfoMap.end())//如果查找到
 	{
-		return TNodeContain(pNode);
+		return iter->second;
 	}	
 	
 	return NULL;
@@ -678,15 +657,15 @@ void CTimeCalcManager::DispAll(int clientId, const char* content)
 {
 	FuncTraceInfo_t *TraceInfo = NULL;
 
-	CGuardMutex guardMutex(m_threadListMutex);
+	CGuardMutex guardMutex(m_traceInfoMapMutex);
 	
-	node *pNode = NULL;
+    TraceInfoMap::iterator iter;	
 #ifndef WIN32	
-	each_link_node(&m_pThreadList->head_node, pNode)
+    for (iter = m_traceInfoMap.begin(); iter != m_traceInfoMap.end(); ++iter)    
 	{
-		if (pNode != NULL)//如果查找到
+		if (iter != m_traceInfoMap.end())//如果查找到
 		{
-			TraceInfo = TNodeContain(pNode);
+			TraceInfo = iter->second;
 			if (TraceInfo->traceInfoId.clientId == clientId)
 			{
 				//printf("%s\r\n", TraceInfo->pUpString->c_str());
@@ -694,11 +673,11 @@ void CTimeCalcManager::DispAll(int clientId, const char* content)
 		}
 	}
 #endif
-	each_link_node(&m_pThreadList->head_node, pNode)
+	for (iter = m_traceInfoMap.begin(); iter != m_traceInfoMap.end(); ++iter)    
 	{
-		if (pNode != NULL)//如果查找到
+		if (iter != m_traceInfoMap.end())//如果查找到
 		{
-			TraceInfo = TNodeContain(pNode);
+			TraceInfo = iter->second;
 			if (TraceInfo->traceInfoId.clientId == clientId)
 			{
 				printStrLog(TraceInfo->traceInfoId, "#if 0");
@@ -714,13 +693,13 @@ void CTimeCalcManager::getTraceInfStr(int clientId, std::string &traceInfStr)
 {
     traceInfStr = "";
 	FuncTraceInfo_t *TraceInfo = NULL;
-	CGuardMutex guardMutex(m_threadListMutex);
-    node *pNode = NULL;
-    each_link_node(&m_pThreadList->head_node, pNode)
+	CGuardMutex guardMutex(m_traceInfoMapMutex);
+    TraceInfoMap::iterator iter;	
+    for (iter = m_traceInfoMap.begin(); iter != m_traceInfoMap.end(); ++iter)    
 	{
-		if (pNode != NULL)//如果查找到
+		if (iter != m_traceInfoMap.end())//如果查找到
 		{
-			TraceInfo = TNodeContain(pNode);
+			TraceInfo = iter->second;
 			if (TraceInfo->traceInfoId.clientId == clientId)
 			{
                 traceInfStr = TraceInfo->pUpString->c_str();
@@ -733,25 +712,17 @@ void CTimeCalcManager::getTraceInfStr(int clientId, std::string &traceInfStr)
 
 void CTimeCalcManager::cleanAll(int clientId)
 {
-	CGuardMutex guardMutex(m_threadListMutex);
-	node *pHead = &m_pThreadList->head_node;
-	node *pNode = NULL;
+	CGuardMutex guardMutex(m_traceInfoMapMutex);
+	TraceInfoMap::iterator iter;	
 	FuncTraceInfo_t *TraceInfo = NULL;
-	for ((pNode)=(pHead)->next; (pHead) != (pNode);)
-	{
-		if (pNode != NULL)
-		{
-			TraceInfo = TNodeContain(pNode);
-			if (TraceInfo->traceInfoId.clientId == clientId)
-			{
-				pNode = m_pThreadList->erase(pNode);
-                DestroyTraceInf(TraceInfo);
-				continue;
-			}
-		}		
-		(pNode)=(pNode)->next;
-	}
 
+    for(iter = m_traceInfoMap.begin(); iter!=m_traceInfoMap.end(); )
+    {
+        TraceInfo = iter->second;
+        m_traceInfoMap.erase(iter++);
+
+        DestroyTraceInf(TraceInfo);
+    }
 }
 
 

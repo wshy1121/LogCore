@@ -23,9 +23,7 @@ typedef struct FuncTraceInfo_t
 	base::CString *pUpString;
 	base::CList *pCalcList;
 	TraceInfoId traceInfoId;
-	node Node;
 } FuncTraceInfo_t;
-#define TNodeContain(x) container_of((x), FuncTraceInfo_t, Node)
 
 class CTimeCalcManager;
 
@@ -88,7 +86,7 @@ public:
 	void stop();
 public:
 	FuncTraceInfo_t *CreatTraceInf(TraceInfoId &traceInfoId);
-    void removeTraceInf(FuncTraceInfo_t *TraceInfo);
+    void removeTraceInf(TraceInfoId &traceInfoId);
 	void DestroyTraceInf(FuncTraceInfo_t *TraceInfo);
 	FuncTraceInfo_t *GetTraceInf(TraceInfoId &traceInfoId);
 	void printLog(TraceInfoId &traceInfoId, char *sFmt, ...);
@@ -106,8 +104,10 @@ private:
 	CTimeCalcManager();
 	~CTimeCalcManager();
 private:
-	base::CPthreadMutex  m_threadListMutex;
-	base::CList *m_pThreadList;
+    typedef std::map<TraceInfoId, FuncTraceInfo_t *> TraceInfoMap;
+    TraceInfoMap m_traceInfoMap;
+    base::CPthreadMutex  m_traceInfoMapMutex;
+    
 	std::map<std::string, int > m_stack_inf_map;
 	FILE *m_fp;
 	const char *m_logName;

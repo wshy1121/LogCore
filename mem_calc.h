@@ -24,7 +24,7 @@ typedef struct TraceInfoId
 		}
 		else if (key.clientId == clientId)
 		{
-			return key.socket < socket;
+			return key.threadId < threadId;
 		}
 		return false;
 	}
