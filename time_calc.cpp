@@ -703,7 +703,7 @@ void CTimeCalcManager::getTraceInfStr(int clientId, std::string &traceInfStr)
 			if (TraceInfo->traceInfoId.clientId == clientId)
 			{
                 traceInfStr = TraceInfo->pUpString->c_str();
-                break;
+                traceInfStr += "\r\n";
 			}
 		}
 	}
