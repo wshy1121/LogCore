@@ -12,7 +12,6 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -g -Wall -fPIC -O0")
 SET(SRC_SRCS
   mem_calc.cpp
   mem_check.cpp
-  log_opr.cpp
   time_calc.cpp
   user_manager.cpp
 )
