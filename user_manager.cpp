@@ -75,7 +75,7 @@ void IClientInf::formatInf(std::string &inf)
     inf += "  ";    
     if (m_traceFileInf)
     {        
-        inf += m_traceFileInf->fileNameAddTime;
+        inf += m_traceFileInf->m_fileAddTime->getPath();
     }
     inf += "  ";
 }
