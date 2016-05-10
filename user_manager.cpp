@@ -40,13 +40,14 @@ char &IParsePacket::charData()
     return m_packetBuffer[m_packetPos];
 }
 
-IClientInf::IClientInf()
+IClientInf::IClientInf(INetServer *netServer)
 :m_isLogined(false)
 ,m_userName("")
 ,m_passWord("")
 ,m_logPath("")
 ,m_traceFileInf(NULL)
 ,m_isBackClient(false)
+,m_netServer(netServer)
 {	trace_worker();
 }
 

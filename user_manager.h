@@ -13,7 +13,7 @@ class CVerifyHandle;
 class CVerifyClient;
 class CTraceHandle;
 class CLogOprManager;
-
+class INetServer;
 
 class IParsePacket
 {
@@ -45,7 +45,8 @@ public:
 	friend class CLogOprManager;
     friend class CCliManager;
     friend class CTraceManager;
-	IClientInf();
+    friend class CCliParsePacket;
+	IClientInf(INetServer *netServer);
 	virtual ~IClientInf();
 public:
 	void setAccess(bool isAccess);
@@ -65,6 +66,7 @@ private:
     std::string m_clientIpAddr;
     int m_clientPort;
     bool m_isBackClient;
+    INetServer *m_netServer;
 };
 class CUserManager
 {
