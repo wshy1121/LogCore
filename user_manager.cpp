@@ -66,9 +66,9 @@ void IClientInf::formatInf(std::string &inf)
     base::snprintf(tmpChars, sizeof(tmpChars), "%d", m_socket);
     inf += tmpChars;
     inf += "  ";
-    inf += m_clientIpAddr;
+    inf += inet_ntoa(m_clientAddr.sin_addr);
     inf += "  ";
-    base::snprintf(tmpChars, sizeof(tmpChars), "%d", m_clientPort);
+    base::snprintf(tmpChars, sizeof(tmpChars), "%d", ntohs(m_clientAddr.sin_port));
     inf += tmpChars;
     inf += "  ";
     base::snprintf(tmpChars, sizeof(tmpChars), "%d", m_clientId);

@@ -65,8 +65,7 @@ private:
 	std::string m_fileName;
 	TraceFileInf *m_traceFileInf;
     boost::shared_ptr<IParsePacket> m_parsePacket;
-    std::string m_clientIpAddr;
-    int m_clientPort;
+    sockaddr_in m_clientAddr;
     bool m_isBackClient;
     INetServer *m_netServer;
 };
