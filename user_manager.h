@@ -42,6 +42,7 @@ public:
 	friend class CVerifyClient;
 	friend class CTraceHandle;
 	friend class INetServer;
+    friend class ITcpServer;
 	friend class CLogOprManager;
     friend class CCliManager;
     friend class CTraceManager;
