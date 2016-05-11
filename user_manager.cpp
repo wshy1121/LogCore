@@ -35,9 +35,9 @@ void IParsePacket::resetClientInf()
     m_clientInf.reset();
 }
 
-char &IParsePacket::charData()
+char *IParsePacket::charData()
 {
-    return m_packetBuffer[m_packetPos];
+    return m_packetBuffer + m_packetPos;
 }
 
 IClientInf::IClientInf(INetServer *netServer)

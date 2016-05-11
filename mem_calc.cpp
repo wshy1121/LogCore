@@ -80,7 +80,8 @@ void CalcMem::wrapFree(void* addr, size_t c, char *pBackTrace, TraceInfoId &trac
 void CalcMem::printfMemInfMap(TraceInfoId &traceInfoId)
 {
 	CCandy candy(__LINE__, (char *)__FILE__, (char *)__FUNCTION__, 0);
-
+    size_t itemSize = 0;
+    size_t diffCount = 0;
 	std::string path;
 	CGuardMutex guardMutex(m_mutex);
 	for (MemInfMap::iterator iter = m_MemInfMap.begin(); iter != m_MemInfMap.end(); ++iter)
@@ -88,11 +89,10 @@ void CalcMem::printfMemInfMap(TraceInfoId &traceInfoId)
 		path = iter->first;
 		MemInf *memInf = iter->second;
 
-		size_t diffCount = memInf->mallocCount - memInf->freeCount;
-		size_t itemSize = 0;
+		diffCount = memInf->mallocCount - memInf->freeCount;
 		if (diffCount > 0)
 		{
-			itemSize = memInf->memSize /diffCount;
+			itemSize = memInf->memSize / diffCount;
 		}
 		//CBugKiller::InsertStrOnly(traceInfoId, "maxSize  itemSize  memSize  diffCount  mallocCount  freeCount  %016d  %08d  %d  %d  %d  %d %s", memInf->maxSize, itemSize, memInf->memSize, diffCount, memInf->mallocCount, memInf->freeCount, path.c_str());
 	}

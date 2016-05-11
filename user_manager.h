@@ -21,11 +21,11 @@ public:
 	IParsePacket();
 	virtual ~IParsePacket();
 public:
-	virtual bool parsePacket(char &charData, std::string &packet) = 0;    
+	virtual bool parsePacket(char *charData, int charDataLen, std::string &packet) = 0;    
     virtual void writeData(char *data, int dataLen);
     void setClientInf(std::shared_ptr<IClientInf> &clientInf);
     void resetClientInf();
-	char &charData();
+	char *charData();
 protected:
 	unsigned int m_packetPos;
 	char *m_packetBuffer;    
@@ -43,6 +43,7 @@ public:
 	friend class CTraceHandle;
 	friend class INetServer;
     friend class ITcpServer;
+    friend class IUdpServer;
 	friend class CLogOprManager;
     friend class CCliManager;
     friend class CTraceManager;
