@@ -6,6 +6,7 @@
 
 #include "mem_calc.h"
 #include "log_opr.h"
+#include "event.h"
 
 
 class CUserManager;
@@ -68,6 +69,7 @@ private:
     sockaddr_in m_clientAddr;
     bool m_isBackClient;
     INetServer *m_netServer;
+    boost::shared_ptr<event> m_readEvent;
 };
 class CUserManager
 {

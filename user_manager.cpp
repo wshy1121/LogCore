@@ -83,7 +83,8 @@ void IClientInf::formatInf(std::string &inf)
 
 CUserManager* CUserManager::_instance = NULL;
 
-CUserManager::CUserManager():m_isVerified(false)
+//WSHY
+CUserManager::CUserManager():m_isVerified(true)
 {
 	return ;
 }
