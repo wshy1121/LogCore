@@ -55,6 +55,26 @@ IClientInf::~IClientInf()
 {	trace_worker();
 }
 
+void IClientInf::transRxBps(size_t rxbps, char *strRxbps, int strRxbpsLen)
+{
+    size_t Bps = rxbps % 1024;
+    size_t KBps = (rxbps >> 10) % 1024;
+    size_t MBps = (rxbps >> 20) % 1024;
+
+    if (MBps > 0)
+    {
+        base::snprintf(strRxbps, strRxbpsLen, "%ldM_%ldK_%ld(bps)", MBps, KBps, Bps);
+    }
+    else if (KBps > 0)
+    {
+        base::snprintf(strRxbps, strRxbpsLen, "%ldK_%ld(bps)", KBps, Bps);
+    }
+    else
+    {
+        base::snprintf(strRxbps, strRxbpsLen, "%ld(bps)", Bps);
+    }
+    return ;
+}
 void IClientInf::formatInf(std::string &inf)
 {   trace_worker();
     char tmpChars[128];
@@ -62,23 +82,27 @@ void IClientInf::formatInf(std::string &inf)
     inf = "";
     base::snprintf(tmpChars, sizeof(tmpChars), "%d", m_clientId);
     inf += tmpChars;
-    inf += "  ";
+    inf += "  \t";
     base::snprintf(tmpChars, sizeof(tmpChars), "%d", m_socket);
     inf += tmpChars;
-    inf += "  ";
+    inf += "  \t";
     inf += inet_ntoa(m_clientAddr.sin_addr);
-    inf += "  ";
+    inf += "  \t";
     base::snprintf(tmpChars, sizeof(tmpChars), "%d", ntohs(m_clientAddr.sin_port));
     inf += tmpChars;
-    inf += "  ";
-    base::snprintf(tmpChars, sizeof(tmpChars), "%d", m_clientId);
-    inf += tmpChars;
-    inf += "  ";    
+    inf += "  \t";
+    
+    
     if (m_traceFileInf)
-    {        
+    {
+        transRxBps(m_traceFileInf->m_rxbps, tmpChars, sizeof(tmpChars));
+        inf += tmpChars;
+        inf += "  \t";    
+        
         inf += m_traceFileInf->m_fileAddTime->getPath();
+        inf += "  \t";
     }
-    inf += "  ";
+    
 }
 
 CUserManager* CUserManager::_instance = NULL;

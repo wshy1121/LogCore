@@ -57,6 +57,8 @@ public:
 	std::string &getfileName(){return m_fileName;}
     void formatInf(std::string &inf);
 private:
+    void transRxBps(size_t rxbps, char *strRxbps, int strRxbpsLen);
+private:
 	int m_socket;
 	int m_clientId;	
 	bool m_isLogined;
