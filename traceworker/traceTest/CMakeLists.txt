@@ -1,0 +1,15 @@
+PROJECT(HMSProxy)
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O2 -Wall")
+
+LINK_DIRECTORIES(
+    ${PROJECT_SOURCE_DIR}/lib
+)
+
+SET(SRC_SRCS
+    traceTest.cpp
+)
+
+ADD_EXECUTABLE(test ${SRC_SRCS})
+
+TARGET_LINK_LIBRARIES(test TraceWorker pthread)
