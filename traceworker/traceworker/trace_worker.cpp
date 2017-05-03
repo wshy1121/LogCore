@@ -1,9 +1,10 @@
 // traceworker.cpp : Defines the exported functions for the DLL application.
 //
-#define TraceWorkerNull 1
 #include "trace_worker.h"
 #include "time_calc.h"
 #include "log_opr.h"
+
+bool CBugKiller::m_isStart = false;
 
 // This is an example of an exported variable
 TRACEWORKER_API int ntraceworker=0;
@@ -16,9 +17,10 @@ TRACEWORKER_API int fntraceworker(void)
 
 CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 {
-#ifdef TraceWorkerNull
-	return ;
-#endif
+    if (!CBugKiller::m_isStart)
+    {
+        return ;
+    }
 	TraceInfoId traceInfoId;
 	traceInfoId.threadId = CBase::pthread_self();
 	traceInfoId.clientId = 0;
@@ -27,9 +29,11 @@ CCandy::CCandy(int line, char *file_name, char *func_name, int display_level)
 
 CCandy::~CCandy()
 {
-#ifdef TraceWorkerNull
-	return ;
-#endif
+    if (!CBugKiller::m_isStart)
+    {
+        return ;
+    }
+
 	TraceInfoId traceInfoId;
 	traceInfoId.threadId = CBase::pthread_self();
 	traceInfoId.clientId = 0;
@@ -49,17 +53,24 @@ CCandy::~CCandy()
 
 void CBugKiller::startServer(const char *fileName)
 {
-#ifdef TraceWorkerNull
-	return ;
-#endif
-	CLogOprManager::instance()->openFile(0, (char *)fileName, std::string(""));
+    if (!CBugKiller::m_isStart)
+    {
+        return ;
+    }
+
+	if (CLogOprManager::instance()->openFile(0, (char *)fileName, std::string("")) != NULL)
+    {
+        m_isStart = true;
+    }   
 }
 
 void CBugKiller::stopServer()
 {
-#ifdef TraceWorkerNull
-	return ;
-#endif
+    if (!CBugKiller::m_isStart)
+    {
+        return ;
+    }
+
     CTimeCalcManager::instance()->DispAll(0, "");
     CTimeCalcManager::instance()->cleanAll(0);    	
     CLogOprManager::instance()->closeFile(0);
@@ -68,9 +79,11 @@ void CBugKiller::stopServer()
 
 void CBugKiller::InsertTrace(int line, char *file_name, const char *fmt, ...)
 {
-#ifdef TraceWorkerNull
-	return ;
-#endif
+    if (!CBugKiller::m_isStart)
+    {
+        return ;
+    }
+
 	char content[4096];
 	va_list ap;
 	va_start(ap, fmt);
@@ -87,9 +100,11 @@ void CBugKiller::InsertTrace(int line, char *file_name, const char *fmt, ...)
 
 void CBugKiller::InsertHex(int line, char *file_name, char *psBuf, int nBufLen)
 {
-#ifdef TraceWorkerNull
-	return ;
-#endif
+    if (!CBugKiller::m_isStart)
+    {
+        return ;
+    }
+
 	TraceInfoId traceInfoId;
 	traceInfoId.threadId = CBase::pthread_self();
 	traceInfoId.clientId = 0;
