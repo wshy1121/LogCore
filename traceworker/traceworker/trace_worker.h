@@ -37,7 +37,7 @@ public:
 	static void stopServer();
 	static void InsertTrace(int line, char *file_name, const char *fmt, ...);
 	static void InsertHex(int line, char *file_name, char *psBuf, int nBufLen);
-private:
+public:
     static bool m_isStart;
 };
 

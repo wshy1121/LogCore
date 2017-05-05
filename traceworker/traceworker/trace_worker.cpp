@@ -53,11 +53,6 @@ CCandy::~CCandy()
 
 void CBugKiller::startServer(const char *fileName)
 {
-    if (!CBugKiller::m_isStart)
-    {
-        return ;
-    }
-
 	if (CLogOprManager::instance()->openFile(0, (char *)fileName, std::string("")) != NULL)
     {
         m_isStart = true;
